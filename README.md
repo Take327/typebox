@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# **TypeBox**
 
-## Getting Started
+## **システム概要**
 
-First, run the development server:
+### **対象ユーザー**
+- 社内社員（全員がM365アカウントを所有）
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### **基本概要**
+- **目的**: 社員がMBTI診断を通じて自己理解を深め、その結果を共有・分析できるプラットフォームを提供。
+- **認証**: M365アカウントを使用したOAuth認証を前提とする。
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## **機能要件**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### **1. 診断機能**
+1. **診断開始**
+   - M365アカウントでログイン後、診断を開始。
+   - 診断セッションIDをユーザーIDと紐付けてサーバーで管理。
+2. **質問リストの表示**
+   - 質問をリアルタイムでサーバーに送信し、進行状況を記録。
+3. **進行状況の可視化**
+   - プログレスバーや数値表示で進行状況を可視化。
+4. **診断結果の計算**
+   - サーバー側で回答を集計し、MBTIタイプを計算・表示。
+5. **一時保存機能**
+   - 「一時保存」ボタンまたは自動保存により進行状況を保存。
+   - ログイン後に保存データをロードして再開可能。
+6. **診断結果の履歴管理**
+   - ユーザーごとに過去の診断結果をデータベースに保存。
+   - 履歴をフィルタリング・ソートして表示。
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+### **2. タイプ確認機能**
+1. **診断結果の詳細表示**
+   - MBTIタイプの特性、適性職業、相性情報などを提供。
+2. **診断履歴の管理**
+   - 過去の診断結果を閲覧・削除できる。
+3. **相性確認**
+   - 他のタイプとの相性を表示。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### **3. 共有機能（グループ機能）**
+1. **グループ作成機能**
+   - ユーザーがグループを作成可能（名前と説明文を設定）。
+   - 作成者はメンバーをアプリ内通知を通じて招待可能。
+2. **招待送信**
+   - アプリ内通知のみを使用して招待を送信。
+   - 通知画面で承認または拒否を選択可能。
+3. **相性診断**
+   - グループ内のメンバー同士のMBTI相性を計算し、一覧で表示。
+   - 相性スコアや簡単な解説（例: 「非常に良い」「普通」など）を提供。
+4. **相関図作成**
+   - グループ内のメンバー間の相性を相関図として可視化。
+   - ノード（ユーザー）とエッジ（相性スコア）を用いたグラフ形式を採用。
+   - メンバー追加・削除時にリアルタイムで相関図を更新。
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## **認証要件**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### **1. M365アカウントによる認証**
+- **認証方法**: M365のOAuth認証を使用。
+- 必要スコープ:
+  - `User.Read`（ユーザー情報の取得）
+  - `email`（メールアドレス）
+  - `profile`（プロフィール情報）
+- 初回ログイン時にユーザー情報をデータベースに登録。
+
+### **2. セッション管理**
+- トークンベース（JWTなど）で認証状態を保持。
+- 短期トークンとリフレッシュトークンを併用。
+
+### **3. セキュリティ**
+- OAuth 2.0に基づく安全な認証フロー。
+- 必要に応じて社内ネットワークまたは特定IPからのアクセス制限。
+
+---
+
+## **技術スタック**
+
+### **フロントエンド**
+- フレームワーク: Next.js（TypeScript）
+- 認証ライブラリ: `@azure/msal-browser` または `next-auth`
+
+### **バックエンド**
+- APIサーバー: Azure Functions
+- データベース: Azure SQL Database
+
+### **相関図・相性診断**
+- **使用ライブラリ**:
+  - 相関図の描画に **D3.js** または **Cytoscape.js** を使用。
+  - グラフデータ（ノードとエッジ）をJSON形式で生成。
+
+---
+
+## **UI案**
+1. **ログイン画面**
+   - M365ログインボタンを配置。
+2. **診断画面**
+   - 質問、進行状況、一時保存ボタンを表示。
+3. **履歴画面**
+   - 保存済み診断データの一覧を表示し、再開・削除ボタンを提供。
+4. **招待通知画面**
+   - アプリ内通知一覧を表示し、招待の承認または拒否が可能。
+5. **グループ詳細画面**
+   - メンバー一覧を表示。
+   - メンバー間の相性診断結果をテーブル形式で表示。
+   - 相関図をグラフとして表示（リアルタイム更新）。
