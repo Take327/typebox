@@ -1,5 +1,6 @@
 import Header from "./components/Header";
 import SideMenu from "./components/SideMenu";
+import Footer from "./components/Footer";
 import PrelineScript from "./components/PrelineScript";
 import "./globals.css";
 import { MenuProvider } from "@/context/MenuContext";
@@ -22,7 +23,10 @@ export default function RootLayout({
           <SideMenu />
           {/* メインコンテンツ */}
           <main>{children}</main>
+          {/* Footer */}
+          <Footer />
         </MenuProvider>
+        
         {/* Preline用のスクリプト */}
         <PrelineScript />
       </body>
