@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMenu } from "@/context/MenuContext";
 
 export default function SideMenu() {
@@ -26,13 +27,9 @@ export default function SideMenu() {
         aria-label="Sidebar"
       >
         <div className="px-6">
-          <a
-            className="flex-none font-semibold text-xl text-black focus:outline-none focus:opacity-80"
-            href="#"
-            aria-label="Brand"
-          >
-            Menu
-          </a>
+          <span className="flex-none font-semibold text-xl text-black focus:outline-none focus:opacity-80">
+            メニュー
+          </span>
         </div>
         <nav
           className="hs-accordion-group p-6 w-full flex flex-col flex-wrap"
@@ -40,9 +37,9 @@ export default function SideMenu() {
         >
           <ul className="space-y-1.5">
             <li>
-              <a
+              <Link
+                href="/"
                 className="flex items-center gap-x-3.5 py-2 px-2.5 bg-gray-100 text-sm text-gray-700 rounded-lg hover:bg-gray-100"
-                href="#"
               >
                 <svg
                   className="w-6 h-6"
@@ -54,24 +51,40 @@ export default function SideMenu() {
                   <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                   <polyline points="9 22 9 12 15 12 15 22" />
                 </svg>
-                Dashboard
-              </a>
+                マイページ
+              </Link>
             </li>
             <li>
-              <a
+              <Link
+                href="/diagnosis/start"
                 className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-100"
-                href="#"
               >
-                Users
-              </a>
+                診断を開始
+              </Link>
             </li>
             <li>
-              <a
+              <Link
+                href="/notifications"
                 className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-100"
-                href="#"
               >
-                Projects
-              </a>
+                通知
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/groups"
+                className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-100"
+              >
+                グループ管理
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/profile"
+                className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-100"
+              >
+                プロフィール
+              </Link>
             </li>
           </ul>
         </nav>

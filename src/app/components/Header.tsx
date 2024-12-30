@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { useMenu } from "../../context/MenuContext";
 
 export default function Header() {
@@ -38,15 +39,21 @@ export default function Header() {
 
       {/* ナビゲーション (PC表示のみ) */}
       <nav className="hidden sm:flex space-x-4">
-        <a href="#" className="hover:text-[#f6ceb4]">
-          ホーム
-        </a>
-        <a href="#" className="hover:text-[#f6ceb4]">
-          サービス
-        </a>
-        <a href="#" className="hover:text-[#f6ceb4]">
-          お問い合わせ
-        </a>
+        <Link href="/" className="hover:text-[#f6ceb4]">
+          マイページ
+        </Link>
+        <Link href="/diagnosis/start" className="hover:text-[#f6ceb4]">
+          診断を開始
+        </Link>
+        <Link href="/notifications" className="hover:text-[#f6ceb4]">
+          通知
+        </Link>
+        <Link href="/groups" className="hover:text-[#f6ceb4]">
+          グループ管理
+        </Link>
+        <Link href="/profile" className="hover:text-[#f6ceb4]">
+          プロフィール
+        </Link>
       </nav>
     </header>
   );
