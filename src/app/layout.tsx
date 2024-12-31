@@ -49,7 +49,7 @@ export default function RootLayout({
         />
       </head>
 
-      <body>
+      <body className="flex flex-col">
         {/* ヘッダーとサイドメニューを全ページで共通表示 */}
         {/* メニューの状態を管理するプロバイダー */}
         {!isLoginPage && (
@@ -59,7 +59,7 @@ export default function RootLayout({
           </MenuProvider>
         )}
         {/* メインコンテンツ */}
-        <main className="flex-grow min-h-[calc(100vh-64px)]">{children}</main>
+        <main className="flex-grow min-h-[calc(100vh-42px)] bg-gray-100">{children}</main>
         {/* Footer */}
         <Footer />
       </body>
