@@ -8,7 +8,7 @@ import MicrosoftIcon from "../components/icons/MicrosoftIcon";
 export default function LoginPage() {
   const handleSignIn = async (provider: string) => {
     try {
-      await signIn(provider);
+      await signIn(provider,{ callbackUrl: "/" });
     } catch (error) {
       console.error("ログインエラー:", error);
       alert("ログインに失敗しました。再度お試しください。");

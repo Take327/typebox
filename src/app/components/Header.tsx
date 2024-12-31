@@ -2,10 +2,15 @@
 
 import React from "react";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 import { useMenu } from "../../context/MenuContext";
 
 export default function Header() {
   const { toggleMenu } = useMenu();
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/login" }); // ログアウト後にログイン画面へリダイレクト
+  };
 
   return (
     <header className="bg-[#f7e4c9] flex items-center p-4">
@@ -54,6 +59,13 @@ export default function Header() {
         <Link href="/profile" className="hover:text-[#f6ceb4]">
           プロフィール
         </Link>
+        <button
+          onClick={handleLogout}
+          className="hover:text-[#f6ceb4] text-black"
+          aria-label="ログアウト"
+        >
+          ログアウト
+        </button>
       </nav>
     </header>
   );
