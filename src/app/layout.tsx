@@ -55,8 +55,6 @@ export default function RootLayout({
           <Footer />
         </MenuProvider>
 
-        {/* Preline用のスクリプト */}
-        <PrelineScript />
       </body>
     </html>
   );

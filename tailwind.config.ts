@@ -10,8 +10,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        primary: '#3498db', // ログインボタンの色
+        secondary: '#2ecc71',
       },
     },
   },
