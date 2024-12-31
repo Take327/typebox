@@ -1,9 +1,10 @@
+"use client";
 import Header from "./components/Header";
 import SideMenu from "./components/SideMenu";
 import Footer from "./components/Footer";
-import PrelineScript from "./components/PrelineScript";
 import "./globals.css";
 import { MenuProvider } from "@/context/MenuContext";
+import { usePathname } from "next/navigation";
 
 // メタ情報や構造化データなど共通データを定数化
 const SITE_INFO = {
@@ -26,6 +27,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
+  // ログイン画面かどうかを判定
+  const isLoginPage = pathname === "/login";
+
   return (
     <html lang="ja">
       <head>
@@ -44,17 +50,18 @@ export default function RootLayout({
       </head>
 
       <body>
+        {/* ヘッダーとサイドメニューを全ページで共通表示 */}
         {/* メニューの状態を管理するプロバイダー */}
-        <MenuProvider>
-          {/* ヘッダーとサイドメニューを全ページで共通表示 */}
-          <Header />
-          <SideMenu />
-          {/* メインコンテンツ */}
-          <main className="flex-grow min-h-[calc(100vh-64px)]">{children}</main>
-          {/* Footer */}
-          <Footer />
-        </MenuProvider>
-
+        {!isLoginPage && (
+          <MenuProvider>
+            <Header />
+            <SideMenu />
+          </MenuProvider>
+        )}
+        {/* メインコンテンツ */}
+        <main className="flex-grow min-h-[calc(100vh-64px)]">{children}</main>
+        {/* Footer */}
+        <Footer />
       </body>
     </html>
   );
