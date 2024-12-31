@@ -5,7 +5,7 @@ export default {
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./node_modules/preline/preline.js",
+    "./node_modules/flowbite/**/*.js", // Flowbiteのコンポーネントパス
   ],
   theme: {
     extend: {
@@ -16,6 +16,6 @@ export default {
     },
   },
   plugins: [
-    require('preline/plugin'),
+    require('flowbite/plugin'), // Flowbiteのプラグインのみ残す
   ],
 } satisfies Config;
