@@ -12,6 +12,9 @@ export default {
       colors: {
         primary: '#3498db', // ログインボタンの色
         secondary: '#2ecc71',
+        a8d8cb: "#a8d8cb",
+        f6ceb4: "#f6ceb4",
+        f7e4c9: "#f7e4c9",
       },
     },
   },
