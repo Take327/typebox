@@ -4,3 +4,9 @@ export type MBTITendency = {
   value: number;
   color: string;
 };
+
+export type DiagnosisData = {
+  mbtiType: string;
+  traits: string;
+  tendencies: MBTITendency[];
+};

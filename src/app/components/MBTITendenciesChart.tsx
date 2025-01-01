@@ -1,5 +1,5 @@
 import React from "react";
-import { MBTITendency } from "../types";
+import { MBTITendency } from "../../types";
 
 const MBTITendenciesChart: React.FC<MBTITendency> = (
   tendency: MBTITendency
