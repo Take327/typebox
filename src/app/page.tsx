@@ -3,7 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/options"; // 正しいパスを指定
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Progress } from "flowbite-react";
+import MBTITendenciesChart from "./components/MBTITendenciesChart";
+import { MBTITendency } from "./types";
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
@@ -20,18 +21,38 @@ export default async function MyPage() {
     redirect("/login");
   }
 
-  const tendencies = [
-    { label: "外向型（E） - 内向型（I）", value: 60 },
-    { label: "感覚型（S） - 直観型（N）", value: 40 },
-    { label: "思考型（T） - 感情型（F）", value: 70 },
-    { label: "判断型（J） - 知覚型（P）", value: 50 },
+  const tendencies: MBTITendency[] = [
+    {
+      labelMinus: "外向型(E)",
+      labelPlus: "内向型(I)",
+      value: 20,
+      color: "#3498db",
+    },
+    {
+      labelMinus: "感覚型(S)",
+      labelPlus: "直観型(N)",
+      value: -40,
+      color: "#2ecc71",
+    },
+    {
+      labelMinus: "思考型(T)",
+      labelPlus: "感情型(F)",
+      value: 10,
+      color: "#f1c40f",
+    },
+    {
+      labelMinus: "判断型(J)",
+      labelPlus: "知覚型(P)",
+      value: -30,
+      color: "#e67e22",
+    },
   ];
 
   return (
     <div className="p-6 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       {/* 診断開始/再開ボタン */}
       <Card>
-        <h2 className="text-xl font-bold mb-4 text-gray-800">診断結果</h2>
+        <h2 className="text-xl font-bold mb-1 text-gray-800">診断結果</h2>
 
         {/* MBTIタイプと特徴 */}
         <p className="text-gray-600 mb-2">
@@ -43,29 +64,13 @@ export default async function MyPage() {
 
         <div className="w-full">
           {tendencies.map((tendency, index) => (
-            <div key={index} className="mb-6">
-              <p className="text-sm font-semibold text-gray-800 mb-1">
-                {tendency.label}
-              </p>
-              <div className="relative w-full h-4 bg-gray-200 rounded-full">
-                <div
-                  className={`absolute h-4 bg-blue-500 rounded-full`}
-                  style={{
-                    left: "50%",
-                    width: `${Math.abs(tendency.value)}%`,
-                    transform:
-                      tendency.value < 0
-                        ? "translateX(-100%)"
-                        : "translateX(0)",
-                  }}
-                ></div>
-              </div>
-              <p className="text-xs text-gray-500 text-center mt-1">
-                {tendency.value > 0
-                  ? `${tendency.value}% 内向型`
-                  : `${Math.abs(tendency.value)}% 外向型`}
-              </p>
-            </div>
+            <MBTITendenciesChart
+              labelMinus={tendency.labelMinus}
+              labelPlus={tendency.labelPlus}
+              color={tendency.color}
+              value={tendency.value}
+              key={index}
+            />
           ))}
         </div>
 
@@ -78,7 +83,7 @@ export default async function MyPage() {
 
       {/* 通知表示 */}
       <Card>
-        <h2 className="text-xl font-bold mb-4 text-gray-800">所属グループ</h2>
+        <h2 className="text-xl font-bold mb-1 text-gray-800">所属グループ</h2>
         <ul className="list-disc pl-5 text-gray-600 mb-4">
           <li>グループA</li>
           <li>グループB</li>
@@ -93,7 +98,7 @@ export default async function MyPage() {
 
       {/* 各種設定 */}
       <Card>
-        <h2 className="text-xl font-bold mb-4 text-gray-800">通知と設定</h2>
+        <h2 className="text-xl font-bold mb-1 text-gray-800">通知と設定</h2>
         <p className="text-gray-600 mb-2">
           未読通知: <strong>3件</strong>
         </p>

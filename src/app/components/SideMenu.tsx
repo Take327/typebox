@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMenu } from "@/context/MenuContext";
+import { useMenu } from "../../context/MenuContext";
 
 export default function SideMenu() {
   const { isOpen, toggleMenu } = useMenu();
