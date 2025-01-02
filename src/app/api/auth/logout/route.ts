@@ -1,11 +1,19 @@
 import { NextResponse } from 'next/server';
 
-export async function POST() {
-  // 仮のセッション削除処理
+/**
+ * ユーザーのセッションを削除し、ログアウトを実行するAPIエンドポイント
+ * 
+ * @returns {Promise<NextResponse>} セッション削除成功のレスポンス
+ */
+export async function POST(): Promise<NextResponse> {
+  // セッション削除後に返すレスポンスを作成
+  // メッセージはクライアントに成功を通知するためのもの
   const response = NextResponse.json({ message: 'Logged out successfully' });
-  
-  // クッキーを削除
+
+  // クッキーの「token」を削除してセッションを無効化
+  // maxAge: 0に設定することでクッキーが即時無効になる
   response.cookies.set('token', '', { maxAge: 0, path: '/' });
 
+  // 最終的にレスポンスを返す
   return response;
 }
