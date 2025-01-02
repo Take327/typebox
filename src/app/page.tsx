@@ -3,6 +3,7 @@ import { authOptions } from "./api/auth/options"; // 正しいパスを指定
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import MBTITendenciesChart from "./components/MBTITendenciesChart";
+import GroupListItem from "./components/GroupListItem";
 import Card from "./components/Card";
 import { diagnosisData, groupsData } from "../mock";
 import { AiOutlineLogout } from "react-icons/ai";
@@ -29,13 +30,7 @@ export default async function MyPage() {
         {/* 傾向チャート */}
         <div className="w-full">
           {diagnosisData.tendencies.map((tendency, index) => (
-            <MBTITendenciesChart
-              labelMinus={tendency.labelMinus}
-              labelPlus={tendency.labelPlus}
-              color={tendency.color}
-              value={tendency.value}
-              key={index}
-            />
+            <MBTITendenciesChart tendency={tendency} key={index} />
           ))}
         </div>
 
@@ -50,26 +45,8 @@ export default async function MyPage() {
       {/* 所属グループ */}
       <Card title="所属グループ">
         <ul className="w-full list-none space-y-4">
-          {groupsData.slice(0, 8).map((group) => (
-            <li key={group.id} className="flex justify-between items-center">
-              {/* グループ名リンク */}
-              <Link
-                href={`/groups/${group.id}`}
-                className="text-gray-600 hover:text-black font-medium"
-              >
-                {group.name}{" "}
-                <span className="text-sm text-gray-400">
-                  ({group.members}人)
-                </span>
-              </Link>
-              {/* 退会ボタン */}
-              <button
-                className="text-red-500 hover:text-red-700"
-                aria-label={`${group.name}を退会`}
-              >
-                <AiOutlineLogout className="w-5 h-5" />
-              </button>
-            </li>
+          {groupsData.slice(0, 8).map((group, index) => (
+            <GroupListItem group={group} key={index} />
           ))}
         </ul>
         <Link href="/groups" className="mt-auto">

@@ -1,9 +1,11 @@
 import React from "react";
 import { MBTITendency } from "../../types";
 
-const MBTITendenciesChart: React.FC<MBTITendency> = (
-  tendency: MBTITendency
-) => {
+export default function MBTITendenciesChart({
+  tendency,
+}: {
+  tendency: MBTITendency;
+}) {
   return (
     <div className="mb-3">
       <div className="flex justify-center">
@@ -30,6 +32,4 @@ const MBTITendenciesChart: React.FC<MBTITendency> = (
       </p>
     </div>
   );
-};
-
-export default MBTITendenciesChart;
+}
