@@ -9,6 +9,11 @@ const config: sql.config = {
   options: {
     encrypt: true, // データ転送時の暗号化を有効化（Azure SQL Database などで推奨）
   },
+  pool: {
+    max: 10, // 最大接続数
+    min: 0, // 最小接続数
+    idleTimeoutMillis: 30000, // 接続アイドルタイムアウト
+  },
 };
 
 // 接続プールオブジェクトを格納
@@ -17,10 +22,10 @@ let pool: sql.ConnectionPool | null = null;
 
 /**
  * データベース接続プールを取得する関数
- * 
+ *
  * この関数は、データベース接続プールを管理し、複数の接続を効率的に扱えるようにします。
  * 接続が未確立の場合、新しいプールを作成します。
- * 
+ *
  * @returns {Promise<sql.ConnectionPool>} - データベース接続プール
  */
 export const getPool = async (): Promise<sql.ConnectionPool> => {

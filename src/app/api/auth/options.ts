@@ -36,7 +36,7 @@ export const authOptions: AuthOptions = {
     async signIn({ user, account }) {
       try {
         if (!account || !account.provider) {
-          console.error("アカウント情報または認証プロバイダーが不足しています。");
+          console.error("[signIn] アカウント情報または認証プロバイダーが不足しています。");
           return false;
         }
 
@@ -47,6 +47,10 @@ export const authOptions: AuthOptions = {
               Authorization: `token ${account.access_token}`,
             },
           });
+          if (!res.ok) {
+            throw new Error(`[signIn] GitHubからメールアドレスの取得に失敗しました。ステータスコード: ${res.status}`);
+          }
+
           const emails = await res.json();
           if (emails?.length) {
             user.email =
@@ -56,7 +60,7 @@ export const authOptions: AuthOptions = {
         }
 
         if (!user.email) {
-          console.error("ユーザーのメールアドレスが取得できませんでした。");
+          console.error("[signIn] ユーザーのメールアドレスが取得できませんでした。");
           return false;
         }
 
@@ -77,10 +81,10 @@ export const authOptions: AuthOptions = {
         `;
         await request.query(query);
 
-        console.log("ユーザー情報を登録しました、または既に存在します。");
+        console.log("[signIn] ユーザー情報を登録しました、または既に存在します。");
         return true;
       } catch (error) {
-        console.error("サインイン時のエラー:", error);
+        console.error("[signIn] サインイン時のエラー:", error);
         return false;
       }
     },
@@ -88,7 +92,7 @@ export const authOptions: AuthOptions = {
     async session({ session, token }) {
       try {
         if (!session.user) {
-          console.error("セッション情報にユーザーが含まれていません。");
+          console.error("[session] セッション情報にユーザーが含まれていません。");
           return session;
         }
 
@@ -98,13 +102,17 @@ export const authOptions: AuthOptions = {
           .input("Email", session.user.email)
           .query("SELECT id FROM Users WHERE email = @Email");
 
+        if (result.recordset.length === 0) {
+          throw new Error("[session] データベースにユーザーIDが見つかりませんでした。");
+        }
+
         session.user = Object.assign({}, session.user, {
           id: result.recordset[0]?.id || null,
         });
-        console.log("セッションにユーザーIDを追加しました。");
+        console.log("[session] セッションにユーザーIDを追加しました。");
         return session;
       } catch (error) {
-        console.error("セッション生成時のエラー:", error);
+        console.error("[session] セッション生成時のエラー:", error);
         return session;
       }
     },
