@@ -2,7 +2,7 @@ import { AuthOptions } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import AzureADProvider from "next-auth/providers/azure-ad";
-import { pool } from "../../../lib/db"; // データベース接続モジュール
+import { getPool } from "../../../lib/db"; // データベース接続モジュール
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -12,7 +12,7 @@ export const authOptions: AuthOptions = {
       clientSecret: process.env.GITHUB_SECRET!,
       authorization: {
         params: {
-          scope: "read:user user:email", // ここでスコープを指定
+          scope: "read:user user:email",
         },
       },
     }),
@@ -35,13 +35,8 @@ export const authOptions: AuthOptions = {
     // サインイン時のコールバック
     async signIn({ user, account }) {
       try {
-        if (!account) {
-          console.error("アカウント情報が見つかりません。");
-          return false;
-        }
-
-        if (!account.provider) {
-          console.error("認証プロバイダー情報がありません。");
+        if (!account || !account.provider) {
+          console.error("アカウント情報または認証プロバイダーが不足しています。");
           return false;
         }
 
@@ -53,8 +48,7 @@ export const authOptions: AuthOptions = {
             },
           });
           const emails = await res.json();
-          if (emails && emails.length > 0) {
-            // プライマリかつ確認済みのメールアドレスを使用
+          if (emails?.length) {
             user.email =
               emails.find((email: any) => email.primary && email.verified)
                 ?.email || null;
@@ -66,8 +60,11 @@ export const authOptions: AuthOptions = {
           return false;
         }
 
-        const { name, email } = user;
-        const provider = account.provider;
+        const pool = await getPool(); // プールを取得
+        const request = pool.request();
+        request.input("Name", user.name);
+        request.input("Email", user.email);
+        request.input("Provider", account.provider);
 
         const query = `
           IF NOT EXISTS (
@@ -78,11 +75,6 @@ export const authOptions: AuthOptions = {
             VALUES (@Name, @Email, @Provider)
           END
         `;
-
-        const request = pool.request();
-        request.input("Name", name);
-        request.input("Email", email);
-        request.input("Provider", provider);
         await request.query(query);
 
         console.log("ユーザー情報を登録しました、または既に存在します。");
@@ -95,19 +87,17 @@ export const authOptions: AuthOptions = {
     // セッション生成時のコールバック
     async session({ session, token }) {
       try {
-        // セッションユーザーがundefinedの場合はエラーログを出力
         if (!session.user) {
           console.error("セッション情報にユーザーが含まれていません。");
           return session;
         }
 
-        // データベースからユーザーIDを取得
+        const pool = await getPool(); // プールを取得
         const result = await pool
           .request()
           .input("Email", session.user.email)
           .query("SELECT id FROM Users WHERE email = @Email");
 
-        // セッションにユーザーIDを追加
         session.user = Object.assign({}, session.user, {
           id: result.recordset[0]?.id || null,
         });
