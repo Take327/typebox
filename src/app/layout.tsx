@@ -1,12 +1,7 @@
-"use client";
-import Header from "./components/Header";
-import SideMenu from "./components/SideMenu";
-import Footer from "./components/Footer";
 import "./globals.css";
-import { MenuProvider } from "@/context/MenuContext";
-import { usePathname } from "next/navigation";
+import Footer from "./components/Footer";
+import HeaderWithMenu from "./components/HeaderWithMenu";
 
-// メタ情報や構造化データなど共通データを定数化
 const SITE_INFO = {
   title: "TypeBox",
   description: "TypeBoxはMBTIの診断・蓄積・共有を行うWebアプリケーションです。",
@@ -27,11 +22,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-
-  // ログイン画面かどうかを判定
-  const isLoginPage = pathname === "/login";
-
   return (
     <html lang="ja">
       <head>
@@ -48,19 +38,9 @@ export default function RootLayout({
           }}
         />
       </head>
-
       <body className="flex flex-col">
-        {/* ヘッダーとサイドメニューを全ページで共通表示 */}
-        {/* メニューの状態を管理するプロバイダー */}
-        {!isLoginPage && (
-          <MenuProvider>
-            <Header />
-            <SideMenu />
-          </MenuProvider>
-        )}
-        {/* メインコンテンツ */}
+        <HeaderWithMenu />
         <main className="flex-grow min-h-[calc(100vh-42px)] bg-gray-100">{children}</main>
-        {/* Footer */}
         <Footer />
       </body>
     </html>
