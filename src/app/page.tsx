@@ -6,7 +6,6 @@ import MBTITendenciesChart from "./components/MBTITendenciesChart";
 import GroupListItem from "./components/GroupListItem";
 import Card from "./components/Card";
 import { diagnosisData, groupsData } from "../mock";
-import { AiOutlineLogout } from "react-icons/ai";
 
 export default async function MyPage() {
   const session = await getServerSession(authOptions);

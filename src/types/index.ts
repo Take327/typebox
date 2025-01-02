@@ -17,3 +17,10 @@ export type Group = {
   members: number;  // メンバー数
   role: "管理者" | "メンバー"; // グループ内の役割
 };
+
+export type Question = {
+  id: number;
+  text: string;
+  type: "E" | "I" | "S" | "N" | "T" | "F" | "J" | "P";
+  weight: number; // 質問の重み
+};
