@@ -8,7 +8,7 @@ const MBTITendenciesChart: React.FC<MBTITendency> = (
     <div className="mb-3">
       <div className="flex justify-center">
         <p className="text-sm font-semibold text-gray-800 mb-1">
-          {tendency.labelMinus + " ー " + tendency.labelPlus}
+          {tendency.labelMinus + " ｜ " + tendency.labelPlus}
         </p>
       </div>
       <div className="relative w-full h-4 bg-gray-200 rounded-full">

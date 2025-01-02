@@ -10,3 +10,10 @@ export type DiagnosisData = {
   traits: string;
   tendencies: MBTITendency[];
 };
+
+export type Group = {
+  id: string;       // グループの一意の識別子
+  name: string;     // グループ名
+  members: number;  // メンバー数
+  role: "管理者" | "メンバー"; // グループ内の役割
+};

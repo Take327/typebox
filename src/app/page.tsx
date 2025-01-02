@@ -3,38 +3,21 @@ import { authOptions } from "./api/auth/options"; // 正しいパスを指定
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import MBTITendenciesChart from "./components/MBTITendenciesChart";
-import { diagnosisData } from "../mock";
+import Card from "./components/Card";
+import { diagnosisData, groupsData } from "../mock";
 import { AiOutlineLogout } from "react-icons/ai";
-//import ConfirmationModal from "./components/ConfirmationModal";
-
-function Card({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="card bg-white shadow-md rounded flex flex-col items-start p-4 aspect-square hover:shadow-lg transition-shadow duration-300 sm:max-w-[600px] sm:max-h-[600px]">
-      {children}
-    </div>
-  );
-}
 
 export default async function MyPage() {
-
   const session = await getServerSession(authOptions);
 
   if (!session) {
     redirect("/login");
   }
 
-  const groups = [
-    { id: "group-a", name: "グループA", members: 10, role: "管理者" },
-    { id: "group-b", name: "グループB", members: 8, role: "メンバー" },
-    { id: "group-c", name: "グループC", members: 15, role: "メンバー" },
-  ];
-
   return (
     <div className="p-6 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       {/* 診断開始/再開ボタン */}
-      <Card>
-        <h2 className="text-xl font-bold mb-1 text-gray-800">診断結果</h2>
-
+      <Card title="診断結果">
         {/* MBTIタイプと特徴 */}
         <p className="text-gray-600 mb-2">
           現在のMBTIタイプ: <strong>{diagnosisData.mbtiType}</strong>
@@ -65,10 +48,9 @@ export default async function MyPage() {
       </Card>
 
       {/* 所属グループ */}
-      <Card>
-        <h2 className="text-xl font-bold mb-4 text-gray-800">所属グループ</h2>
+      <Card title="所属グループ">
         <ul className="w-full list-none space-y-4">
-          {groups.map((group) => (
+          {groupsData.slice(0, 8).map((group) => (
             <li key={group.id} className="flex justify-between items-center">
               {/* グループ名リンク */}
               <Link
@@ -95,12 +77,10 @@ export default async function MyPage() {
             グループ一覧を見る
           </button>
         </Link>
-
       </Card>
 
       {/* 各種設定 */}
-      <Card>
-        <h2 className="text-xl font-bold mb-1 text-gray-800">通知と設定</h2>
+      <Card title="通知と設定">
         <p className="text-gray-600 mb-2">
           未読通知: <strong>3件</strong>
         </p>
