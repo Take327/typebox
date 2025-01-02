@@ -4,35 +4,45 @@ import GoogleProvider from "next-auth/providers/google";
 import AzureADProvider from "next-auth/providers/azure-ad";
 import { getPool } from "../../../lib/db"; // データベース接続モジュール
 
+/**
+ * NextAuthの認証設定オプション
+ */
 export const authOptions: AuthOptions = {
   providers: [
-    // GitHub認証プロバイダー
+    // GitHub認証プロバイダーの設定
     GitHubProvider({
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
+      clientId: process.env.GITHUB_ID!, // GitHubアプリのクライアントID
+      clientSecret: process.env.GITHUB_SECRET!, // GitHubアプリのクライアントシークレット
       authorization: {
         params: {
-          scope: "read:user user:email",
+          scope: "read:user user:email", // ユーザー情報とメールアドレスの取得を許可
         },
       },
     }),
-    // Google認証プロバイダー
+    // Google認証プロバイダーの設定
     GoogleProvider({
-      clientId: process.env.GOOGLE_ID!,
-      clientSecret: process.env.GOOGLE_SECRET!,
+      clientId: process.env.GOOGLE_ID!, // GoogleクライアントID
+      clientSecret: process.env.GOOGLE_SECRET!, // Googleクライアントシークレット
     }),
-    // Microsoft Azure AD認証プロバイダー
+    // Microsoft Azure AD認証プロバイダーの設定
     AzureADProvider({
-      clientId: process.env.MICROSOFT_ID!,
-      clientSecret: process.env.MICROSOFT_SECRET!,
+      clientId: process.env.MICROSOFT_ID!, // Azure ADクライアントID
+      clientSecret: process.env.MICROSOFT_SECRET!, // Azure ADクライアントシークレット
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET, // セッション管理のためのシークレット
+  secret: process.env.NEXTAUTH_SECRET, // セッション暗号化用のシークレットキー
   session: {
-    strategy: "jwt", // JWTを使用したセッション管理
+    strategy: "jwt", // セッション管理にJWTを使用
   },
   callbacks: {
-    // サインイン時のコールバック
+    /**
+     * サインイン時のコールバック
+     * 
+     * @param {object} param0 サインイン時の情報
+     * @param {object} param0.user ユーザー情報
+     * @param {object} param0.account 認証アカウント情報
+     * @returns {Promise<boolean>} サインイン成功時はtrue、失敗時はfalse
+     */
     async signIn({ user, account }) {
       try {
         if (!account || !account.provider) {
@@ -59,17 +69,19 @@ export const authOptions: AuthOptions = {
           }
         }
 
+        // メールアドレスが取得できない場合はサインインを中止
         if (!user.email) {
           console.error("[signIn] ユーザーのメールアドレスが取得できませんでした。");
           return false;
         }
 
-        const pool = await getPool(); // プールを取得
+        const pool = await getPool(); // データベースプールを取得
         const request = pool.request();
-        request.input("Name", user.name);
-        request.input("Email", user.email);
-        request.input("Provider", account.provider);
+        request.input("Name", user.name); // ユーザー名
+        request.input("Email", user.email); // メールアドレス
+        request.input("Provider", account.provider); // 認証プロバイダー名
 
+        // ユーザーが存在しない場合、新規登録を実行
         const query = `
           IF NOT EXISTS (
             SELECT 1 FROM Users WHERE email = @Email
@@ -88,7 +100,14 @@ export const authOptions: AuthOptions = {
         return false;
       }
     },
-    // セッション生成時のコールバック
+    /**
+     * セッション生成時のコールバック
+     * 
+     * @param {object} param0 セッション情報
+     * @param {object} param0.session セッションオブジェクト
+     * @param {object} param0.token JWTトークン
+     * @returns {Promise<object>} 更新されたセッションオブジェクト
+     */
     async session({ session, token }) {
       try {
         if (!session.user) {
@@ -96,7 +115,7 @@ export const authOptions: AuthOptions = {
           return session;
         }
 
-        const pool = await getPool(); // プールを取得
+        const pool = await getPool(); // データベースプールを取得
         const result = await pool
           .request()
           .input("Email", session.user.email)
@@ -106,6 +125,7 @@ export const authOptions: AuthOptions = {
           throw new Error("[session] データベースにユーザーIDが見つかりませんでした。");
         }
 
+        // セッション情報にユーザーIDを追加
         session.user = Object.assign({}, session.user, {
           id: result.recordset[0]?.id || null,
         });
