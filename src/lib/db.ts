@@ -1,28 +1,23 @@
 import sql from "mssql"; // mssqlライブラリをインポート
 
-// 環境変数が正しく設定されているか確認
-if (!process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_SERVER || !process.env.DB_NAME) {
-  throw new Error("環境変数が正しく設定されていません。DB_USER, DB_PASSWORD, DB_SERVER, DB_NAME を確認してください。");
-}
-
 // データベース接続設定
 const config: sql.config = {
-  user: process.env.DB_USER || "", // データベースユーザー名
-  password: process.env.DB_PASSWORD || "", // データベースパスワード
-  server: process.env.DB_SERVER || "", // データベースサーバーのアドレス
-  database: process.env.DB_NAME || "", // データベース名
+  user: process.env.DB_USER || "", // データベースユーザー名（環境変数から取得）
+  password: process.env.DB_PASSWORD || "", // データベースパスワード（環境変数から取得）
+  server: process.env.DB_SERVER || "", // データベースサーバーのアドレス（環境変数から取得）
+  database: process.env.DB_NAME || "", // データベース名（環境変数から取得）
   options: {
     encrypt: true, // データ転送時の暗号化を有効化（Azure SQL Database などで推奨）
-    enableArithAbort: true, // 算術エラーの発生時に接続を中止（推奨設定）
   },
   pool: {
     max: 10, // 最大接続数
     min: 0, // 最小接続数
-    idleTimeoutMillis: 30000, // 接続アイドルタイムアウト（30秒）
+    idleTimeoutMillis: 30000, // 接続アイドルタイムアウト
   },
 };
 
 // 接続プールオブジェクトを格納
+// 初期値はnullで、最初の呼び出し時に初期化されます
 let pool: sql.ConnectionPool | null = null;
 
 /**
@@ -38,36 +33,16 @@ export const getPool = async (): Promise<sql.ConnectionPool> => {
     // 接続プールが未初期化の場合、新しいConnectionPoolを作成
     pool = new sql.ConnectionPool(config);
 
+    // プールを接続し、接続エラーがあればキャッチ
     try {
-      await pool.connect(); // プールを接続
-      console.log("[Database] データベースに接続しました");
+      await pool.connect();
+      console.log("データベースに接続しました");
     } catch (error) {
-      console.error("[Database] データベース接続エラー:", error);
-      pool = null; // 接続失敗時にプールをリセット
+      console.error("データベース接続エラー:", error);
       throw error; // エラーを呼び出し元に伝播
     }
   }
-  return pool; // 既存のプールを返却
-};
 
-/**
- * データベース接続を閉じる関数
- *
- * サーバーが終了する際に呼び出すことで、すべての接続をクリーンアップします。
- */
-export const closePool = async (): Promise<void> => {
-  if (pool) {
-    try {
-      await pool.close(); // プールを閉じる
-      console.log("[Database] データベース接続を閉じました");
-      pool = null;
-    } catch (error) {
-      console.error("[Database] プールクローズエラー:", error);
-    }
-  }
+  // 既存のプールを返却
+  return pool;
 };
-
-// 型キャストを使用して `on` メソッドにアクセス
-(sql as any).on("error", (err: Error) => {
-  console.error("[mssql] エラー:", err);
-});
