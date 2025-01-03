@@ -61,7 +61,7 @@ const DiagnosisPage: React.FC = () => {
             key={question.id}
             className="flex flex-col items-center py-4 border-b border-gray-300"
           >
-            <p className="text-lg mb-2">{question.text}</p>
+            <p className="text-base mb-2 sm:text-lg">{question.text}</p>
             <div className="flex flex-col items-center space-x-4 pb-8">
               <FlowbitRange key={index} />
               <div
