@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Label, Card } from "flowbite-react";
+import { Card } from "flowbite-react";
 import FlowbitRange from "../../components/FlowbitRange";
 import FlowbitProgress from "../../components/FlowbitProgress";
 import { questions } from "./questions";
@@ -15,7 +15,7 @@ export type Question = {
 
 const DiagnosisPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1); // 現在のページ
-  const [answers, setAnswers] = useState<number[]>([]); // 回答のスコア保存
+  const [answers] = useState<number[]>([]); // 回答のスコア保存
 
   const questionsPerPage = 15; // 1ページに表示する質問数
 
@@ -25,12 +25,12 @@ const DiagnosisPage: React.FC = () => {
     currentPage * questionsPerPage
   );
 
-  // 回答の処理
-  const handleAnswer = (index: number, score: number) => {
-    const newAnswers = [...answers];
-    newAnswers[index] = score;
-    setAnswers(newAnswers);
-  };
+  // // 回答の処理
+  // const handleAnswer = (index: number, score: number) => {
+  //   const newAnswers = [...answers];
+  //   newAnswers[index] = score;
+  //   setAnswers(newAnswers);
+  // };
 
   // 次のページへ
   const handleNextPage = () => {

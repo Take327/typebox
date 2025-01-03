@@ -37,7 +37,7 @@ export const authOptions: AuthOptions = {
   callbacks: {
     /**
      * サインイン時のコールバック
-     * 
+     *
      * @param {object} param0 サインイン時の情報
      * @param {object} param0.user ユーザー情報
      * @param {object} param0.account 認証アカウント情報
@@ -46,7 +46,9 @@ export const authOptions: AuthOptions = {
     async signIn({ user, account }) {
       try {
         if (!account || !account.provider) {
-          console.error("[signIn] アカウント情報または認証プロバイダーが不足しています。");
+          console.error(
+            "[signIn] アカウント情報または認証プロバイダーが不足しています。"
+          );
           return false;
         }
 
@@ -58,20 +60,26 @@ export const authOptions: AuthOptions = {
             },
           });
           if (!res.ok) {
-            throw new Error(`[signIn] GitHubからメールアドレスの取得に失敗しました。ステータスコード: ${res.status}`);
+            throw new Error(
+              `[signIn] GitHubからメールアドレスの取得に失敗しました。ステータスコード: ${res.status}`
+            );
           }
 
-          const emails = await res.json();
-          if (emails?.length) {
-            user.email =
-              emails.find((email: any) => email.primary && email.verified)
-                ?.email || null;
-          }
+          const emails = (await res.json()) as Array<{
+            email: string;
+            primary: boolean;
+            verified: boolean;
+          }>;
+          user.email =
+            emails.find((email) => email.primary && email.verified)?.email ||
+            null;
         }
 
         // メールアドレスが取得できない場合はサインインを中止
         if (!user.email) {
-          console.error("[signIn] ユーザーのメールアドレスが取得できませんでした。");
+          console.error(
+            "[signIn] ユーザーのメールアドレスが取得できませんでした。"
+          );
           return false;
         }
 
@@ -93,7 +101,9 @@ export const authOptions: AuthOptions = {
         `;
         await request.query(query);
 
-        console.log("[signIn] ユーザー情報を登録しました、または既に存在します。");
+        console.log(
+          "[signIn] ユーザー情報を登録しました、または既に存在します。"
+        );
         return true;
       } catch (error) {
         console.error("[signIn] サインイン時のエラー:", error);
@@ -102,16 +112,17 @@ export const authOptions: AuthOptions = {
     },
     /**
      * セッション生成時のコールバック
-     * 
+     *
      * @param {object} param0 セッション情報
      * @param {object} param0.session セッションオブジェクト
-     * @param {object} param0.token JWTトークン
      * @returns {Promise<object>} 更新されたセッションオブジェクト
      */
-    async session({ session, token }) {
+    async session({ session }) {
       try {
         if (!session.user) {
-          console.error("[session] セッション情報にユーザーが含まれていません。");
+          console.error(
+            "[session] セッション情報にユーザーが含まれていません。"
+          );
           return session;
         }
 
@@ -122,7 +133,9 @@ export const authOptions: AuthOptions = {
           .query("SELECT id FROM Users WHERE email = @Email");
 
         if (result.recordset.length === 0) {
-          throw new Error("[session] データベースにユーザーIDが見つかりませんでした。");
+          throw new Error(
+            "[session] データベースにユーザーIDが見つかりませんでした。"
+          );
         }
 
         // セッション情報にユーザーIDを追加

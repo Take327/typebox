@@ -1,5 +1,5 @@
 "use client"; // 全体をクライアントサイドで動作させる
-
+import Image from "next/image";
 import { signIn } from "next-auth/react";
 import { AiOutlineGithub } from "react-icons/ai";
 import GoogleIcon from "../components/icons/GoogleIcon";
@@ -19,7 +19,13 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col items-center pt-16">
       <div className="flex">
-        <img src="/typebox_logo.svg" alt="ロゴ" className="w-8 h-8 mr-2" />
+        <Image
+          src="/typebox_logo.svg"
+          alt="ロゴ"
+          width={32} // 画像幅
+          height={32} // 画像高さ
+          className="mr-2"
+        />
         <h1 className="text-2xl font-bold mb-6 text-center">TypeBox</h1>
       </div>
       <div className="mx-6 p-6 w-9/12 max-w-md bg-white rounded-lg shadow-md">

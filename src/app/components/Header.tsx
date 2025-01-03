@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { signOut } from "next-auth/react";
 import { useMenu } from "../../context/MenuContext";
 import { PiSignOut } from "react-icons/pi";
@@ -40,7 +41,13 @@ export default function Header() {
 
         {/* ロゴ＆タイトル */}
         <div className="flex-1 flex items-center justify-center sm:justify-start font-bold text-lg">
-          <img src="/typebox_logo.svg" alt="ロゴ" className="w-8 h-8 mr-2" />
+          <Image
+            src="/typebox_logo.svg"
+            alt="ロゴ"
+            width={32} // 画像幅
+            height={32} // 画像高さ
+            className="mr-2"
+          />
           <span className="hidden sm:inline">TypeBox</span>
         </div>
 
