@@ -8,6 +8,7 @@ import { getPool } from "../../../lib/db"; // データベース接続モジュ�
  * NextAuthの認証設定オプション
  */
 export const authOptions: AuthOptions = {
+  debug: true, // デバッグモードを有効化
   providers: [
     // GitHub認証プロバイダーの設定
     GitHubProvider({
