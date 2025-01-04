@@ -29,7 +29,8 @@ const DiagnosisPage: React.FC = () => {
       const result = calculateMBTIType(questions, answers);
       console.log("診断結果:", result.type);
       console.log("偏りスコア:", result.bias);
-      console.log("レート",result.ratio);
+      console.log("レート", result.ratio);
+      console.log(currentPage);
       // サーバーに送信や結果ページ遷移など
     } else {
       //プログレスバー更新
@@ -54,6 +55,8 @@ const DiagnosisPage: React.FC = () => {
     newAnswers[index] = score;
     setAnswers(newAnswers);
   };
+
+  const isLastPage = currentPage * questionsPerPage >= questions.length;
 
   return (
     <div className="container mx-auto p-4">
@@ -101,7 +104,7 @@ const DiagnosisPage: React.FC = () => {
           onClick={handleNextPage}
           className="px-4 py-2 bg-a8d8cb text-white rounded hover:bg-a8d8cb/90"
         >
-          次へ
+          {isLastPage ? "結果を確認する" : "次の質問へ"}
         </button>
       </div>
     </div>
