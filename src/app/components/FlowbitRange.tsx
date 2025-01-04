@@ -30,43 +30,25 @@ const customTheme: CustomFlowbiteTheme = {
   },
 };
 
-/**
- * FlowbitRangeProps 型。
- * @property {function(score: number): void} [onChange] - スライダーの値が変更されたときに呼び出されるコールバック関数。
- */
 type FlowbitRangeProps = {
+  value: number; // 受け取る値
   onChange?: (score: number) => void;
 };
 
-/**
- * FlowbitRange コンポーネント。
- * @param {FlowbitRangeProps} props - コンポーネントのプロパティ。
- * @returns {JSX.Element} カスタマイズされたスライダーコンポーネント。
- */
-export default function FlowbitRange({
-  onChange,
-}: FlowbitRangeProps): React.JSX.Element {
-  /**
-   * スライダーの値が変更されたときに呼び出されるハンドラ。
-   * @param {React.ChangeEvent<HTMLInputElement>} event - スライダーの変更イベント。
-   */
+export default function FlowbitRange({ value, onChange }: FlowbitRangeProps) {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(event.target.value);
-    if (onChange) {
-      onChange(value);
-    }
+    const val = Number(event.target.value);
+    onChange?.(val);
   };
 
   return (
     <Flowbite theme={{ theme: customTheme }}>
-      {/* RangeSlider コンポーネント。ユーザーが値を選択できます。 */}
       <RangeSlider
-        style={{
-          width: "50vw",
-        }}
-        min={-2}
-        max={2}
+        style={{ width: "50vw" }}
+        min={0}
+        max={4}
         step={1}
+        value={value} // ← 親から受け取った value
         onChange={handleChange}
       />
     </Flowbite>
