@@ -4,11 +4,12 @@ import { Card } from "flowbite-react";
 import FlowbitRange from "../../components/FlowbitRange";
 import FlowbitProgress from "../../components/FlowbitProgress";
 import { questions } from "./questions";
+import { calculateMBTIType } from "./calculateMBTITypeBL";
 
 const DiagnosisPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1); // 現在のページ
-  const [progress, setProgress] = useState<number>(0);
-  const [answers] = useState<number[]>([]); // 回答のスコア保存
+  const [progress, setProgress] = useState<number>(0); //進捗バー
+  const [answers, setAnswers] = useState<number[]>([]); // 回答のスコア保存
 
   const questionsPerPage = 15; // 1ページに表示する質問数
 
@@ -22,7 +23,9 @@ const DiagnosisPage: React.FC = () => {
   const handleNextPage = () => {
     if (currentPage * questionsPerPage >= questions.length) {
       // 全ページ終了時の処理
-      console.log("診断終了", answers);
+      const result = calculateMBTIType(questions, answers);
+      console.log("診断結果:", result.type);
+      console.log("偏りスコア:", result.bias);
       // サーバーに送信や結果ページ遷移など
     } else {
       //プログレスバー更新
@@ -41,12 +44,12 @@ const DiagnosisPage: React.FC = () => {
     // 保存処理やマイページ遷移など
   };
 
-  // // 回答の処理
-  // const handleAnswer = (index: number, score: number) => {
-  //   const newAnswers = [...answers];
-  //   newAnswers[index] = score;
-  //   setAnswers(newAnswers);
-  // };
+  // 回答の処理
+  const handleAnswer = (index: number, score: number) => {
+    const newAnswers = [...answers];
+    newAnswers[index] = score;
+    setAnswers(newAnswers);
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -62,7 +65,10 @@ const DiagnosisPage: React.FC = () => {
           >
             <p className="text-base mb-2 sm:text-lg">{question.text}</p>
             <div className="flex flex-col items-center space-x-4 pb-8">
-              <FlowbitRange key={index} />
+              <FlowbitRange
+                key={index}
+                onChange={(score: number) => handleAnswer(index, score)}
+              />
               <div
                 className="flex justify-between w-full"
                 style={{ marginLeft: "0px" }}
