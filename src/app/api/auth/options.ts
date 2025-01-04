@@ -8,7 +8,7 @@ import { getPool } from "../../../lib/db"; // データベース接続モジュ�
  * NextAuthの認証設定オプション
  */
 export const authOptions: AuthOptions = {
-  debug: true, // デバッグモードを有効化
+  debug: process.env.NODE_ENV === "development", // 開発環境のみデバッグモードを有効化
   providers: [
     // GitHub認証プロバイダーの設定
     GitHubProvider({
@@ -47,23 +47,21 @@ export const authOptions: AuthOptions = {
     async signIn({ user, account }) {
       try {
         if (!account || !account.provider) {
-          console.error(
-            "[signIn] アカウント情報または認証プロバイダーが不足しています。"
-          );
+          console.error("[signIn] 認証プロバイダー情報が不足しています。");
           return false;
         }
 
-        // GitHubの場合、追加でメールアドレスを取得
+        // GitHub認証の場合、メールアドレスを追加取得
         if (account.provider === "github" && !user.email) {
           const res = await fetch("https://api.github.com/user/emails", {
             headers: {
               Authorization: `token ${account.access_token}`,
             },
           });
+
           if (!res.ok) {
-            throw new Error(
-              `[signIn] GitHubからメールアドレスの取得に失敗しました。ステータスコード: ${res.status}`
-            );
+            console.error(`[signIn] GitHubメール取得失敗: ステータスコード ${res.status}`);
+            return false;
           }
 
           const emails = (await res.json()) as Array<{
@@ -71,46 +69,38 @@ export const authOptions: AuthOptions = {
             primary: boolean;
             verified: boolean;
           }>;
-          user.email =
-            emails.find((email) => email.primary && email.verified)?.email ||
-            null;
+
+          user.email = emails.find((email) => email.primary && email.verified)?.email || null;
         }
 
-        // メールアドレスが取得できない場合はサインインを中止
         if (!user.email) {
-          console.error(
-            "[signIn] ユーザーのメールアドレスが取得できませんでした。"
-          );
+          console.error("[signIn] ユーザーのメールアドレスが取得できませんでした。");
           return false;
         }
 
-        const pool = await getPool(); // データベースプールを取得
-        const request = pool.request();
-        request.input("Name", user.name); // ユーザー名
-        request.input("Email", user.email); // メールアドレス
-        request.input("Provider", account.provider); // 認証プロバイダー名
-
-        // ユーザーが存在しない場合、新規登録を実行
+        // データベースにユーザー情報を登録
+        const pool = await getPool();
         const query = `
-          IF NOT EXISTS (
-            SELECT 1 FROM Users WHERE email = @Email
-          )
+          IF NOT EXISTS (SELECT 1 FROM Users WHERE email = @Email)
           BEGIN
-            INSERT INTO Users (name, email, provider) 
-            VALUES (@Name, @Email, @Provider)
+            INSERT INTO Users (name, email, provider) VALUES (@Name, @Email, @Provider)
           END
         `;
-        await request.query(query);
+        await pool
+          .request()
+          .input("Name", user.name)
+          .input("Email", user.email)
+          .input("Provider", account.provider)
+          .query(query);
 
-        console.log(
-          "[signIn] ユーザー情報を登録しました、または既に存在します。"
-        );
+        console.log("[signIn] ユーザー情報を登録しました、または既に存在します。");
         return true;
       } catch (error) {
         console.error("[signIn] サインイン時のエラー:", error);
         return false;
       }
     },
+
     /**
      * セッション生成時のコールバック
      *
@@ -120,35 +110,32 @@ export const authOptions: AuthOptions = {
      */
     async session({ session }) {
       try {
-        if (!session.user) {
-          console.error(
-            "[session] セッション情報にユーザーが含まれていません。"
-          );
+        if (!session.user || !session.user.email) {
+          console.error("[session] ユーザーまたはメール情報がセッションに存在しません。");
           return session;
         }
-
-        const pool = await getPool(); // データベースプールを取得
+    
+        const pool = await getPool();
         const result = await pool
           .request()
           .input("Email", session.user.email)
           .query("SELECT id FROM Users WHERE email = @Email");
-
+    
         if (result.recordset.length === 0) {
-          throw new Error(
-            "[session] データベースにユーザーIDが見つかりませんでした。"
-          );
+          console.error("[session] ユーザーIDがデータベースに存在しません。Email:", session.user.email);
+          session.user.id = null; // 明示的にnullを設定
+          return session;
         }
-
-        // セッション情報にユーザーIDを追加
-        session.user = Object.assign({}, session.user, {
-          id: result.recordset[0]?.id || null,
-        });
-        console.log("[session] セッションにユーザーIDを追加しました。");
+    
+        // ユーザーIDをセッションに追加
+        session.user.id = result.recordset[0]?.id || null;
+        console.log("[session] ユーザーIDをセッションに追加しました:", session.user.id);
         return session;
       } catch (error) {
         console.error("[session] セッション生成時のエラー:", error);
         return session;
       }
-    },
+    }
+    
   },
 };
