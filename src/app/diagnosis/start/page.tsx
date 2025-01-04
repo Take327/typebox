@@ -5,16 +5,9 @@ import FlowbitRange from "../../components/FlowbitRange";
 import FlowbitProgress from "../../components/FlowbitProgress";
 import { questions } from "./questions";
 
-// 質問データ型定義
-export type Question = {
-  id: number;
-  text: string;
-  type: "E" | "I" | "S" | "N" | "T" | "F" | "J" | "P";
-  weight: number;
-};
-
 const DiagnosisPage: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState(1); // 現在のページ
+  const [currentPage, setCurrentPage] = useState<number>(1); // 現在のページ
+  const [progress, setProgress] = useState<number>(0);
   const [answers] = useState<number[]>([]); // 回答のスコア保存
 
   const questionsPerPage = 15; // 1ページに表示する質問数
@@ -25,13 +18,6 @@ const DiagnosisPage: React.FC = () => {
     currentPage * questionsPerPage
   );
 
-  // // 回答の処理
-  // const handleAnswer = (index: number, score: number) => {
-  //   const newAnswers = [...answers];
-  //   newAnswers[index] = score;
-  //   setAnswers(newAnswers);
-  // };
-
   // 次のページへ
   const handleNextPage = () => {
     if (currentPage * questionsPerPage >= questions.length) {
@@ -39,7 +25,13 @@ const DiagnosisPage: React.FC = () => {
       console.log("診断終了", answers);
       // サーバーに送信や結果ページ遷移など
     } else {
+      //プログレスバー更新
+      setProgress(((currentPage * questionsPerPage) / questions.length) * 100);
       setCurrentPage(currentPage + 1);
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth", // スムーズなスクロールアニメーション
+      });
     }
   };
 
@@ -49,11 +41,18 @@ const DiagnosisPage: React.FC = () => {
     // 保存処理やマイページ遷移など
   };
 
+  // // 回答の処理
+  // const handleAnswer = (index: number, score: number) => {
+  //   const newAnswers = [...answers];
+  //   newAnswers[index] = score;
+  //   setAnswers(newAnswers);
+  // };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4 text-center">MBTI 診断</h1>
       <div className="m-4">
-        <FlowbitProgress />
+        <FlowbitProgress progress={progress} />
       </div>
       <Card className="mb-6 shadow-lg">
         {currentQuestions.map((question, index) => (

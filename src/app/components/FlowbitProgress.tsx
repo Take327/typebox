@@ -18,11 +18,11 @@ const customTheme: CustomFlowbiteTheme = {
   },
 };
 
-export default function FlowbitProgress() {
+export default function FlowbitProgress({progress}:{progress:number}) {
   return (
     <Flowbite theme={{ theme: customTheme }}>
       <Progress
-        progress={90}
+        progress={progress}
         progressLabelPosition="inside"
         textLabelPosition="outside"
         size="lg"
