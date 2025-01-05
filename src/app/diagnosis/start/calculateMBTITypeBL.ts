@@ -1,4 +1,4 @@
-import { Question } from "../../../types";
+import { Question, MBTIDiagnosisResult } from "../../../types";
 
 /**
  * ユーザーの回答をもとにMBTIタイプを判定する関数（1～5スケール対応）
@@ -12,11 +12,7 @@ import { Question } from "../../../types";
 export const calculateMBTIType = (
   questions: Question[],
   answers: number[]
-): {
-  type: string;
-  bias: { [key: string]: number };
-  ratio: { [key: string]: number };
-} => {
+): MBTIDiagnosisResult => {
   // 各タイプの合計スコアを初期化
   const sumScores: { [key in Question["type"]]: number } = {
     E: 0,
@@ -45,7 +41,7 @@ export const calculateMBTIType = (
   questions.forEach((question, index) => {
     const answer = answers[index]; // 0～4 のいずれか
     const type = question.type;
-    const w = question.weight;     // 1 or 2
+    const w = question.weight; // 1 or 2
 
     // 実際のスコア加算（回答 × weight）
     sumScores[type] += answer * w;
@@ -59,7 +55,7 @@ export const calculateMBTIType = (
   const ratio: { [key: string]: number } = {};
   (Object.keys(sumScores) as (keyof typeof sumScores)[]).forEach((t) => {
     const rawRatio = sumScores[t] / maxScores[t]; // 0.0～1.0
-    ratio[t] = Math.floor(rawRatio * 100);        // % に変換して小数切り捨て
+    ratio[t] = Math.floor(rawRatio * 100); // % に変換して小数切り捨て
   });
 
   // 3) 各ペア比較とバイアス(差分)の算出

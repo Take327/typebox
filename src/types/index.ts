@@ -24,3 +24,9 @@ export type Question = {
   type: "E" | "I" | "S" | "N" | "T" | "F" | "J" | "P";
   weight: 1|2; // 質問の重み
 };
+
+export type MBTIDiagnosisResult = {
+  type: string; // "ESTJ" などの4文字MBTIタイプ
+  bias: { [key: string]: number }; // ペアごとのスコア差
+  ratio: { [key: string]: number }; // 各タイプのスコア割合（%）
+};
