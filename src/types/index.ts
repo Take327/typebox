@@ -103,6 +103,6 @@ export type MBTIScore = {
  */
 export type MBTIDiagnosisResult = {
   type: MBTIType; // "ESTJ" などの4文字MBTIタイプ
-  bias: { [key: string]: number }; // ペアごとのスコア差
+  bias: MBTIBias; // ペアごとのスコア差
   ratio: MBTIScore; // 各タイプのスコア割合（%）
 };

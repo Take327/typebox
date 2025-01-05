@@ -39,14 +39,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // パラメータ化されたクエリでSQLインジェクション防止
     await pool.request()
       .input("userId", sql.Int, userId)
-      .input("type_E", sql.Int, scores.E)
-      .input("type_I", sql.Int, scores.I)
-      .input("type_S", sql.Int, scores.S)
-      .input("type_N", sql.Int, scores.N)
-      .input("type_T", sql.Int, scores.T)
-      .input("type_F", sql.Int, scores.F)
-      .input("type_J", sql.Int, scores.J)
-      .input("type_P", sql.Int, scores.P)
+      .input("type_E", sql.Int, scores.E*2)
+      .input("type_I", sql.Int, scores.I*2)
+      .input("type_S", sql.Int, scores.S*2)
+      .input("type_N", sql.Int, scores.N*2)
+      .input("type_T", sql.Int, scores.T*2)
+      .input("type_F", sql.Int, scores.F*2)
+      .input("type_J", sql.Int, scores.J*2)
+      .input("type_P", sql.Int, scores.P*2)
       .query(query);
 
     // 挿入成功時のレスポンス

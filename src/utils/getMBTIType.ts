@@ -16,16 +16,12 @@ import { MBTIBias, MBTIScore, MBTIType } from "../types";
 export const getMBTIType = (ratio: MBTIScore): MBTIType => {
   // E vs I
   const eOrI = ratio.E >= ratio.I ? "E" : "I";
-
   // S vs N
   const sOrN = ratio.S >= ratio.N ? "S" : "N";
-
   // T vs F
   const tOrF = ratio.T >= ratio.F ? "T" : "F";
-
   // J vs P
   const jOrP = ratio.J >= ratio.P ? "J" : "P";
-
   const type: MBTIType = `${eOrI}${sOrN}${tOrF}${jOrP}`;
 
   return type;
