@@ -5,9 +5,12 @@ import MBTITendenciesChart from "../../components/MBTITendenciesChart";
 import { Card } from "flowbite-react";
 import { DiagnosisData } from "../../../types";
 import { convertToDiagnosisData } from "../../../utils/convertToDiagnosisData";
+import Link from "next/link";
 
 export default function Page() {
-  const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(null);
+  const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(
+    null
+  );
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -58,7 +61,9 @@ export default function Page() {
         <p className="text-gray-600 mb-2">
           あなたのMBTIタイプ: <strong>{diagnosisData.mbtiType}</strong>
         </p>
-        <p className="text-sm text-gray-400 mb-2">特徴: {diagnosisData.traits}</p>
+        <p className="text-sm text-gray-400 mb-2">
+          特徴: {diagnosisData.traits}
+        </p>
 
         {/* 傾向チャート */}
         <div className="w-full max-w-[40vw]">
@@ -66,6 +71,13 @@ export default function Page() {
             <MBTITendenciesChart tendency={tendency} key={index} />
           ))}
         </div>
+
+        {/* 診断開始ボタン */}
+        <Link href="/" className="mt-auto">
+          <button className="px-4 py-2 bg-a8d8cb text-white rounded hover:bg-a8d8cb/90">
+            ホームに戻る
+          </button>
+        </Link>
       </Card>
     </div>
   );
