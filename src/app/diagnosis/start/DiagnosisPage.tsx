@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Card } from "flowbite-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // クライアントサイドルーティング用
 
 // **コンポーネントのインポート**
 import FlowbitRange from "../../components/FlowbitRange";
@@ -19,7 +20,9 @@ import { calculateMBTIType } from "./calculateMBTITypeBL";
 // **型のインポート**
 import { MBTIDiagnosisResult } from "../../../types";
 
+
 const DiagnosisPage: React.FC = () => {
+  const router = useRouter();
   // 現在のページ番号を管理
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -106,7 +109,9 @@ const DiagnosisPage: React.FC = () => {
       setProcessing(true); // 処理中状態を設定（Backdropを表示）
       try {
         await saveDiagnosisResult(result); // 診断結果をサーバーに送信
-        console.log("診断結果:", result); // 診断結果をログ出力
+
+        // 診断結果画面に遷移
+        router.push("/diagnosis/result"); // クライアントサイド遷移
       } finally {
         setProcessing(false); // 処理終了（Backdropを非表示）
       }

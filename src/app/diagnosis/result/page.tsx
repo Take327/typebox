@@ -1,3 +1,4 @@
+"use client";
 import MBTITendenciesChart from "../../components/MBTITendenciesChart";
 import { Card } from "flowbite-react";
 import { DiagnosisData } from "../../../types";
