@@ -1,13 +1,22 @@
 "use client";
+// **外部ライブラリのインポート**
 import React, { useState } from "react";
 import { Card } from "flowbite-react";
+import Link from "next/link";
+
+// **コンポーネントのインポート**
 import FlowbitRange from "../../components/FlowbitRange";
 import FlowbitProgress from "../../components/FlowbitProgress";
+import Backdrop from "../../components/Backdrop";
+
+// **コンテキストのインポート**
+import { useProcessing } from "../../../context/ProcessingContext";
+
+// **ロジックやデータのインポート**
 import { questions } from "./questions";
 import { calculateMBTIType } from "./calculateMBTITypeBL";
-import Link from "next/link";
-import { useProcessing } from "../../../context/ProcessingContext";
-import Backdrop from "../../components/Backdrop";
+
+// **型のインポート**
 import { MBTIDiagnosisResult } from "../../../types";
 
 const DiagnosisPage: React.FC = () => {
