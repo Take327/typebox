@@ -1,5 +1,7 @@
 {
   "functions": {
-    "timeout": 60
+    "api/*": {
+      "maxDuration": 60
+    }
   }
 }
