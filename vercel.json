@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/*": {
+    "src/app/api/hello/route": {
       "maxDuration": 60
     }
   }
