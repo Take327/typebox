@@ -1,5 +1,5 @@
-import React from "react";
 import { CustomFlowbiteTheme, Flowbite, Spinner } from "flowbite-react";
+import React from "react";
 import { useProcessing } from "../../context/ProcessingContext";
 
 const customTheme: CustomFlowbiteTheme = {
@@ -16,10 +16,10 @@ const customTheme: CustomFlowbiteTheme = {
     },
     light: {
       off: {
-        base: "dark:text-gray-600",
+        base: "text-gray-600",
         color: {
           failure: "",
-          gray: "dark:fill-gray-300",
+          gray: "fill-gray-300",
           info: "",
           pink: "",
           purple: "",
