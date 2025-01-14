@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ProcessingProvider, useProcessing } from "../context/ProcessingContext"; // ProcessingContextを利用
+import { notifications } from "../mock";
 import { DiagnosisData } from "../types"; // 型定義を適用
 import { convertToDiagnosisData } from "../utils/convertToDiagnosisData";
 import Card from "./components/Card";
 import Construction from "./components/Construction";
+import FlowbitToggleSwitch from "./components/FlowbitToggleSwitch";
 import MBTITendenciesChart from "./components/MBTITendenciesChart";
 
 export default function MyPage() {
@@ -38,6 +40,12 @@ export default function MyPage() {
     fetchDiagnosisData();
     // 依存配列を空にして、初回レンダリング時のみ実行
   }, []);
+
+  // 自動承認の状態管理
+  const [autoApprove, setAutoApprove] = useState(false);
+
+  // 最大4件の通知を表示
+  const displayedNotifications = notifications.slice(0, 4);
 
   return (
     <ProcessingProvider>
@@ -80,7 +88,37 @@ export default function MyPage() {
 
         {/* 各種設定 */}
         <Card title="通知と設定">
-          <Construction />
+          {/* 通知リスト */}
+          <div className="mb-4">
+            <h2 className="mb-2 text-lg font-bold">未処理通知</h2>
+            <ul>
+              {displayedNotifications.map((notification) => (
+                <li key={notification.id} className="p-2 mb-2 bg-gray-100 rounded-md">
+                  {notification.message}
+                </li>
+              ))}
+            </ul>
+            <a href="/notifications" className="inline-block mt-2 text-sm text-blue-500">
+              すべて表示
+            </a>
+          </div>
+
+          {/* アカウント名 */}
+          <div className="mb-4">
+            <h2 className="mb-2 text-lg font-bold">アカウント情報</h2>
+            <p className="text-gray-700">アカウント名: ユーザー名</p>
+          </div>
+
+          {/* 自動承認設定 */}
+          <div>
+            <h2 className="mb-2 text-lg font-bold">設定</h2>
+            <div className="flex items-center">
+              <label htmlFor="auto-approve" className="mr-2 text-gray-700 cursor-pointer">
+                自動承認
+              </label>
+              <FlowbitToggleSwitch isChecked={true} />
+            </div>
+          </div>
         </Card>
       </div>
     </ProcessingProvider>

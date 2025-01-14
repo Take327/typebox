@@ -106,3 +106,13 @@ export type MBTIDiagnosisResult = {
   bias: MBTIBias; // ペアごとのスコア差
   ratio: MBTIScore; // 各タイプのスコア割合（%）
 };
+
+type Notification = {
+  id: string;
+  message: string;
+  isRead: boolean;
+};
+
+type NotificationListProps = {
+  notifications: Notification[];
+};

@@ -53,3 +53,11 @@ export const groupsData: Group[] = [
   { id: "group-s", name: "グループS", members: 17, role: "メンバー" },
   { id: "group-t", name: "グループT", members: 21, role: "管理者" },
 ];
+
+export const notifications = [
+  { id: 1, message: "新しいグループに招待されました。" },
+  { id: 2, message: "診断結果が更新されました。" },
+  { id: 3, message: "新しいメンバーがグループに参加しました。" },
+  { id: 4, message: "設定が変更されました。" },
+  { id: 5, message: "新しい通知があります。" },
+];
