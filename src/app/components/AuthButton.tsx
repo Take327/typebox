@@ -24,11 +24,11 @@ const AuthButton: React.FC<AuthButtonProps> = ({
   label,
 }) => (
   <button
-    className={`flex items-center justify-center w-full py-2 ${textColor} ${bgColor} ${borderColor} rounded-md ${hoverColor} focus:outline-none focus:ring-2 focus:ring-offset-2 ${ringColor}`}
+    className={`flex w-full items-center justify-center py-2 ${textColor} ${bgColor} ${borderColor} rounded-md ${hoverColor} focus:outline-none focus:ring-2 focus:ring-offset-2 ${ringColor}`}
     onClick={onClick}
     aria-label={label}
   >
-    <div className="flex items-center space-x-2 min-w-44">
+    <div className="flex min-w-44 items-center space-x-2">
       {icon}
       <span className="text-sm font-medium">{label}</span>
     </div>

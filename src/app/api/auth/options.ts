@@ -1,8 +1,7 @@
-import { Session, AuthOptions, Account, User } from "next-auth";
-import { JWT } from "next-auth/jwt";
+import { Account, AuthOptions, Session, User } from "next-auth";
+import AzureADProvider from "next-auth/providers/azure-ad";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
-import AzureADProvider from "next-auth/providers/azure-ad";
 import { getPool } from "../../../lib/db"; // データベース接続モジュール
 
 /**
@@ -37,13 +36,7 @@ export const authOptions: AuthOptions = {
      * @param {Account | null} params.account - 認証アカウント情報
      * @returns {Promise<boolean>} サインイン成功時はtrue、失敗時はfalse
      */
-    async signIn({
-      user,
-      account,
-    }: {
-      user: User;
-      account: Account | null;
-    }): Promise<boolean> {
+    async signIn({ user, account }: { user: User; account: Account | null }): Promise<boolean> {
       try {
         // アカウント情報が不足している場合はエラー
         if (!account || !account.provider) {
@@ -70,9 +63,7 @@ export const authOptions: AuthOptions = {
             verified: boolean;
           }>;
 
-          user.email =
-            emails.find((email) => email.primary && email.verified)?.email ||
-            null;
+          user.email = emails.find((email) => email.primary && email.verified)?.email || null;
         }
 
         // メールアドレスが取得できない場合はエラー
@@ -109,17 +100,9 @@ export const authOptions: AuthOptions = {
     /**
      * セッション生成時のコールバック
      * @param {Session} params.session - セッション情報
-     * @param {JWT} params.token - JWTトークン
      * @returns {Promise<Session>} 更新されたセッションオブジェクト
      */
-    async session({
-      session,
-      token,
-    }: {
-      session: Session;
-      token: JWT;
-      user?: User; // 必要に応じてユーザー情報を追加可能
-    }): Promise<Session> {
+    async session({ session }: { session: Session }): Promise<Session> {
       try {
         // セッションにユーザー情報またはメールアドレスが存在しない場合はエラー
         if (!session.user || !session.user.email) {

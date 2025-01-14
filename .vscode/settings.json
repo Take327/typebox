@@ -1,0 +1,8 @@
+{
+  "editor.formatOnSave": true, // 保存時に自動フォーマット
+  "editor.defaultFormatter": "esbenp.prettier-vscode", // Prettierを既定のフォーマッターに設定
+  "eslint.format.enable": true, // ESLintをフォーマッターとして有効化
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always" // 保存時にESLintで自動修正
+  }
+}

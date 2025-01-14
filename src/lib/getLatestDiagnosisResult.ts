@@ -8,9 +8,7 @@ import { MBTIScore } from "../types";
  * @param userId - ユーザーの一意の識別子
  * @returns {Promise<MBTIScore | null>} 最新の診断結果（データが存在しない場合はnullを返す）
  */
-export async function getLatestDiagnosisResult(
-  userId: number
-): Promise<MBTIScore | null> {
+export async function getLatestDiagnosisResult(userId: number): Promise<MBTIScore | null> {
   try {
     const pool = await getPool();
     const query = `
@@ -20,26 +18,15 @@ export async function getLatestDiagnosisResult(
       ORDER BY created_at DESC;
     `;
 
-    const result = await pool
-      .request()
-      .input("user_id", sql.Int, userId)
-      .query(query);
+    const result = await pool.request().input("user_id", sql.Int, userId).query(query);
 
     if (result.recordset.length === 0) {
       return null; // データが見つからない場合
     }
 
     // データベースの結果を MBTIScore 型に変換
-    const {
-      type_E,
-      type_I,
-      type_S,
-      type_N,
-      type_T,
-      type_F,
-      type_J,
-      type_P,
-    }: { [key: string]: number } = result.recordset[0];
+    const { type_E, type_I, type_S, type_N, type_T, type_F, type_J, type_P }: { [key: string]: number } =
+      result.recordset[0];
     const mbtiScore: MBTIScore = {
       E: type_E,
       I: type_I,

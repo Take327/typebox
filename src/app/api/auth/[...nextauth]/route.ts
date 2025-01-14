@@ -3,10 +3,10 @@ import { authOptions } from "../options";
 
 /**
  * NextAuthのエンドポイントを処理するハンドラー
- * 
+ *
  * このモジュールは認証のエンドポイントとして動作します。
  * GETおよびPOSTリクエストに対して同じハンドラーを使用します。
- * 
+ *
  * @returns {NextApiHandler} NextAuthのAPIハンドラー
  */
 const handler = NextAuth(authOptions);

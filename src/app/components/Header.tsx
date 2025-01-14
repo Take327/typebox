@@ -14,33 +14,24 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-[#f7e4c9] flex items-center justify-center p-4">
+    <header className="flex items-center justify-center bg-[#f7e4c9] p-4">
       {/* ヘッダーコンテンツを最大幅制限して中央揃え */}
-      <div className="w-full max-w-screen-2xl flex items-center">
+      <div className="flex w-full max-w-screen-2xl items-center">
         {/* ハンバーガーメニュー (スマホ表示のみ) */}
-        <button
-          onClick={toggleMenu}
-          className="sm:hidden text-black mr-4"
-          aria-label="メニューを開く"
-        >
+        <button onClick={toggleMenu} className="mr-4 text-black sm:hidden" aria-label="メニューを開く">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
-            className="w-6 h-6"
+            className="h-6 w-6"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 6h16M4 12h16M4 18h16"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
 
         {/* ロゴ＆タイトル */}
-        <div className="flex-1 flex items-center justify-center sm:justify-start font-bold text-lg">
+        <div className="flex flex-1 items-center justify-center text-lg font-bold sm:justify-start">
           <Image
             src="/typebox_logo.svg"
             alt="ロゴ"
@@ -52,13 +43,13 @@ export default function Header() {
         </div>
 
         {/* ナビゲーション (PC表示のみ) */}
-        <nav className="hidden sm:flex space-x-4">
+        <nav className="hidden space-x-4 sm:flex">
           <button
             onClick={handleLogout}
-            className="flex items-center px-4 py-2 bg-[#f3493a] text-white rounded shadow hover:bg-[#d8362f] transition-colors duration-300"
+            className="flex items-center rounded bg-[#f3493a] px-4 py-2 text-white shadow transition-colors duration-300 hover:bg-[#d8362f]"
             aria-label="ログアウト"
           >
-            <PiSignOut className="w-5 h-5 mr-2" />
+            <PiSignOut className="mr-2 h-5 w-5" />
             ログアウト
           </button>
         </nav>

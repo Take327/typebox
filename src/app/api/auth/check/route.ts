@@ -3,7 +3,7 @@ import { getServerSessionUserId } from "../../../../lib/getServerSessionUserId";
 
 /**
  * APIハンドラー: ユーザー認証状態をチェックするためのGETエンドポイント
- * 
+ *
  * @async
  * @function GET
  * @param {NextRequest} req - APIリクエストオブジェクト。リクエストヘッダーやクエリパラメータを含む。

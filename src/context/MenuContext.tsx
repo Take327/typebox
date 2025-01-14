@@ -20,9 +20,7 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     // コンテキストプロバイダーで子コンポーネントをラップし、値を提供
-    <MenuContext.Provider value={{ isOpen, toggleMenu }}>
-      {children}
-    </MenuContext.Provider>
+    <MenuContext.Provider value={{ isOpen, toggleMenu }}>{children}</MenuContext.Provider>
   );
 };
 

@@ -4,9 +4,9 @@ import sql from "mssql";
 
 /**
  * 診断結果をデータベースに挿入するAPIエンドポイント
- * 
+ *
  * このエンドポイントは、POSTリクエストを受信し、診断結果をデータベースに保存します。
- * 
+ *
  * @param req - リクエストオブジェクト
  * @returns レスポンスオブジェクト
  */
@@ -19,8 +19,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (
       !userId ||
       !scores ||
-      !("E" in scores && "I" in scores && "S" in scores && "N" in scores &&
-        "T" in scores && "F" in scores && "J" in scores && "P" in scores)
+      !(
+        "E" in scores &&
+        "I" in scores &&
+        "S" in scores &&
+        "N" in scores &&
+        "T" in scores &&
+        "F" in scores &&
+        "J" in scores &&
+        "P" in scores
+      )
     ) {
       return NextResponse.json(
         { message: "Invalid data format. Ensure userId and all scores are provided." },
@@ -37,7 +45,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     `;
 
     // パラメータ化されたクエリでSQLインジェクション防止
-    await pool.request()
+    await pool
+      .request()
       .input("userId", sql.Int, userId)
       .input("type_E", sql.Int, scores.E)
       .input("type_I", sql.Int, scores.I)
@@ -50,10 +59,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       .query(query);
 
     // 挿入成功時のレスポンス
-    return NextResponse.json(
-      { message: "Diagnosis result inserted successfully." },
-      { status: 201 }
-    );
+    return NextResponse.json({ message: "Diagnosis result inserted successfully." }, { status: 201 });
   } catch (error) {
     console.error("Error inserting diagnosis result:", error);
     return NextResponse.json(

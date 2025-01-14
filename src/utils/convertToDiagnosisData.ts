@@ -1,10 +1,4 @@
-import {
-  MBTIDiagnosisResult,
-  DiagnosisData,
-  MBTITendency,
-  MBTIScore,
-  MBTIType,
-} from "../types";
+import { MBTIDiagnosisResult, DiagnosisData, MBTITendency, MBTIScore, MBTIType } from "../types";
 
 const MBTITypeJapaneseNames: {
   [key in MBTIType]: { type: string; traits: string };
@@ -15,13 +9,11 @@ const MBTITypeJapaneseNames: {
   },
   ESTP: {
     type: "起業家",
-    traits:
-      "行動力があり、リスクを恐れず、実践的な解決策を見つける能力があります。",
+    traits: "行動力があり、リスクを恐れず、実践的な解決策を見つける能力があります。",
   },
   ESFJ: {
     type: "提唱者",
-    traits:
-      "協調性が高く、他者をサポートする能力に長け、コミュニティを重視します。",
+    traits: "協調性が高く、他者をサポートする能力に長け、コミュニティを重視します。",
   },
   ESFP: {
     type: "エンターテイナー",
@@ -37,18 +29,15 @@ const MBTITypeJapaneseNames: {
   },
   ENFJ: {
     type: "主人公",
-    traits:
-      "カリスマ性があり、他者を引き付け導く力を持ち、影響力を発揮します。",
+    traits: "カリスマ性があり、他者を引き付け導く力を持ち、影響力を発揮します。",
   },
   ENFP: {
     type: "広報",
-    traits:
-      "自由奔放で多才、好奇心旺盛で新しい可能性を追求する楽しい存在です。",
+    traits: "自由奔放で多才、好奇心旺盛で新しい可能性を追求する楽しい存在です。",
   },
   ISTJ: {
     type: "管理者",
-    traits:
-      "実直で責任感が強く、規律を守り、着実に仕事を進める信頼できる人物です。",
+    traits: "実直で責任感が強く、規律を守り、着実に仕事を進める信頼できる人物です。",
   },
   ISTP: {
     type: "技術者",
@@ -56,8 +45,7 @@ const MBTITypeJapaneseNames: {
   },
   ISFJ: {
     type: "守護者",
-    traits:
-      "思いやりがあり、他者を支え守ることに喜びを感じる、信頼できる存在です。",
+    traits: "思いやりがあり、他者を支え守ることに喜びを感じる、信頼できる存在です。",
   },
   ISFP: {
     type: "冒険者",
@@ -87,16 +75,12 @@ const MBTITypeJapaneseNames: {
  * @param {MBTIDiagnosisResult} result - 診断結果データ
  * @returns {DiagnosisData} 変換後の診断データ
  */
-export const convertToDiagnosisData = (
-  result: MBTIDiagnosisResult
-): DiagnosisData => {
+export const convertToDiagnosisData = (result: MBTIDiagnosisResult): DiagnosisData => {
   const tendencies: MBTITendency[] = createTendencies(result.ratio);
 
   return {
     mbtiType: result.type,
-    traits: `あなたは ${MBTITypeJapaneseNames[result.type].type} タイプ(${
-      result.type
-    })です。 \n
+    traits: `あなたは ${MBTITypeJapaneseNames[result.type].type} タイプ(${result.type})です。 \n
     ${MBTITypeJapaneseNames[result.type].traits}`,
     tendencies,
   };

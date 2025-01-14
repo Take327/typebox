@@ -8,9 +8,7 @@ import { convertToDiagnosisData } from "../../../utils/convertToDiagnosisData";
 import Link from "next/link";
 
 export default function Page() {
-  const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(
-    null
-  );
+  const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -38,8 +36,8 @@ export default function Page() {
   if (error) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4 text-center">MBTI 診断結果</h1>
-        <p className="text-red-500 text-center">{error}</p>
+        <h1 className="mb-4 text-center text-2xl font-bold">MBTI 診断結果</h1>
+        <p className="text-center text-red-500">{error}</p>
       </div>
     );
   }
@@ -47,23 +45,21 @@ export default function Page() {
   if (!diagnosisData) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4 text-center">MBTI 診断結果</h1>
-        <p className="text-gray-500 text-center">データを読み込んでいます...</p>
+        <h1 className="mb-4 text-center text-2xl font-bold">MBTI 診断結果</h1>
+        <p className="text-center text-gray-500">データを読み込んでいます...</p>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4 text-center">MBTI 診断結果</h1>
+      <h1 className="mb-4 text-center text-2xl font-bold">MBTI 診断結果</h1>
       <Card className="mb-6 shadow-lg">
         {/* MBTIタイプと特徴 */}
-        <p className="text-gray-600 mb-2">
+        <p className="mb-2 text-gray-600">
           あなたのMBTIタイプ: <strong>{diagnosisData.mbtiType}</strong>
         </p>
-        <p className="text-sm text-gray-400 mb-2">
-          特徴: {diagnosisData.traits}
-        </p>
+        <p className="mb-2 text-sm text-gray-400">特徴: {diagnosisData.traits}</p>
 
         {/* 傾向チャート */}
         <div className="w-full max-w-[40vw]">
@@ -74,9 +70,7 @@ export default function Page() {
 
         {/* 診断開始ボタン */}
         <Link href="/" className="mt-auto">
-          <button className="px-4 py-2 bg-a8d8cb text-white rounded hover:bg-a8d8cb/90">
-            ホームに戻る
-          </button>
+          <button className="rounded bg-a8d8cb px-4 py-2 text-white hover:bg-a8d8cb/90">ホームに戻る</button>
         </Link>
       </Card>
     </div>

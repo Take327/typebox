@@ -26,17 +26,17 @@ export default function LoginPage() {
           height={32} // 画像高さ
           className="mr-2"
         />
-        <h1 className="text-2xl font-bold mb-6 text-center">TypeBox</h1>
+        <h1 className="mb-6 text-center text-2xl font-bold">TypeBox</h1>
       </div>
-      <div className="mx-6 p-6 w-9/12 max-w-md bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">ログイン</h1>
+      <div className="mx-6 w-9/12 max-w-md rounded-lg bg-white p-6 shadow-md">
+        <h1 className="mb-6 text-center text-2xl font-bold">ログイン</h1>
         <div className="space-y-4">
           <AuthButton
             onClick={() => handleSignIn("github")}
             bgColor="bg-gray-800"
             hoverColor="hover:bg-gray-700"
             ringColor="focus:ring-gray-800"
-            icon={<AiOutlineGithub className="w-5 h-5" />}
+            icon={<AiOutlineGithub className="h-5 w-5" />}
             label="Sign in with GitHub"
           />
           <AuthButton
@@ -46,7 +46,7 @@ export default function LoginPage() {
             ringColor="focus:ring-gray-400"
             textColor="text-gray-700"
             borderColor="border border-gray-300"
-            icon={<GoogleIcon className="w-5 h-5" />}
+            icon={<GoogleIcon className="h-5 w-5" />}
             label="Sign in with Google"
           />
           <AuthButton
@@ -56,7 +56,7 @@ export default function LoginPage() {
             ringColor="focus:ring-gray-400"
             textColor="text-gray-700"
             borderColor="border border-gray-300"
-            icon={<MicrosoftIcon className="w-5 h-5" />}
+            icon={<MicrosoftIcon className="h-5 w-5" />}
             label="Sign in with Microsoft"
           />
         </div>

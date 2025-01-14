@@ -5,24 +5,16 @@ type ProcessingContextType = {
   setProcessing: (value: boolean) => void;
 };
 
-const ProcessingContext = createContext<ProcessingContextType | undefined>(
-  undefined
-);
+const ProcessingContext = createContext<ProcessingContextType | undefined>(undefined);
 
-export const ProcessingProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const ProcessingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const setProcessing = (value: boolean) => {
     setIsProcessing(value);
   };
 
-  return (
-    <ProcessingContext.Provider value={{ isProcessing, setProcessing }}>
-      {children}
-    </ProcessingContext.Provider>
-  );
+  return <ProcessingContext.Provider value={{ isProcessing, setProcessing }}>{children}</ProcessingContext.Provider>;
 };
 
 export const useProcessing = (): ProcessingContextType => {

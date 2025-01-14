@@ -17,11 +17,7 @@ const STRUCTURED_DATA = {
   description: SITE_INFO.description,
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
       <head>
@@ -40,7 +36,7 @@ export default function RootLayout({
       </head>
       <body className="flex flex-col">
         <HeaderWithMenu />
-        <main className="flex-grow min-h-[calc(100vh-42px)] bg-gray-100">{children}</main>
+        <main className="min-h-[calc(100vh-42px)] flex-grow bg-gray-100">{children}</main>
         <Footer />
       </body>
     </html>

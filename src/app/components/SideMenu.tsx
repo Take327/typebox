@@ -9,17 +9,12 @@ export default function SideMenu() {
   return (
     <>
       {/* グレー背景オーバーレイ */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[59]"
-          onClick={toggleMenu}
-        ></div>
-      )}
+      {isOpen && <div className="fixed inset-0 z-[59] bg-black bg-opacity-50" onClick={toggleMenu}></div>}
 
       {/* サイドバー */}
       <div
         id="hs-offcanvas-example"
-        className={`fixed top-0 start-0 bottom-0 z-[60] w-64 bg-white border-e border-gray-200 pt-7 pb-10 overflow-y-auto transition-transform duration-300 ${
+        className={`fixed bottom-0 start-0 top-0 z-[60] w-64 overflow-y-auto border-e border-gray-200 bg-white pb-10 pt-7 transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         role="dialog"
@@ -27,22 +22,19 @@ export default function SideMenu() {
         aria-label="Sidebar"
       >
         <div className="px-6">
-          <span className="flex-none font-semibold text-xl text-black focus:outline-none focus:opacity-80">
+          <span className="flex-none text-xl font-semibold text-black focus:opacity-80 focus:outline-none">
             メニュー
           </span>
         </div>
-        <nav
-          className="hs-accordion-group p-6 w-full flex flex-col flex-wrap"
-          data-hs-accordion-always-open
-        >
+        <nav className="hs-accordion-group flex w-full flex-col flex-wrap p-6" data-hs-accordion-always-open>
           <ul className="space-y-1.5">
             <li>
               <Link
                 href="/"
-                className="flex items-center gap-x-3.5 py-2 px-2.5 bg-gray-100 text-sm text-gray-700 rounded-lg hover:bg-gray-100"
+                className="flex items-center gap-x-3.5 rounded-lg bg-gray-100 px-2.5 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
                 <svg
-                  className="w-6 h-6"
+                  className="h-6 w-6"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -57,7 +49,7 @@ export default function SideMenu() {
             <li>
               <Link
                 href="/diagnosis/start"
-                className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-100"
+                className="flex items-center gap-x-3.5 rounded-lg px-2.5 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
                 診断を開始
               </Link>
@@ -65,7 +57,7 @@ export default function SideMenu() {
             <li>
               <Link
                 href="/notifications"
-                className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-100"
+                className="flex items-center gap-x-3.5 rounded-lg px-2.5 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
                 通知
               </Link>
@@ -73,7 +65,7 @@ export default function SideMenu() {
             <li>
               <Link
                 href="/groups"
-                className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-100"
+                className="flex items-center gap-x-3.5 rounded-lg px-2.5 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
                 グループ管理
               </Link>
@@ -81,7 +73,7 @@ export default function SideMenu() {
             <li>
               <Link
                 href="/profile"
-                className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-100"
+                className="flex items-center gap-x-3.5 rounded-lg px-2.5 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
                 プロフィール
               </Link>

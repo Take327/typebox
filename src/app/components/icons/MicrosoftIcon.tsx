@@ -5,11 +5,7 @@ interface IconProps {
 }
 
 const MicrosoftIcon: React.FC<IconProps> = ({ className }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className={className}
-    viewBox="0 0 20 20"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20">
     <title>MS-SymbolLockup</title>
     <rect x="1" y="1" width="9" height="9" fill="#f25022" />
     <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
@@ -18,4 +14,4 @@ const MicrosoftIcon: React.FC<IconProps> = ({ className }) => (
   </svg>
 );
 
-export default MicrosoftIcon
+export default MicrosoftIcon;

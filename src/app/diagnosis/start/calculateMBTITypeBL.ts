@@ -1,9 +1,4 @@
-import {
-  Question,
-  MBTIDiagnosisResult,
-  MBTIScore,
-  MBTIBias,
-} from "../../../types";
+import { Question, MBTIDiagnosisResult, MBTIScore, MBTIBias } from "../../../types";
 import { getMBTIBias, getMBTIType } from "../../../utils/getMBTIType";
 
 /**
@@ -15,10 +10,7 @@ import { getMBTIBias, getMBTIType } from "../../../utils/getMBTIType";
  *   - bias: 各ペアにおける差分
  *   - ratio: 各タイプの得点割合（%）
  */
-export const calculateMBTIType = (
-  questions: Question[],
-  answers: number[]
-): MBTIDiagnosisResult => {
+export const calculateMBTIType = (questions: Question[], answers: number[]): MBTIDiagnosisResult => {
   // 初期化用のユーティリティ関数
   const createInitialScores = (): MBTIScore => ({
     E: 0,

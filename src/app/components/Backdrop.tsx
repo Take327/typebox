@@ -56,7 +56,7 @@ const Backdrop: React.FC = () => {
   if (!isProcessing) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <Flowbite theme={{ theme: customTheme }}>
         <Spinner aria-label="Extra large spinner example" size="xl" />
       </Flowbite>

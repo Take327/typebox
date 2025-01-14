@@ -29,7 +29,6 @@ let pool: sql.ConnectionPool | null = null;
  * @returns {Promise<sql.ConnectionPool>} - データベース接続プール
  */
 export const getPool = async (): Promise<sql.ConnectionPool> => {
-
   if (!process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_SERVER || !process.env.DB_NAME) {
     throw new Error("データベース接続情報が不足しています。環境変数を確認してください。");
   }
@@ -52,14 +51,13 @@ export const getPool = async (): Promise<sql.ConnectionPool> => {
   return pool;
 };
 
-  /**
-   * SIGINTイベントリスナー
-   * 
-   * このリスナーは、アプリケーションがCtrl+CまたはSIGINTシグナルを受信したときに実行されます。
-   * データベース接続プールが存在する場合、接続を安全に閉じてからプロセスを終了します。
-   */
+/**
+ * SIGINTイベントリスナー
+ *
+ * このリスナーは、アプリケーションがCtrl+CまたはSIGINTシグナルを受信したときに実行されます。
+ * データベース接続プールが存在する場合、接続を安全に閉じてからプロセスを終了します。
+ */
 process.on("SIGINT", async () => {
-
   if (pool) {
     try {
       // データベース接続プールを安全に閉じる

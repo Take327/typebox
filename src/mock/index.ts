@@ -1,6 +1,6 @@
-import { DiagnosisData,Group } from "../types";
+import { DiagnosisData, Group } from "../types";
 
-export const diagnosisData:DiagnosisData = {
+export const diagnosisData: DiagnosisData = {
   mbtiType: "INFJ",
   traits: "思慮深く理想主義的。周囲の人々を深く理解し、感情を大切にします。",
   tendencies: [
@@ -53,4 +53,3 @@ export const groupsData: Group[] = [
   { id: "group-s", name: "グループS", members: 17, role: "メンバー" },
   { id: "group-t", name: "グループT", members: 21, role: "管理者" },
 ];
-
