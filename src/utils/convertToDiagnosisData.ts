@@ -1,4 +1,4 @@
-import { MBTIDiagnosisResult, DiagnosisData, MBTITendency, MBTIScore, MBTIType } from "../types";
+import { DiagnosisData, MBTIDiagnosisResult, MBTIScore, MBTITendency, MBTIType } from "../types";
 
 const MBTITypeJapaneseNames: {
   [key in MBTIType]: { type: string; traits: string };
@@ -97,25 +97,25 @@ const createTendencies = (score: MBTIScore): MBTITendency[] => {
     {
       labelMinus: "外向型(E)",
       labelPlus: "内向型(I)",
-      value: Math.abs(score.E - score.I),
+      value: score.I - score.E,
       color: "#3498db",
     },
     {
       labelMinus: "感覚型(S)",
       labelPlus: "直観型(N)",
-      value: Math.abs(score.S - score.N),
+      value: score.N - score.S,
       color: "#2ecc71",
     },
     {
       labelMinus: "思考型(T)",
       labelPlus: "感情型(F)",
-      value: Math.abs(score.T - score.F),
+      value: score.F - score.T,
       color: "#f1c40f",
     },
     {
       labelMinus: "判断型(J)",
       labelPlus: "知覚型(P)",
-      value: Math.abs(score.J - score.P),
+      value: score.P - score.J,
       color: "#e67e22",
     },
   ];

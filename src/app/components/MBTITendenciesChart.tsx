@@ -1,6 +1,8 @@
 import { MBTITendency } from "../../types";
 
 export default function MBTITendenciesChart({ tendency }: { tendency: MBTITendency }) {
+  console.log(tendency);
+
   return (
     <div className="mb-3">
       <div className="flex justify-center">
@@ -12,7 +14,7 @@ export default function MBTITendenciesChart({ tendency }: { tendency: MBTITenden
           style={{
             backgroundColor: `${tendency.color}`,
             left: "50%",
-            width: `${tendency.value}%`,
+            width: `${Math.abs(tendency.value)}%`,
             transform: tendency.value < 0 ? "translateX(-100%)" : "translateX(0)",
           }}
         ></div>
