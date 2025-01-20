@@ -14,15 +14,14 @@ export default function MBTITendenciesChart({ tendency }: { tendency: MBTITenden
           style={{
             backgroundColor: `${tendency.color}`,
             left: "50%",
-            width: `${Math.abs(tendency.value)}%`,
+            width: `${Math.abs(tendency.value) / 2}%`,
             transform: tendency.value < 0 ? "translateX(-100%)" : "translateX(0)",
           }}
         ></div>
       </div>
       <p className="mt-1 text-center text-xs text-gray-500">
-        {tendency.value < 0
-          ? `${Math.abs(tendency.value) * 2}% ${tendency.labelMinus}`
-          : `${tendency.value * 2}% ${tendency.labelPlus}`}
+        {`${Math.abs(tendency.value)}%`}
+        {tendency.value < 0 ? ` ${tendency.labelMinus}` : ` ${tendency.labelPlus}`}
       </p>
     </div>
   );
