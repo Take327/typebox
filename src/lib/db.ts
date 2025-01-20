@@ -8,11 +8,13 @@ const config: sql.config = {
   database: process.env.DB_NAME || "", // データベース名（環境変数から取得）
   options: {
     encrypt: true, // データ転送時の暗号化を有効化（Azure SQL Database などで推奨）
+    enableArithAbort: true, // 推奨設定
   },
   pool: {
     max: 10, // 最大接続数
     min: 0, // 最小接続数
     idleTimeoutMillis: 30000, // 接続アイドルタイムアウト
+    acquireTimeoutMillis: 30000, // プール接続取得のタイムアウト
   },
 };
 
