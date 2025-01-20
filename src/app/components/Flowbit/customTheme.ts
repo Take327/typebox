@@ -1,13 +1,36 @@
-"use client";
+import type { CustomFlowbiteTheme } from "flowbite-react";
 
-import { CustomFlowbiteTheme, Flowbite, ToggleSwitch } from "flowbite-react";
-import { useState } from "react";
-
-/**
- * Flowbite のカスタムテーマ定義。
- * ToggleSwitch の見た目を調整するために使用されます。
- */
 const customTheme: CustomFlowbiteTheme = {
+  progress: {
+    base: "w-full overflow-hidden rounded-full bg-gray-200",
+    label: "mb-1 flex justify-between font-medium",
+    bar: "space-x-2 rounded-full text-center font-medium leading-none text-white",
+    color: {
+      a8d8cb: "bg-[#a8d8cb]",
+    },
+    size: {
+      sm: "h-1.5",
+      md: "h-2.5",
+      lg: "h-4",
+      xl: "h-6",
+    },
+  },
+  rangeSlider: {
+    root: {
+      base: "flex",
+    },
+    field: {
+      base: "relative w-full",
+      input: {
+        base: "w-full cursor-pointer appearance-none rounded-lg bg-gray-200",
+        sizes: {
+          sm: "h-1",
+          md: "h-2",
+          lg: "h-3",
+        },
+      },
+    },
+  },
   toggleSwitch: {
     root: {
       base: "group flex rounded-lg focus:outline-none",
@@ -35,14 +58,4 @@ const customTheme: CustomFlowbiteTheme = {
   },
 };
 
-const FlowbitToggleSwitch = ({ isChecked }: { isChecked: boolean }) => {
-  const [switch1, setSwitch1] = useState(isChecked);
-
-  return (
-    <Flowbite theme={{ theme: customTheme }}>
-      <ToggleSwitch checked={switch1} onChange={setSwitch1} />
-    </Flowbite>
-  );
-};
-
-export default FlowbitToggleSwitch;
+export default customTheme;

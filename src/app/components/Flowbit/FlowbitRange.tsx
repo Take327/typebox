@@ -3,32 +3,9 @@
  * ユーザーの入力値を親コンポーネントに渡すためのカスタマイズを行います。
  */
 
-import type { CustomFlowbiteTheme } from "flowbite-react";
 import { Flowbite, RangeSlider } from "flowbite-react";
 import React from "react";
-
-/**
- * Flowbite のカスタムテーマ定義。
- * RangeSlider の見た目を調整するために使用されます。
- */
-const customTheme: CustomFlowbiteTheme = {
-  rangeSlider: {
-    root: {
-      base: "flex",
-    },
-    field: {
-      base: "relative w-full",
-      input: {
-        base: "w-full cursor-pointer appearance-none rounded-lg bg-gray-200",
-        sizes: {
-          sm: "h-1",
-          md: "h-2",
-          lg: "h-3",
-        },
-      },
-    },
-  },
-};
+import customTheme from "./customTheme";
 
 type FlowbitRangeProps = {
   value: number; // 受け取る値
