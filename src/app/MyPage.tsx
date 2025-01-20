@@ -8,7 +8,7 @@ import { DiagnosisData } from "../types"; // 型定義を適用
 import { convertToDiagnosisData } from "../utils/convertToDiagnosisData";
 import Card from "./components/Card";
 import Construction from "./components/Construction";
-import FlowbitToggleSwitch from "./components/FlowbitToggleSwitch";
+import FlowbitToggleSwitch from "./components/Flowbit/FlowbitToggleSwitch";
 import MBTITendenciesChart from "./components/MBTITendenciesChart";
 
 export default function MyPage() {
