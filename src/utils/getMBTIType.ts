@@ -42,13 +42,13 @@ export const getMBTIType = (ratio: MBTIScore): MBTIType => {
  */
 export const getMBTIBias = (ratio: MBTIScore): MBTIBias => {
   // E vs I
-  const diffEI = Math.abs(ratio.E - ratio.I);
+  const diffEI = ratio.E - ratio.I;
   // S vs N
-  const diffSN = Math.abs(ratio.S - ratio.N);
+  const diffSN = ratio.S - ratio.N;
   // T vs F
-  const diffTF = Math.abs(ratio.T - ratio.F);
+  const diffTF = ratio.T - ratio.F;
   // J vs P
-  const diffJP = Math.abs(ratio.J - ratio.P);
+  const diffJP = ratio.J - ratio.P;
 
   return {
     EvsI: diffEI,

@@ -1,4 +1,3 @@
-import React from "react";
 import { MBTITendency } from "../../types";
 
 export default function MBTITendenciesChart({ tendency }: { tendency: MBTITendency }) {
@@ -13,7 +12,7 @@ export default function MBTITendenciesChart({ tendency }: { tendency: MBTITenden
           style={{
             backgroundColor: `${tendency.color}`,
             left: "50%",
-            width: `${Math.abs(tendency.value)}%`,
+            width: `${tendency.value}%`,
             transform: tendency.value < 0 ? "translateX(-100%)" : "translateX(0)",
           }}
         ></div>

@@ -1,4 +1,4 @@
-import { Question, MBTIDiagnosisResult, MBTIScore, MBTIBias } from "../../../types";
+import { MBTIBias, MBTIDiagnosisResult, MBTIScore, Question } from "../../../types";
 import { getMBTIBias, getMBTIType } from "../../../utils/getMBTIType";
 
 /**
@@ -57,6 +57,7 @@ export const calculateMBTIType = (questions: Question[], answers: number[]): MBT
 
   // 4) バイアス(bias)オブジェクトを作成（例: "EvsI": 10, "SvsN": 5, ... ）
   const bias: MBTIBias = getMBTIBias(ratio);
+  console.log(bias);
 
   return { type, bias, ratio };
 };
