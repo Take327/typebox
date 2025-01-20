@@ -6,7 +6,7 @@ const customTheme: CustomFlowbiteTheme = {
     label: "mb-1 flex justify-between font-medium",
     bar: "space-x-2 rounded-full text-center font-medium leading-none text-white",
     color: {
-      a8d8cb: "bg-[#a8d8cb]",
+      "81d8d0": "bg-[#81d8d0]",
     },
     size: {
       sm: "h-1.5",

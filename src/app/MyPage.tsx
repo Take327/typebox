@@ -56,7 +56,7 @@ export default function MyPage() {
             if (error) {
               return (
                 <Link href="/diagnosis/start" className="mt-auto">
-                  <button className="px-4 py-2 text-white rounded bg-a8d8cb hover:bg-a8d8cb/90">診断を開始する</button>
+                  <button className="px-4 py-2 text-white rounded bg-81d8d0 hover:bg-81d8d0/90">診断を開始する</button>
                 </Link>
               );
             } else {
@@ -72,7 +72,7 @@ export default function MyPage() {
                     ))}
                   </div>
                   <Link href="/diagnosis/start" className="mt-auto">
-                    <button className="px-4 py-2 text-white rounded bg-a8d8cb hover:bg-a8d8cb/90">
+                    <button className="px-4 py-2 text-white rounded bg-81d8d0 hover:bg-81d8d0/90">
                       診断を開始する
                     </button>
                   </Link>

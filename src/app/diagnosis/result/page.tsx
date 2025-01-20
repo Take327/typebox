@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import MBTITendenciesChart from "../../components/MBTITendenciesChart";
 import { Card } from "flowbite-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { DiagnosisData } from "../../../types";
 import { convertToDiagnosisData } from "../../../utils/convertToDiagnosisData";
-import Link from "next/link";
+import MBTITendenciesChart from "../../components/MBTITendenciesChart";
 
 export default function Page() {
   const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(null);
@@ -70,7 +70,7 @@ export default function Page() {
 
         {/* 診断開始ボタン */}
         <Link href="/" className="mt-auto">
-          <button className="rounded bg-a8d8cb px-4 py-2 text-white hover:bg-a8d8cb/90">ホームに戻る</button>
+          <button className="rounded bg-81d8d0 px-4 py-2 text-white hover:bg-81d8d0/90">ホームに戻る</button>
         </Link>
       </Card>
     </div>

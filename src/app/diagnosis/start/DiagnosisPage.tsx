@@ -163,7 +163,7 @@ const DiagnosisPage: React.FC = () => {
         <Link href="/" className="mt-auto">
           <button className="rounded bg-gray-700 px-4 py-2 text-white shadow-md hover:bg-gray-800">中断</button>
         </Link>
-        <button onClick={handleNextPage} className="rounded bg-a8d8cb px-4 py-2 text-white hover:bg-a8d8cb/90">
+        <button onClick={handleNextPage} className="rounded bg-81d8d0 px-4 py-2 text-white hover:bg-81d8d0/90">
           {isLastPage ? "結果を確認する" : "次の質問へ"}
         </button>
       </div>

@@ -10,7 +10,7 @@ export default function FlowbitProgress({ progress }: { progress: number }) {
         textLabelPosition="outside"
         size="lg"
         labelProgress
-        color="a8d8cb"
+        color="81d8d0"
       />
     </Flowbite>
   );
