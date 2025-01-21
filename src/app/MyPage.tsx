@@ -1,8 +1,11 @@
 "use client";
 
+import { TextInput } from "flowbite-react";
+import { useSession } from "next-auth/react"; // useSession をインポート
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { BiEdit } from "react-icons/bi";
 import { useProcessing } from "../context/ProcessingContext";
 import { notifications } from "../mock";
 import { DiagnosisData } from "../types";
@@ -14,10 +17,20 @@ import MBTITendenciesChart from "./components/MBTITendenciesChart";
 
 export default function MyPage() {
   const { setProcessing } = useProcessing();
+  const { data: session, status } = useSession(); // セッション情報を取得
   const router = useRouter();
   const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hasFetched, setHasFetched] = useState(false); // フラグを追加
+  const [isEditing, setIsEditing] = useState(false); // 編集モードの状態
+  const [inputValue, setInputValue] = useState(session?.user?.name || ""); // 入力値の状態
+
+  useEffect(() => {
+    // セッションデータが変更されたときに inputValue を更新
+    if (session?.user?.name) {
+      setInputValue(session.user.name);
+    }
+  }, [session?.user?.name]);
 
   useEffect(() => {
     if (hasFetched) return; // 既にリクエストを送信した場合は終了
@@ -52,6 +65,28 @@ export default function MyPage() {
   }, [router, setProcessing, hasFetched]);
 
   const displayedNotifications = notifications.slice(0, 4);
+
+  const handleEditClick = () => {
+    setIsEditing(true); // 編集モードを有効にする
+  };
+
+  const handleSave = async (e: React.FocusEvent<HTMLInputElement>) => {
+    e.preventDefault(); // デフォルトのイベント動作をキャンセル
+    setInputValue(e.target.value);
+    setIsEditing(false); // 編集モードを終了
+
+    if (!inputValue.trim()) {
+      console.error("入力値が空です。保存できません。");
+      return;
+    }
+
+    try {
+      // セッションのユーザー名を更新
+      setInputValue(e.target.value);
+    } catch (error) {
+      console.error("保存中にエラーが発生しました:", error);
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -102,9 +137,33 @@ export default function MyPage() {
 
         <div className="mb-4">
           <h2 className="mb-2 text-lg font-bold">アカウント情報</h2>
-          <p className="text-gray-700">アカウント名: ユーザー名</p>
+          <div className="flex items-center justify-between text-gray-700">
+            <div className="flex items-center">
+              アカウント名:
+              {isEditing ? (
+                <TextInput
+                  type="text"
+                  className="ml-3"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)} // 入力値を更新
+                  onBlur={handleSave} // フォーカスを外したら保存
+                  autoFocus // 自動的にフォーカスを当てる
+                />
+              ) : (
+                <span className="ml-3">{inputValue || "未ログイン"}</span>
+              )}
+            </div>
+            {!isEditing && (
+              <button
+                onClick={handleEditClick}
+                className="p-2 text-gray-500 hover:text-gray-800 transition-colors"
+                aria-label="アカウント名を編集する"
+              >
+                <BiEdit className="w-5 h-5" />
+              </button>
+            )}
+          </div>
         </div>
-
         <div>
           <h2 className="mb-2 text-lg font-bold">設定</h2>
           <div className="flex items-center">
