@@ -50,9 +50,6 @@ export const getMBTIBias = (ratio: MBTIScore): MBTIBias => {
   // J vs P
   const diffJP = ratio.P - ratio.J;
 
-  console.log("test");
-  console.log(diffEI);
-
   return {
     EvsI: diffEI,
     SvsN: diffSN,
