@@ -9,7 +9,7 @@ import { BiEdit } from "react-icons/bi";
 import { useProcessing } from "../context/ProcessingContext";
 import { notifications } from "../mock";
 import { DiagnosisData } from "../types";
-import { convertToDiagnosisData } from "../utils/convertToDiagnosisData";
+import { formatDiagnosisData } from "../utils/formatDiagnosisData";
 import Card from "./components/Card";
 import Construction from "./components/Construction";
 import FlowbitToggleSwitch from "./components/Flowbit/FlowbitToggleSwitch";
@@ -65,7 +65,7 @@ export default function MyPage(): React.JSX.Element {
         }
 
         const result = await response.json();
-        const transformedData = convertToDiagnosisData(result);
+        const transformedData = formatDiagnosisData(result);
         setDiagnosisData(transformedData);
       } catch (err) {
         console.error("診断データの取得中にエラー:", err);

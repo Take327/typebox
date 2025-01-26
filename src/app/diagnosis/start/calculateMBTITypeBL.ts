@@ -1,4 +1,4 @@
-import { convertScoreToDiagnosisResult } from "../../../lib/convertScoreToDiagnosisResult";
+import { convertScoreToDiagnosisResult } from "../../../utils/mbti/mbtiUtils";
 import { MBTIDiagnosisResult, MBTIScore, Question } from "../../../types";
 
 /**
