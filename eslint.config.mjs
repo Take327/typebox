@@ -1,7 +1,8 @@
-import typescriptEslintPlugin from "@typescript-eslint/eslint-plugin"; // TypeScriptプラグイン
-import parser from "@typescript-eslint/parser"; // TypeScriptパーサー
-import prettierPlugin from "eslint-plugin-prettier"; // Prettierプラグイン
-import tailwindcssPlugin from "eslint-plugin-tailwindcss"; // TailwindCSSプラグイン
+import typescriptEslintPlugin from "@typescript-eslint/eslint-plugin";
+import parser from "@typescript-eslint/parser";
+import prettierPlugin from "eslint-plugin-prettier";
+import tailwindcssPlugin from "eslint-plugin-tailwindcss";
+import { FlatCompat } from "@eslint/eslintrc";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -9,14 +10,28 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Flat Config と .eslintrc の互換性設定
+const compat = new FlatCompat({
+  baseDirectory: __dirname, // プロジェクトのベースディレクトリを指定
+  recommendedConfig: {
+    eslintRecommended: true, // ESLint推奨設定を使用
+  },
+});
+
 // ESLint の設定
-const eslintConfig = [
+export default [
+  ...compat.extends("eslint:recommended"), // 推奨ルール
+  ...compat.extends("plugin:@typescript-eslint/recommended"), // TypeScript推奨ルール
+  ...compat.extends("plugin:tailwindcss/recommended"), // TailwindCSS推奨ルール
+  ...compat.extends("plugin:prettier/recommended"), // Prettier推奨ルール
+  ...compat.extends("plugin:next/core-web-vitals"), // Next.js推奨ルール
+
   {
     files: ["**/*.{js,ts,jsx,tsx}"], // 対象ファイル
     languageOptions: {
       parser: parser, // TypeScript用のパーサー
       parserOptions: {
-        ecmaVersion: 2021,
+        ecmaVersion: "latest", // 最新のECMAScriptを使用
         sourceType: "module",
         ecmaFeatures: {
           jsx: true,
@@ -26,14 +41,15 @@ const eslintConfig = [
     plugins: {
       tailwindcss: tailwindcssPlugin,
       prettier: prettierPlugin,
-      "@typescript-eslint": typescriptEslintPlugin, // 修正箇所
+      "@typescript-eslint": typescriptEslintPlugin,
     },
     rules: {
       "prettier/prettier": "error", // PrettierのエラーをESLintで表示
-      "tailwindcss/classnames-order": "warn", // TailwindCSSクラス名の順序
+      "tailwindcss/classnames-order": "error", // TailwindCSSクラス名の順序をエラーに
       "@typescript-eslint/no-unused-vars": "warn", // 未使用変数の警告
-      "@typescript-eslint/no-explicit-any": "warn", // `any` の使用に警告
+      "@typescript-eslint/no-explicit-any": "error", // `any` の使用を禁止
       "@typescript-eslint/no-unsafe-function-type": "warn", // 安全でない関数型の警告
+      "@typescript-eslint/no-non-null-assertion": "warn", // 非nullアサーションの警告
     },
     settings: {
       react: {
@@ -42,5 +58,3 @@ const eslintConfig = [
     },
   },
 ];
-
-export default eslintConfig;
