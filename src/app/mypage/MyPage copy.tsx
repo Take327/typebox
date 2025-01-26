@@ -6,14 +6,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BiEdit } from "react-icons/bi";
-import { useProcessing } from "../context/ProcessingContext";
-import { notifications } from "../mock";
-import { DiagnosisData } from "../types";
-import { formatDiagnosisData } from "../utils/formatDiagnosisData";
-import Card from "./components/Card";
-import Construction from "./components/Construction";
-import FlowbitToggleSwitch from "./components/Flowbit/FlowbitToggleSwitch";
-import MBTITendenciesChart from "./components/MBTITendenciesChart";
+import { useProcessing } from "../../context/ProcessingContext";
+import { notifications } from "../../mock";
+import { DiagnosisData } from "../../types";
+import { formatDiagnosisData } from "../../utils/formatDiagnosisData";
+import Card from "../components/Card";
+import Construction from "../components/Construction";
+import FlowbitToggleSwitch from "../components/Flowbit/FlowbitToggleSwitch";
+import MBTITendenciesChart from "../components/MBTITendenciesChart";
 
 /**
  * マイページを表示するコンポーネント。
