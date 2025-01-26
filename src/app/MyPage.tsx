@@ -53,7 +53,12 @@ export default function MyPage(): React.JSX.Element {
     const fetchDiagnosisData = async () => {
       try {
         setProcessing(true);
-        const response = await fetch("/api/diagnosisResult");
+        const response = await fetch("/api/diagnosisResult", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
         if (response.status === 401) {
           router.push("/login");
@@ -65,6 +70,14 @@ export default function MyPage(): React.JSX.Element {
         }
 
         const result = await response.json();
+
+        // 初回ログインの場合の処理
+        if (result.initialLogin) {
+          console.log("初回ログインまたは診断結果が存在しません。");
+          setError("診断結果がありません。診断を開始してください。");
+          return;
+        }
+
         const transformedData = formatDiagnosisData(result);
         setDiagnosisData(transformedData);
       } catch (err) {
@@ -115,9 +128,12 @@ export default function MyPage(): React.JSX.Element {
       {/* 診断結果カード */}
       <Card title="診断結果">
         {error ? (
-          <Link href="/diagnosis/start" className="mt-auto">
-            <button className="px-4 py-2 text-white rounded bg-81d8d0 hover:bg-81d8d0/90">診断を開始する</button>
-          </Link>
+          <div className="flex flex-col items-center justify-center">
+            <p className="text-gray-600">{error}</p>
+            <Link href="/diagnosis/start">
+              <button className="px-4 py-2 mt-4 text-white rounded bg-81d8d0 hover:bg-81d8d0/90">診断を開始する</button>
+            </Link>
+          </div>
         ) : (
           <>
             <p className="mb-2 text-gray-600">
