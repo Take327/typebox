@@ -1,12 +1,13 @@
 "use client";
 
 import { ToggleSwitch } from "flowbite-react";
-import { useState } from "react";
 
-const FlowbitToggleSwitch = ({ isChecked }: { isChecked: boolean }) => {
-  const [switch1, setSwitch1] = useState(isChecked);
-
-  return <ToggleSwitch checked={switch1} onChange={setSwitch1} />;
-};
+const FlowbitToggleSwitch = ({
+  isChecked,
+  onChange,
+}: {
+  isChecked: boolean;
+  onChange: (e: boolean) => Promise<void>;
+}) => <ToggleSwitch checked={isChecked} onChange={onChange} />;
 
 export default FlowbitToggleSwitch;

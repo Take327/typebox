@@ -24,13 +24,14 @@ import MBTITendenciesChart from "./components/MBTITendenciesChart";
  */
 export default function MyPage(): React.JSX.Element {
   const { setProcessing } = useProcessing();
-  const { data: session, status } = useSession(); // セッション情報を取得
+  const { data: session } = useSession(); // セッション情報を取得
   const router = useRouter();
   const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [hasFetched, setHasFetched] = useState(false); // フラグを追加
-  const [isEditing, setIsEditing] = useState(false); // 編集モードの状態
-  const [inputValue, setInputValue] = useState(session?.user?.name || ""); // 入力値の状態
+  const [hasFetched, setHasFetched] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [inputValue, setInputValue] = useState(session?.user?.name || "");
+  const [autoApproval, setAutoApproval] = useState(false); // 自動承認フラグの状態
 
   /**
    * セッションデータが変更された際にアカウント名の入力値を更新。
@@ -42,17 +43,16 @@ export default function MyPage(): React.JSX.Element {
   }, [session?.user?.name]);
 
   /**
-   * 診断データをAPIから取得。
-   *
-   * - 未認証の場合、ログイン画面にリダイレクト。
-   * - データ取得後、`DiagnosisData`型に変換。
+   * 初期データ（診断結果、自動承認フラグなど）をAPIから取得。
    */
   useEffect(() => {
-    if (hasFetched) return; // 既にリクエストを送信した場合は終了
+    if (hasFetched) return;
 
-    const fetchDiagnosisData = async () => {
+    const fetchInitialData = async () => {
       try {
         setProcessing(true);
+
+        // 診断結果の取得
         const response = await fetch("/api/diagnosisResult", {
           method: "GET",
           headers: {
@@ -71,25 +71,37 @@ export default function MyPage(): React.JSX.Element {
 
         const result = await response.json();
 
-        // 初回ログインの場合の処理
+        // 診断データの処理
         if (result.initialLogin) {
           console.log("初回ログインまたは診断結果が存在しません。");
           setError("診断結果がありません。診断を開始してください。");
-          return;
+        } else {
+          const transformedData = formatDiagnosisData(result);
+          setDiagnosisData(transformedData);
         }
 
-        const transformedData = formatDiagnosisData(result);
-        setDiagnosisData(transformedData);
+        // 自動承認フラグの取得
+        const userResponse = await fetch("/api/users", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!userResponse.ok) {
+          throw new Error("ユーザー情報の取得に失敗しました。");
+        }
+
+        const userData = await userResponse.json();
+        setAutoApproval(userData.autoApproval); // フラグを設定
       } catch (err) {
-        console.error("診断データの取得中にエラー:", err);
-        setError("診断データを取得できませんでした。");
+        console.error("データの取得中にエラー:", err);
+        setError("データを取得できませんでした。");
       } finally {
         setProcessing(false);
-        setHasFetched(true); // フラグを更新
+        setHasFetched(true);
       }
     };
 
-    fetchDiagnosisData();
+    fetchInitialData();
   }, [router, setProcessing, hasFetched]);
 
   /**
@@ -118,6 +130,35 @@ export default function MyPage(): React.JSX.Element {
       setInputValue(e.target.value);
     } catch (error) {
       console.error("保存中にエラーが発生しました:", error);
+    }
+  };
+
+  /**
+   * トグルスイッチの変更を処理し、データベースを更新。
+   *
+   * @param {boolean} newState - トグルスイッチの新しい状態。
+   */
+  const handleToggleChange = async (newState: boolean) => {
+    try {
+      setProcessing(true);
+      setAutoApproval(newState);
+
+      const response = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: session?.user?.id, autoApproval: newState }),
+      });
+
+      if (!response.ok) {
+        throw new Error("自動承認フラグの更新に失敗しました。");
+      }
+
+      console.log("自動承認フラグが正常に更新されました。");
+    } catch (err) {
+      console.error("トグルスイッチの更新中にエラー:", err);
+      setAutoApproval(!newState);
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -208,7 +249,7 @@ export default function MyPage(): React.JSX.Element {
             <label htmlFor="auto-approve" className="mr-2 text-gray-700 cursor-pointer">
               自動承認
             </label>
-            <FlowbitToggleSwitch isChecked={true} />
+            <FlowbitToggleSwitch isChecked={autoApproval} onChange={handleToggleChange} />
           </div>
         </div>
       </Card>

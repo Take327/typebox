@@ -2,7 +2,8 @@ import { Account, AuthOptions, Session, User } from "next-auth";
 import AzureADProvider from "next-auth/providers/azure-ad";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
-import { getPool } from "../../../lib/db"; // データベース接続モジュール
+import { getPool } from "../../../lib/db";
+import { getUserInfoByEmail } from "../../../lib/getUserInfo";
 
 /**
  * NextAuthの認証設定オプション
@@ -38,16 +39,15 @@ export const authOptions: AuthOptions = {
      */
     async signIn({ user, account }: { user: User; account: Account | null }): Promise<boolean> {
       try {
-        // アカウント情報が不足している場合はエラー
         if (!account || !account.provider) {
           console.error("[signIn] 認証プロバイダー情報が不足しています。");
           return false;
         }
 
-        // GitHubの場合、メールアドレスを追加取得
+        // GitHubプロバイダーの特殊処理
         if (account.provider === "github" && !user.email) {
           const res = await fetch("https://api.github.com/user/emails", {
-            headers: { Authorization: `token ${account.access_token}` }, // アクセストークンを利用してリクエスト
+            headers: { Authorization: `token ${account.access_token}` },
           });
 
           // GitHub APIのレスポンスが正常でない場合はエラー
@@ -56,83 +56,46 @@ export const authOptions: AuthOptions = {
             return false;
           }
 
-          // GitHub APIのレスポンスからプライマリかつ検証済みのメールアドレスを取得
-          const emails = (await res.json()) as Array<{
-            email: string;
-            primary: boolean;
-            verified: boolean;
-          }>;
-
+          const emails = (await res.json()) as Array<{ email: string; primary: boolean; verified: boolean }>;
           user.email = emails.find((email) => email.primary && email.verified)?.email || null;
         }
 
-        // メールアドレスが取得できない場合はエラー
         if (!user.email) {
           console.error("[signIn] ユーザーのメールアドレスが取得できませんでした。");
           return false;
         }
 
-        // データベース接続を取得
         const pool = await getPool();
-        const query = `
-          IF NOT EXISTS (SELECT 1 FROM Users WHERE email = @Email)
-          BEGIN
-            INSERT INTO Users (name, email, provider) VALUES (@Name, @Email, @Provider)
-          END
-        `;
+        await pool.request().input("Name", user.name).input("Email", user.email).input("Provider", account.provider)
+          .query(`
+            IF NOT EXISTS (SELECT 1 FROM Users WHERE email = @Email)
+            BEGIN
+              INSERT INTO Users (name, email, provider) VALUES (@Name, @Email, @Provider)
+            END
+          `);
 
-        // データベースにユーザー情報を登録
-        await pool
-          .request()
-          .input("Name", user.name) // ユーザー名
-          .input("Email", user.email) // メールアドレス
-          .input("Provider", account.provider) // プロバイダー名
-          .query(query);
-
-        return true; // サインイン成功
+        return true;
       } catch (error) {
-        // エラーログを出力してサインイン失敗
         console.error("[signIn] エラー:", error);
         return false;
       }
     },
 
-    /**
-     * セッション生成時のコールバック
-     * @param {Session} params.session - セッション情報
-     * @returns {Promise<Session>} 更新されたセッションオブジェクト
-     */
     async session({ session }: { session: Session }): Promise<Session> {
       try {
-        // セッションにユーザー情報またはメールアドレスが存在しない場合はエラー
-        if (!session.user || !session.user.email) {
+        if (!session.user?.email) {
           console.error("[session] ユーザー情報が不足しています。");
           return session;
         }
 
-        // データベース接続を取得
-        const pool = await getPool();
+        const userInfo = await getUserInfoByEmail(session.user.email);
+        session.user.id = userInfo.id;
+        session.user.autoApproval = userInfo.auto_approval;
 
-        // メールアドレスに基づいてユーザーIDを取得
-        const result = await pool
-          .request()
-          .input("Email", session.user.email)
-          .query("SELECT id FROM Users WHERE email = @Email");
-
-        // ユーザーIDが見つからない場合の処理
-        if (result.recordset.length === 0) {
-          console.error("[session] ユーザーIDが存在しません。");
-          session.user.id = null; // セッションにnullを設定
-          return session;
-        }
-
-        // セッションにユーザーIDを追加
-        session.user.id = result.recordset[0]?.id || null;
-        return session; // 更新されたセッションを返す
+        return session;
       } catch (error) {
-        // エラーログを出力
         console.error("[session] エラー:", error);
-        return session; // エラー時はそのままセッションを返す
+        return session;
       }
     },
   },

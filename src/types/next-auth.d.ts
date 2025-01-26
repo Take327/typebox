@@ -9,6 +9,7 @@ declare module "next-auth" {
     user: {
       /** ここに追加したいプロパティ */
       id: number | null;
+      autoApproval: boolean;
       // 必要に応じて好きなプロパティを追加する
     } & DefaultSession["user"];
   }
