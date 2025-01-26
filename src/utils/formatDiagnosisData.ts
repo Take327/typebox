@@ -75,7 +75,7 @@ const MBTITypeJapaneseNames: {
  * @param {MBTIDiagnosisResult} result - 診断結果データ
  * @returns {DiagnosisData} 変換後の診断データ
  */
-export const convertToDiagnosisData = (result: MBTIDiagnosisResult): DiagnosisData => {
+export const formatDiagnosisData = (result: MBTIDiagnosisResult): DiagnosisData => {
   const tendencies: MBTITendency[] = createTendencies(result.ratio);
 
   return {

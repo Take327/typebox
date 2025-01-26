@@ -1,4 +1,4 @@
-import sql from "mssql"; // mssqlライブラリをインポート
+import sql from "mssql";
 
 // データベース接続設定
 const config: sql.config = {
@@ -23,6 +23,17 @@ const config: sql.config = {
 let pool: sql.ConnectionPool | null = null;
 
 /**
+ * 接続プールの状態をログ出力
+ */
+const logPoolStatus = () => {
+  if (pool) {
+    console.log(`プール状態: connected=${pool.connected}, connecting=${pool.connecting}`);
+  } else {
+    console.log("プールは未初期化です");
+  }
+};
+
+/**
  * データベース接続プールを取得する関数
  *
  * この関数は、データベース接続プールを管理し、複数の接続を効率的に扱えるようにします。
@@ -31,25 +42,34 @@ let pool: sql.ConnectionPool | null = null;
  * @returns {Promise<sql.ConnectionPool>} - データベース接続プール
  */
 export const getPool = async (): Promise<sql.ConnectionPool> => {
+  logPoolStatus(); // プール状態をログ出力
+
   if (!process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_SERVER || !process.env.DB_NAME) {
     throw new Error("データベース接続情報が不足しています。環境変数を確認してください。");
   }
 
-  if (!pool) {
-    // 接続プールが未初期化の場合、新しいConnectionPoolを作成
+  if (!pool || !pool.connected) {
+    // 接続プールが未初期化または閉じられている場合、新しいプールを作成
     pool = new sql.ConnectionPool(config);
 
-    // プールを接続し、接続エラーがあればキャッチ
     try {
       await pool.connect();
       console.log("データベースに接続しました");
     } catch (error) {
       console.error("データベース接続エラー:", error);
-      throw error; // エラーを呼び出し元に伝播
+      const typedError = error as { code?: string; message?: string };
+      // 特定のエラーコードに応じたハンドリングを追加
+      if (typedError.code === "ETIMEOUT") {
+        console.error("接続がタaイムアウトしました。サーバー設定やネットワークを確認してください。");
+      } else if (typedError.code === "ECONNCLOSED") {
+        console.error("接続が閉じられました。再接続を試みます。");
+      }
+
+      throw error; // エラーを再スロー
     }
   }
 
-  // 既存のプールを返却
+  logPoolStatus(); // 接続後のプール状態を再確認
   return pool;
 };
 

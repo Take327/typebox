@@ -1,5 +1,5 @@
 "use client";
-
+import React from "react";
 import { TextInput } from "flowbite-react";
 import { useSession } from "next-auth/react"; // useSession をインポート
 import Link from "next/link";
@@ -9,13 +9,20 @@ import { BiEdit } from "react-icons/bi";
 import { useProcessing } from "../context/ProcessingContext";
 import { notifications } from "../mock";
 import { DiagnosisData } from "../types";
-import { convertToDiagnosisData } from "../utils/convertToDiagnosisData";
+import { formatDiagnosisData } from "../utils/formatDiagnosisData";
 import Card from "./components/Card";
 import Construction from "./components/Construction";
 import FlowbitToggleSwitch from "./components/Flowbit/FlowbitToggleSwitch";
 import MBTITendenciesChart from "./components/MBTITendenciesChart";
 
-export default function MyPage() {
+/**
+ * マイページを表示するコンポーネント。
+ *
+ * 診断結果の表示、グループ情報の管理、通知や設定を提供します。
+ *
+ * @returns {JSX.Element} マイページのレイアウト。
+ */
+export default function MyPage(): React.JSX.Element {
   const { setProcessing } = useProcessing();
   const { data: session, status } = useSession(); // セッション情報を取得
   const router = useRouter();
@@ -25,20 +32,33 @@ export default function MyPage() {
   const [isEditing, setIsEditing] = useState(false); // 編集モードの状態
   const [inputValue, setInputValue] = useState(session?.user?.name || ""); // 入力値の状態
 
+  /**
+   * セッションデータが変更された際にアカウント名の入力値を更新。
+   */
   useEffect(() => {
-    // セッションデータが変更されたときに inputValue を更新
     if (session?.user?.name) {
       setInputValue(session.user.name);
     }
   }, [session?.user?.name]);
 
+  /**
+   * 診断データをAPIから取得。
+   *
+   * - 未認証の場合、ログイン画面にリダイレクト。
+   * - データ取得後、`DiagnosisData`型に変換。
+   */
   useEffect(() => {
     if (hasFetched) return; // 既にリクエストを送信した場合は終了
 
     const fetchDiagnosisData = async () => {
       try {
         setProcessing(true);
-        const response = await fetch("/api/diagnosisResult");
+        const response = await fetch("/api/diagnosisResult", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
         if (response.status === 401) {
           router.push("/login");
@@ -50,7 +70,15 @@ export default function MyPage() {
         }
 
         const result = await response.json();
-        const transformedData = convertToDiagnosisData(result);
+
+        // 初回ログインの場合の処理
+        if (result.initialLogin) {
+          console.log("初回ログインまたは診断結果が存在しません。");
+          setError("診断結果がありません。診断を開始してください。");
+          return;
+        }
+
+        const transformedData = formatDiagnosisData(result);
         setDiagnosisData(transformedData);
       } catch (err) {
         console.error("診断データの取得中にエラー:", err);
@@ -64,16 +92,22 @@ export default function MyPage() {
     fetchDiagnosisData();
   }, [router, setProcessing, hasFetched]);
 
-  const displayedNotifications = notifications.slice(0, 4);
-
+  /**
+   * 編集モードを有効にするハンドラー。
+   */
   const handleEditClick = () => {
-    setIsEditing(true); // 編集モードを有効にする
+    setIsEditing(true);
   };
 
+  /**
+   * アカウント名を保存するハンドラー。
+   *
+   * @param {React.FocusEvent<HTMLInputElement>} e - 入力要素のフォーカスイベント。
+   */
   const handleSave = async (e: React.FocusEvent<HTMLInputElement>) => {
-    e.preventDefault(); // デフォルトのイベント動作をキャンセル
+    e.preventDefault();
     setInputValue(e.target.value);
-    setIsEditing(false); // 編集モードを終了
+    setIsEditing(false);
 
     if (!inputValue.trim()) {
       console.error("入力値が空です。保存できません。");
@@ -81,21 +115,25 @@ export default function MyPage() {
     }
 
     try {
-      // セッションのユーザー名を更新
       setInputValue(e.target.value);
     } catch (error) {
       console.error("保存中にエラーが発生しました:", error);
     }
   };
 
+  const displayedNotifications = notifications.slice(0, 4);
+
   return (
     <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
       {/* 診断結果カード */}
       <Card title="診断結果">
         {error ? (
-          <Link href="/diagnosis/start" className="mt-auto">
-            <button className="px-4 py-2 text-white rounded bg-81d8d0 hover:bg-81d8d0/90">診断を開始する</button>
-          </Link>
+          <div className="flex flex-col items-center justify-center">
+            <p className="text-gray-600">{error}</p>
+            <Link href="/diagnosis/start">
+              <button className="px-4 py-2 mt-4 text-white rounded bg-81d8d0 hover:bg-81d8d0/90">診断を開始する</button>
+            </Link>
+          </div>
         ) : (
           <>
             <p className="mb-2 text-gray-600">

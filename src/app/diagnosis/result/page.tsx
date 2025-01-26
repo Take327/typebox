@@ -4,7 +4,7 @@ import { Card } from "flowbite-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { DiagnosisData } from "../../../types";
-import { convertToDiagnosisData } from "../../../utils/convertToDiagnosisData";
+import { formatDiagnosisData } from "../../../utils/formatDiagnosisData";
 import MBTITendenciesChart from "../../components/MBTITendenciesChart";
 
 export default function Page() {
@@ -22,7 +22,7 @@ export default function Page() {
         }
 
         const result = await response.json();
-        const transformedData = convertToDiagnosisData(result); // データを変換
+        const transformedData = formatDiagnosisData(result); // データを変換
         setDiagnosisData(transformedData);
       } catch (err) {
         console.error("診断データの取得中にエラー:", err);
