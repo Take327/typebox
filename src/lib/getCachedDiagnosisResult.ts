@@ -1,6 +1,6 @@
-import { MBTIDiagnosisResult, MBTIScore } from "@/types";
+import { MBTIDiagnosisResult, MBTIScore } from "../types";
 import Redis from "ioredis";
-import { convertScoreToDiagnosisResult } from "./convertScoreToDiagnosisResult";
+import { convertScoreToDiagnosisResult } from "../utils/mbti/mbtiUtils";
 import { getLatestDiagnosisResult } from "./getLatestDiagnosisResult";
 
 const redis = new Redis();
