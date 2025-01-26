@@ -6,7 +6,18 @@ import { ProcessingProvider } from "../context/ProcessingContext";
 import Backdrop from "./components/Backdrop";
 import MyPage from "./MyPage";
 
-const PageWrapper: React.FC = () => {
+/**
+ * アプリケーション全体をラップするコンポーネント。
+ *
+ * このコンポーネントは、以下のプロバイダーを提供します：
+ * - セッション管理（`SessionProvider`）
+ * - 処理状態管理（`ProcessingProvider`）
+ *
+ * また、共通のバックドロップと `MyPage` コンポーネントをレンダリングします。
+ *
+ * @returns {JSX.Element} アプリケーションのラップされたコンポーネント。
+ */
+const PageWrapper: React.FC = (): React.JSX.Element => {
   return (
     <SessionProvider>
       <ProcessingProvider>
