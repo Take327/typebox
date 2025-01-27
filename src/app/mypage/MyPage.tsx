@@ -8,6 +8,7 @@ import SettingsCard from "./card/SettingsCard";
 import { DiagnosisData } from "@/types";
 import { useRouter } from "next/router";
 import { formatDiagnosisData } from "@/utils/formatDiagnosisData";
+import FlowbitAlertError from "../components/Flowbit/FlowbitAlertError";
 
 /**
  * マイページを表示するコンポーネント。
@@ -69,15 +70,18 @@ export default function MyPage(): React.JSX.Element {
   }, [router]); // router が初期化された後に fetchDiagnosisResult を実行
 
   return (
-    <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
-      {/* 診断結果カード */}
-      {diagnosisData == null ? <></> : <DiagnosisCard diagnosisData={diagnosisData} />}
+    <>
+      {error == null ? <></> : <FlowbitAlertError msg={error} />}
+      <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
+        {/* 診断結果カード */}
+        {diagnosisData == null ? <></> : <DiagnosisCard diagnosisData={diagnosisData} />}
 
-      {/* 所属グループ */}
-      <GroupCard />
+        {/* 所属グループ */}
+        <GroupCard />
 
-      {/* 各種設定カード */}
-      <SettingsCard session={session} setProcessing={setProcessing} />
-    </div>
+        {/* 各種設定カード */}
+        <SettingsCard session={session} setProcessing={setProcessing} />
+      </div>
+    </>
   );
 }
