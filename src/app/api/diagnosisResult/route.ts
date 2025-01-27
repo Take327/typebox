@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCachedLatestDiagnosisResult } from "@/lib/getCachedDiagnosisResult";
 import { getServerSessionUserId } from "@/lib/getServerSessionUserId";
+import { getLatestDiagnosisResult } from "@/lib/getLatestDiagnosisResult";
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     }
 
     // 診断結果を取得
-    const diagnosisResult = await getCachedLatestDiagnosisResult(userId);
+    const diagnosisResult = await getLatestDiagnosisResult(userId);
 
     if (!diagnosisResult) {
       // 初回ログインの場合や診断結果がない場合のレスポンス

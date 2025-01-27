@@ -27,8 +27,7 @@ export default function SettingsCard({ session, setProcessing }: SettingsCardPro
     try {
       setProcessing(true);
 
-      // ユーザー情報（自動承認フラグ）を取得
-      const userResponse = await fetch("/api/users", {
+      const userResponse = await fetch(`/api/users?email=${session?.user?.email}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -38,6 +37,10 @@ export default function SettingsCard({ session, setProcessing }: SettingsCardPro
       }
 
       const userData = await userResponse.json();
+      if (!userData) {
+        throw new Error("ユーザー情報のがありませんでした。");
+      }
+
       setAutoApproval(userData.autoApproval);
     } catch (err) {
       console.error("データの取得中にエラー:", err);
