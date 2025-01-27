@@ -10,51 +10,14 @@ import { Session } from "next-auth";
 interface SettingsCardProps {
   session: Session | null; // NextAuthのSession型など適切な型に差し替えてください
   setProcessing: (processing: boolean) => void;
+  autoApproval: boolean;
+  setAutoApproval: (newState: boolean) => void;
 }
 
-export default function SettingsCard({ session, setProcessing }: SettingsCardProps) {
+export default function SettingsCard({ session, setProcessing, autoApproval, setAutoApproval }: SettingsCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(session?.user?.name || "");
-  const [autoApproval, setAutoApproval] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false);
-
   const displayedNotifications = notifications.slice(0, 4);
-
-  /**
-   * 初期データ（自動承認フラグなど）を取得する非同期関数
-   */
-  const fetchInitialSettings = async () => {
-    try {
-      setProcessing(true);
-
-      const userResponse = await fetch(`/api/users?email=${session?.user?.email}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (!userResponse.ok) {
-        throw new Error("ユーザー情報の取得に失敗しました。");
-      }
-
-      const userData = await userResponse.json();
-      if (!userData) {
-        throw new Error("ユーザー情報のがありませんでした。");
-      }
-
-      setAutoApproval(userData.autoApproval);
-    } catch (err) {
-      console.error("データの取得中にエラー:", err);
-    } finally {
-      setProcessing(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!hasFetched) {
-      fetchInitialSettings();
-      setHasFetched(true);
-    }
-  }, [hasFetched]);
 
   /**
    * アカウント名を編集する

@@ -5,10 +5,11 @@ import { useProcessing } from "../../context/ProcessingContext";
 import DiagnosisCard from "./card/DiagnosisCard";
 import GroupCard from "./card/GroupCard";
 import SettingsCard from "./card/SettingsCard";
-import { DiagnosisData } from "@/types";
+import { DiagnosisData, EISNTFJP_VALUES, MBTIScore } from "@/types";
 import { useRouter } from "next/router";
 import { formatDiagnosisData } from "@/utils/formatDiagnosisData";
 import FlowbitAlertError from "../components/Flowbit/FlowbitAlertError";
+import { convertScoreToDiagnosisResult } from "@/utils/mbti/mbtiUtils";
 
 /**
  * マイページを表示するコンポーネント。
@@ -26,13 +27,21 @@ export default function MyPage(): React.JSX.Element {
   const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [router, setRouter] = useState<ReturnType<typeof useRouter> | null>(null);
+  const [autoApproval, setAutoApproval] = useState(false);
 
   /**
    * 診断結果を取得する非同期関数
    */
+  const isValidScore = (score: unknown): score is MBTIScore => {
+    if (typeof score !== "object" || score === null) {
+      return false;
+    }
+
+    return EISNTFJP_VALUES.every((key) => typeof (score as Record<string, unknown>)[key] === "number");
+  };
+
   const fetchDiagnosisResult = async () => {
     try {
-      // 診断結果の取得
       const response = await fetch("/api/diagnosisResult", {
         method: "GET",
         headers: {
@@ -40,33 +49,66 @@ export default function MyPage(): React.JSX.Element {
         },
       });
 
+      if (!response.ok) {
+        throw new Error(`エラーが発生しました: ${response.statusText}`);
+      }
+
+      const result = (await response.json()) as MBTIScore;
+
+      if (!result) {
+        throw new Error("診断結果が無効です: 診断情報がありません");
+      }
+
+      console.log(result);
+
+      if (!isValidScore(result)) {
+        throw new Error("診断結果が無効です: スコアデータが不完全です");
+      }
+
+      const transformedData = formatDiagnosisData(convertScoreToDiagnosisResult(result));
+      setDiagnosisData(transformedData);
+    } catch (err) {
+      console.error("データの取得中にエラー:", err);
+      setError("診断結果を取得できませんでした。");
+    }
+  };
+
+  /**
+   * 初期データ（自動承認フラグなど）を取得する非同期関数
+   */
+  const fetchInitialSettings = async () => {
+    try {
+      setProcessing(true);
+
+      const userResponse = await fetch(`/api/users?email=${session?.user?.email}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!userResponse.ok) {
+        throw new Error("ユーザー情報の取得に失敗しました。");
+      }
+
+      const userData = await userResponse.json();
       // 認証エラーならログイン画面へリダイレクト
-      if (response.status === 401) {
+      if (!userData) {
         if (router) {
           router.push("/login"); // クライアント側のみリダイレクト
         }
         return;
       }
 
-      if (!response.ok) {
-        throw new Error(`エラーが発生しました: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      if (result.initialLogin) {
-        setError("診断結果がありません。診断を開始してください。");
-      } else {
-        const transformedData = formatDiagnosisData(result);
-        setDiagnosisData(transformedData);
-      }
+      setAutoApproval(userData.autoApproval);
     } catch (err) {
       console.error("データの取得中にエラー:", err);
-      setError("データを取得できませんでした。");
+    } finally {
+      setProcessing(false);
     }
   };
 
   useEffect(() => {
     fetchDiagnosisResult();
+    fetchInitialSettings();
   }, [router]); // router が初期化された後に fetchDiagnosisResult を実行
 
   return (
@@ -80,7 +122,12 @@ export default function MyPage(): React.JSX.Element {
         <GroupCard />
 
         {/* 各種設定カード */}
-        <SettingsCard session={session} setProcessing={setProcessing} />
+        <SettingsCard
+          session={session}
+          setProcessing={setProcessing}
+          autoApproval={autoApproval}
+          setAutoApproval={setAutoApproval}
+        />
       </div>
     </>
   );
