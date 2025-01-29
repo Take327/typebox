@@ -28,6 +28,10 @@ export const authOptions: AuthOptions = {
       clientSecret: process.env.MICROSOFT_SECRET!,
     }),
   ],
+  pages: {
+    signIn: "/login", // ログインページ
+    error: "/auth/error", // エラーページを指定
+  },
   secret: process.env.NEXTAUTH_SECRET, // セッション暗号化用のシークレットキー
   session: { strategy: "jwt" }, // JWTを使用したセッション管理を設定
   callbacks: {
