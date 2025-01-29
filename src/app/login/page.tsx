@@ -18,7 +18,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col items-center pt-16">
-      <div className="flex">
+      <div className="flex items-center mb-6">
         <Image
           src="/typebox_logo.svg"
           alt="ロゴ"
@@ -26,7 +26,7 @@ export default function LoginPage() {
           height={32} // 画像高さ
           className="mr-2"
         />
-        <h1 className="mb-6 text-center text-2xl font-bold">TypeBox</h1>
+        <h1 className="text-center text-2xl font-bold">TypeBox</h1>
       </div>
       <div className="mx-6 w-9/12 max-w-md rounded-lg bg-white p-6 shadow-md">
         <h1 className="mb-6 text-center text-2xl font-bold">ログイン</h1>
