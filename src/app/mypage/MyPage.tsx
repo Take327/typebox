@@ -59,8 +59,6 @@ export default function MyPage(): React.JSX.Element {
         throw new Error("診断結果が無効です: 診断情報がありません");
       }
 
-      console.log(result);
-
       if (!isValidScore(result)) {
         throw new Error("診断結果が無効です: スコアデータが不完全です");
       }
@@ -79,8 +77,16 @@ export default function MyPage(): React.JSX.Element {
   const fetchInitialSettings = async () => {
     try {
       setProcessing(true);
+      if (!router) {
+        return;
+      }
 
-      const userResponse = await fetch(`/api/users?email=${session?.user?.email}`, {
+      if (!session) {
+        router.push("/login"); // クライアント側のみリダイレクト
+        return;
+      }
+
+      const userResponse = await fetch(`/api/users?email=${session.user?.email}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -92,9 +98,7 @@ export default function MyPage(): React.JSX.Element {
       const userData = await userResponse.json();
       // 認証エラーならログイン画面へリダイレクト
       if (!userData) {
-        if (router) {
-          router.push("/login"); // クライアント側のみリダイレクト
-        }
+        router.push("/login"); // クライアント側のみリダイレクト
         return;
       }
 
@@ -115,19 +119,23 @@ export default function MyPage(): React.JSX.Element {
     <>
       {error == null ? <></> : <FlowbitAlertError msg={error} />}
       <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
-        {/* 診断結果カード */}
-        {diagnosisData == null ? <></> : <DiagnosisCard diagnosisData={diagnosisData} />}
-
-        {/* 所属グループ */}
-        <GroupCard />
-
-        {/* 各種設定カード */}
-        <SettingsCard
-          session={session}
-          setProcessing={setProcessing}
-          autoApproval={autoApproval}
-          setAutoApproval={setAutoApproval}
-        />
+        {diagnosisData == null ? (
+          <></>
+        ) : (
+          <>
+            {/* 診断データ */}
+            <DiagnosisCard diagnosisData={diagnosisData} />
+            {/* 所属グループ */}
+            <GroupCard />
+            {/* 各種設定カード */}
+            <SettingsCard
+              session={session}
+              setProcessing={setProcessing}
+              autoApproval={autoApproval}
+              setAutoApproval={setAutoApproval}
+            />
+          </>
+        )}
       </div>
     </>
   );
