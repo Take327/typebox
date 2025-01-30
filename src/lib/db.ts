@@ -2,10 +2,10 @@ import sql from "mssql";
 
 // データベース接続設定
 const config: sql.config = {
-  user: process.env.DB_USER || "", // データベースユーザー名（環境変数から取得）
-  password: process.env.DB_PASSWORD || "", // データベースパスワード（環境変数から取得）
-  server: process.env.DB_SERVER || "", // データベースサーバーのアドレス（環境変数から取得）
-  database: process.env.DB_NAME || "", // データベース名（環境変数から取得）
+  user: process.env.DB_USER || "",
+  password: process.env.DB_PASSWORD || "",
+  server: process.env.DB_SERVER || "",
+  database: process.env.DB_NAME || "",
   options: {
     encrypt: true, // データ転送時の暗号化を有効化（Azure SQL Database などで推奨）
     enableArithAbort: true, // 推奨設定
@@ -13,14 +13,15 @@ const config: sql.config = {
   pool: {
     max: 10, // 最大接続数
     min: 0, // 最小接続数
-    idleTimeoutMillis: 30000, // 接続アイドルタイムアウト
-    acquireTimeoutMillis: 30000, // プール接続取得のタイムアウト
+    idleTimeoutMillis: 60000, // 接続アイドルタイムアウト(ミリ秒)
+    acquireTimeoutMillis: 60000, // プール接続取得のタイムアウト(ミリ秒)
   },
 };
 
 // 接続プールオブジェクトを格納
-// 初期値はnullで、最初の呼び出し時に初期化されます
 let pool: sql.ConnectionPool | null = null;
+// 接続開始中かどうかを示す Promise を保持
+let poolPromise: Promise<sql.ConnectionPool> | null = null;
 
 /**
  * 接続プールの状態をログ出力
@@ -34,63 +35,79 @@ const logPoolStatus = () => {
 };
 
 /**
+ * リトライしながらデータベース接続を行う
+ */
+async function connectWithRetry(
+  connectionPool: sql.ConnectionPool,
+  retries: number = 3,
+  delayMs: number = 5000
+): Promise<sql.ConnectionPool> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      await connectionPool.connect();
+      return connectionPool;
+    } catch (error) {
+      console.error(`接続に失敗しました (attempt: ${attempt}/${retries}):`, error);
+      if (attempt === retries) {
+        // リトライ失敗
+        throw error;
+      }
+      console.log(`再試行まで ${delayMs / 1000} 秒待機...`);
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+  // ここには基本的に到達しない想定
+  throw new Error("接続リトライが失敗しました。");
+}
+
+/**
  * データベース接続プールを取得する関数
- *
- * この関数は、データベース接続プールを管理し、複数の接続を効率的に扱えるようにします。
- * 接続が未確立の場合、新しいプールを作成します。
  *
  * @returns {Promise<sql.ConnectionPool>} - データベース接続プール
  */
 export const getPool = async (): Promise<sql.ConnectionPool> => {
-  logPoolStatus(); // プール状態をログ出力
+  // すでにプールがあり、接続済み
+  if (pool && pool.connected) {
+    return pool;
+  }
 
+  // 接続中または接続開始したPromiseがある場合
+  if (poolPromise) {
+    return poolPromise;
+  }
+
+  // 必要な環境変数が揃っているかを簡単にチェック（必要ならここを厳格化）
   if (!process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_SERVER || !process.env.DB_NAME) {
     throw new Error("データベース接続情報が不足しています。環境変数を確認してください。");
   }
 
-  if (!pool || !pool.connected) {
-    // 接続プールが未初期化または閉じられている場合、新しいプールを作成
+  // 新しい接続プールを生成し、リトライ付きで接続
+  poolPromise = (async () => {
     pool = new sql.ConnectionPool(config);
+    await connectWithRetry(pool, 3, 5000);
+    console.log("データベースに接続しました");
+    logPoolStatus();
+    return pool;
+  })();
 
-    try {
-      await pool.connect();
-      console.log("データベースに接続しました");
-    } catch (error) {
-      console.error("データベース接続エラー:", error);
-      const typedError = error as { code?: string; message?: string };
-      // 特定のエラーコードに応じたハンドリングを追加
-      if (typedError.code === "ETIMEOUT") {
-        console.error("接続がタaイムアウトしました。サーバー設定やネットワークを確認してください。");
-      } else if (typedError.code === "ECONNCLOSED") {
-        console.error("接続が閉じられました。再接続を試みます。");
-      }
-
-      throw error; // エラーを再スロー
-    }
-  }
-
-  logPoolStatus(); // 接続後のプール状態を再確認
-  return pool;
+  return poolPromise;
 };
 
 /**
- * SIGINTイベントリスナー
- *
- * このリスナーは、アプリケーションがCtrl+CまたはSIGINTシグナルを受信したときに実行されます。
- * データベース接続プールが存在する場合、接続を安全に閉じてからプロセスを終了します。
+ * アプリケーション終了時にプール接続をクリーンアップ
  */
-process.on("SIGINT", async () => {
+const cleanup = async () => {
   if (pool) {
     try {
-      // データベース接続プールを安全に閉じる
       await pool.close();
       console.log("データベース接続を閉じました");
     } catch (error) {
-      // エラーハンドリング: 接続を閉じる際に失敗した場合
       console.error("データベース接続のクローズ中にエラーが発生しました:", error);
     }
   }
-
-  // プロセスの正常終了
   process.exit();
-});
+};
+
+// SIGINTとSIGTERMイベントリスナー
+process.on("SIGINT", cleanup);
+process.on("SIGTERM", cleanup);

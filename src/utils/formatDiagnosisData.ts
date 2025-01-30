@@ -1,4 +1,4 @@
-import { DiagnosisData, MBTIDiagnosisResult, MBTIScore, MBTITendency, MBTIType } from "../types";
+import { DiagnosisData, EISNTFJP_VALUES, MBTIDiagnosisResult, MBTIScore, MBTITendency, MBTIType } from "../types";
 
 const MBTITypeJapaneseNames: {
   [key in MBTIType]: { type: string; traits: string };
@@ -93,6 +93,14 @@ export const formatDiagnosisData = (result: MBTIDiagnosisResult): DiagnosisData 
  * @returns {MBTITendency[]} 傾向データ
  */
 const createTendencies = (score: MBTIScore): MBTITendency[] => {
+  // スコアデータがすべて正しいかを検証
+  EISNTFJP_VALUES.forEach((key) => {
+    if (typeof score[key] !== "number") {
+      console.error(`スコアデータが不正です: ${key} が存在しないか無効です`);
+      score[key] = 0; // デフォルト値を設定
+    }
+  });
+
   return [
     {
       labelMinus: "外向型(E)",

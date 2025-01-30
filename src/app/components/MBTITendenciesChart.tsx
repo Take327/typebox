@@ -1,8 +1,6 @@
 import { MBTITendency } from "../../types";
 
 export default function MBTITendenciesChart({ tendency }: { tendency: MBTITendency }) {
-  console.log(tendency);
-
   return (
     <div className="mb-3">
       <div className="flex justify-center">

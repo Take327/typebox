@@ -4,7 +4,7 @@ import { SessionProvider } from "next-auth/react";
 import React from "react";
 import { ProcessingProvider } from "../context/ProcessingContext";
 import Backdrop from "./components/Backdrop";
-import MyPage from "./MyPage";
+import MyPage from "./mypage/MyPage";
 
 /**
  * アプリケーション全体をラップするコンポーネント。
