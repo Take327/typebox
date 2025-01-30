@@ -10,14 +10,13 @@ import { Session } from "next-auth";
 interface SettingsCardProps {
   session: Session | null; // NextAuthのSession型など適切な型に差し替えてください
   setProcessing: (processing: boolean) => void;
-  autoApproval: boolean;
-  setAutoApproval: (newState: boolean) => void;
 }
 
-export default function SettingsCard({ session, setProcessing, autoApproval, setAutoApproval }: SettingsCardProps) {
+export default function SettingsCard({ session, setProcessing }: SettingsCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(session?.user?.name || "");
   const displayedNotifications = notifications.slice(0, 4);
+  const [autoApproval, setAutoApproval] = useState(session?.user?.autoApproval || false);
 
   /**
    * アカウント名を編集する
@@ -58,7 +57,6 @@ export default function SettingsCard({ session, setProcessing, autoApproval, set
   const handleToggleChange = async (newState: boolean) => {
     try {
       setProcessing(true);
-      setAutoApproval(newState);
 
       const response = await fetch("/api/users", {
         method: "POST",
@@ -74,6 +72,7 @@ export default function SettingsCard({ session, setProcessing, autoApproval, set
       }
 
       console.log("自動承認フラグが正常に更新されました。");
+      setAutoApproval(newState);
     } catch (err) {
       console.error("トグルスイッチの更新中にエラー:", err);
       // 失敗時は元の状態に戻す

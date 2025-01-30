@@ -17,7 +17,6 @@ export default function MyPage(): React.JSX.Element {
   const router = useRouter();
   const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [autoApproval, setAutoApproval] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   /**
@@ -109,8 +108,9 @@ export default function MyPage(): React.JSX.Element {
         return;
       }
 
+      console.log("デバッグ", userData.autoApproval);
       // 自動承認フラグを状態にセット
-      setAutoApproval(userData.autoApproval);
+      //setAutoApproval(userData.autoApproval);
     } catch (err) {
       console.error("初期設定の取得エラー:", err);
     }
@@ -161,12 +161,7 @@ export default function MyPage(): React.JSX.Element {
           {/* 所属グループ */}
           <GroupCard />
           {/* 各種設定カード */}
-          <SettingsCard
-            session={session}
-            setProcessing={setProcessing}
-            autoApproval={autoApproval}
-            setAutoApproval={setAutoApproval}
-          />
+          <SettingsCard session={session} setProcessing={setProcessing} />
         </div>
       )}
     </>
