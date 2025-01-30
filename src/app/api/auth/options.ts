@@ -30,7 +30,7 @@ export const authOptions: AuthOptions = {
   ],
   pages: {
     signIn: "/login", // カスタムログインページのパス
-    error: "/auth/error", // 認証エラー発生時のリダイレクト先
+    error: "login/error", // 認証エラー発生時のリダイレクト先
   },
   secret: process.env.NEXTAUTH_SECRET, // JWTセッション暗号化用のシークレットキー
   session: { strategy: "jwt" }, // JWTを使用したセッション管理を有効化
