@@ -10,6 +10,7 @@ import { useRouter } from "next/router";
 import { formatDiagnosisData } from "@/utils/formatDiagnosisData";
 import FlowbitAlertError from "../components/Flowbit/FlowbitAlertError";
 import { convertScoreToDiagnosisResult } from "@/utils/mbti/mbtiUtils";
+import NoDiagnosisCard from "./card/NoDiagnosisCard";
 
 /**
  * マイページを表示するコンポーネント。
@@ -117,26 +118,23 @@ export default function MyPage(): React.JSX.Element {
 
   return (
     <>
-      {error == null ? <></> : <FlowbitAlertError msg={error} />}
-      <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
-        {diagnosisData == null ? (
-          <></>
-        ) : (
-          <>
-            {/* 診断データ */}
-            <DiagnosisCard diagnosisData={diagnosisData} />
-            {/* 所属グループ */}
-            <GroupCard />
-            {/* 各種設定カード */}
-            <SettingsCard
-              session={session}
-              setProcessing={setProcessing}
-              autoApproval={autoApproval}
-              setAutoApproval={setAutoApproval}
-            />
-          </>
-        )}
-      </div>
+      {diagnosisData == null ? (
+        <NoDiagnosisCard />
+      ) : (
+        <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
+          {/* 診断データ */}
+          <DiagnosisCard diagnosisData={diagnosisData} />
+          {/* 所属グループ */}
+          <GroupCard />
+          {/* 各種設定カード */}
+          <SettingsCard
+            session={session}
+            setProcessing={setProcessing}
+            autoApproval={autoApproval}
+            setAutoApproval={setAutoApproval}
+          />
+        </div>
+      )}
     </>
   );
 }
