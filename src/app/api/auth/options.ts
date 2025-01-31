@@ -1,9 +1,17 @@
-import { Account, AuthOptions, Session, User } from "next-auth";
+import { AuthOptions, Session, User, Account } from "next-auth";
 import AzureADProvider from "next-auth/providers/azure-ad";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import { getPool } from "../../../lib/db";
 import { getUserInfoByEmail } from "../../../lib/getUserInfo";
+
+/**
+ * `Session` 型を拡張して `accessToken` を追加
+ */
+interface ExtendedSession extends Session {
+  error?: string;
+  accessToken?: string;
+}
 
 /**
  * NextAuthの認証設定オプション
@@ -15,7 +23,7 @@ export const authOptions: AuthOptions = {
     GitHubProvider({
       clientId: process.env.GITHUB_ID!,
       clientSecret: process.env.GITHUB_SECRET!,
-      authorization: { params: { scope: "read:user user:email" } }, // ユーザー情報とメールアドレスの取得スコープを指定
+      authorization: { params: { scope: "read:user user:email" } },
     }),
     // Google認証プロバイダーの設定
     GoogleProvider({
@@ -26,27 +34,31 @@ export const authOptions: AuthOptions = {
     AzureADProvider({
       clientId: process.env.MICROSOFT_ID!,
       clientSecret: process.env.MICROSOFT_SECRET!,
+      authorization: {
+        params: {
+          scope: "openid profile email offline_access",
+          response_mode: "query",
+        },
+      },
+      checks: ["pkce"],
     }),
   ],
   pages: {
-    signIn: "/login", // カスタムログインページのパス
-    error: "/auth/error", // 認証エラー発生時のリダイレクト先
+    signIn: "/login",
+    error: "/auth/error",
   },
-  secret: process.env.NEXTAUTH_SECRET, // JWTセッション暗号化用のシークレットキー
-  session: { strategy: "jwt" }, // JWTを使用したセッション管理を有効化
+  secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    strategy: "jwt",
+    maxAge: 24 * 60 * 60,
+    updateAge: 6 * 60 * 60,
+  },
   callbacks: {
     /**
      * サインイン時のコールバック処理
-     * - ユーザーの認証情報を検証し、必要に応じてデータベースにユーザーを登録
-     * - GitHub 認証時にメールアドレスが取得できない場合は、API から取得
-     *
-     * @param {User} user - 認証されたユーザー情報
-     * @param {Account | null} account - 認証アカウント情報
-     * @returns {Promise<boolean>} - 認証成功時はtrue、失敗時はfalse
      */
     async signIn({ user, account }: { user: User; account: Account | null }): Promise<boolean> {
       try {
-        // 認証プロバイダー情報が不足している場合はエラー
         if (!account || !account.provider) {
           console.error("[signIn] 認証プロバイダー情報が不足しています。");
           return false;
@@ -58,7 +70,6 @@ export const authOptions: AuthOptions = {
             headers: { Authorization: `token ${account.access_token}` }, // GitHub API の認証トークン
           });
 
-          // APIレスポンスが正常でない場合はエラーをスロー
           if (!res.ok) {
             console.error(`[signIn] GitHubメール取得失敗: ${res.status}`);
             return false;
@@ -69,17 +80,16 @@ export const authOptions: AuthOptions = {
           user.email = emails.find((email) => email.primary && email.verified)?.email || null;
         }
 
-        // ユーザーのメールアドレスが取得できない場合はエラー
         if (!user.email) {
           console.error("[signIn] ユーザーのメールアドレスが取得できませんでした。");
           return false;
         }
 
-        // データベース接続を取得
         const pool = await getPool();
-
-        // ユーザーが存在しない場合は新規登録
-        await pool.request().input("Name", user.name).input("Email", user.email).input("Provider", account.provider)
+        await pool.request()
+          .input("Name", user.name)
+          .input("Email", user.email)
+          .input("Provider", account.provider)
           .query(`
             IF NOT EXISTS (SELECT 1 FROM Users WHERE email = @Email)
             BEGIN
@@ -87,40 +97,80 @@ export const authOptions: AuthOptions = {
             END
           `);
 
-        return true; // 認証成功
+        return true;
       } catch (error) {
         console.error("[signIn] エラー:", error);
-        return false; // 認証失敗
+        return false;
       }
     },
 
     /**
-     * セッション情報の取得時のコールバック処理
-     * - データベースから追加情報（ユーザーID、自動承認フラグ）を取得
-     *
-     * @param {Session} session - セッションオブジェクト
-     * @returns {Promise<Session>} - ユーザー情報を更新したセッション
+     * JWTトークンの管理処理
      */
-    async session({ session }: { session: Session }): Promise<Session> {
-      try {
-        // セッションにユーザーのメールアドレスがない場合はエラー
-        if (!session.user?.email) {
-          console.error("[session] ユーザー情報が不足しています。");
-          return session;
+    async jwt({ token, account }: any) {
+      if (account) {
+        token.accessToken = account.access_token;
+        token.refreshToken = account.refresh_token;
+        token.accessTokenExpires = Date.now() + (account.expires_at ? account.expires_at * 1000 : 3600 * 1000);
+      }
+
+      if (token.accessTokenExpires && Date.now() > token.accessTokenExpires) {
+        console.log("[jwt] アクセストークンの有効期限が切れています。リフレッシュ処理を開始します。");
+
+        try {
+          const url = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
+          const params = new URLSearchParams({
+            client_id: process.env.MICROSOFT_ID!,
+            client_secret: process.env.MICROSOFT_SECRET!,
+            grant_type: "refresh_token",
+            refresh_token: token.refreshToken,
+          });
+
+          const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: params,
+          });
+
+          if (!response.ok) {
+            console.error("[jwt] リフレッシュトークンの更新に失敗しました");
+            throw new Error("リフレッシュトークンの更新に失敗しました");
+          }
+
+          const refreshedTokens = await response.json();
+
+          token.accessToken = refreshedTokens.access_token;
+          token.accessTokenExpires = Date.now() + refreshedTokens.expires_in * 1000;
+          token.refreshToken = refreshedTokens.refresh_token;
+        } catch (error) {
+          console.error("[jwt] Azure AD アクセストークンの更新に失敗:", error);
+          return { ...token, error: "RefreshAccessTokenError" };
         }
+      }
 
-        // メールアドレスをキーにデータベースからユーザー情報を取得
-        const userInfo = await getUserInfoByEmail(session.user.email);
+      return token;
+    },
 
-        // セッションにユーザーIDと自動承認フラグを追加
-        session.user.id = userInfo.id;
-        session.user.autoApproval = userInfo.auto_approval;
+    /**
+     * セッション情報の取得時のコールバック処理
+     */
+    async session({ session, token }: { session: ExtendedSession; token: any }): Promise<ExtendedSession> {
+      if (token?.error) {
+        console.error("[session] トークンエラーが発生しました。セッションを無効化します。");
+        return { ...session, error: token.error };
+      }
 
-        return session;
-      } catch (error) {
-        console.error("[session] エラー:", error);
+      if (!session.user?.email) {
+        console.error("[session] ユーザー情報が不足しています。");
         return session;
       }
+
+      const userInfo = await getUserInfoByEmail(session.user.email);
+      session.user.id = userInfo.id;
+      session.user.autoApproval = userInfo.auto_approval;
+      session.accessToken = token.accessToken;
+
+      return session;
     },
   },
 };
