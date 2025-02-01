@@ -30,7 +30,9 @@ export default function DiagnosisCard({ diagnosisData }: { diagnosisData: Diagno
           </div>
 
           <Link href="/diagnosis/start">
-            <button className="px-4 py-2 mt-4 text-white rounded bg-81d8d0 hover:bg-81d8d0/90">診断を開始する</button>
+            <button className="bg-accent hover:bg-accent-dark px-4 py-2 mt-4 text-white rounded ">
+              診断を開始する
+            </button>
           </Link>
         </>
       )}

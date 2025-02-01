@@ -86,10 +86,7 @@ export const authOptions: AuthOptions = {
         }
 
         const pool = await getPool();
-        await pool.request()
-          .input("Name", user.name)
-          .input("Email", user.email)
-          .input("Provider", account.provider)
+        await pool.request().input("Name", user.name).input("Email", user.email).input("Provider", account.provider)
           .query(`
             IF NOT EXISTS (SELECT 1 FROM Users WHERE email = @Email)
             BEGIN
