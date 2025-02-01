@@ -1,45 +1,92 @@
+/**
+ * @file page.tsx (groups/[id])
+ * @description グループ詳細、編集、削除など
+ */
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { useGroups } from "../GroupsMockProvider";
-import { Group } from "../GroupsMockProvider";
+import React, { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 
-/**
- * グループ詳細・編集ページ
- * @returns {JSX.Element} グループ詳細/編集UI
- */
+interface Group {
+  id: number;
+  name: string;
+  description: string;
+  created_at: string;
+}
+
 export default function GroupDetailPage(): JSX.Element {
-  const router = useRouter();
   const params = useParams() as { id: string };
-  const { groups, updateGroup, deleteGroup } = useGroups();
-
+  const router = useRouter();
   const [group, setGroup] = useState<Group | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-
-  // 編集用State
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
 
-  // グループ取得
   useEffect(() => {
-    const found = groups.find((g) => g.id === params.id) ?? null;
-    setGroup(found);
+    fetchGroupDetail();
+  }, [params.id]);
 
-    if (found) {
-      setEditName(found.name);
-      setEditDescription(found.description);
+  /**
+   * グループ詳細を取得する
+   */
+  async function fetchGroupDetail() {
+    try {
+      const res = await fetch(`/api/groups/${params.id}`);
+      if (!res.ok) throw new Error("取得失敗");
+      const data = await res.json();
+      setGroup(data);
+      setEditName(data.name);
+      setEditDescription(data.description || "");
+    } catch (error) {
+      console.error(error);
     }
-  }, [groups, params.id]);
+  }
 
-  // 「group が null なら早期リターンする」ことで、以下の処理では group が必ず存在
+  /**
+   * グループ情報を保存
+   */
+  async function handleSave() {
+    if (!group) return;
+    try {
+      const res = await fetch(`/api/groups/${group.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editName,
+          description: editDescription,
+        }),
+      });
+      if (!res.ok) throw new Error("更新失敗");
+      await fetchGroupDetail();
+      setIsEditing(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * グループを削除
+   */
+  async function handleDelete() {
+    if (!group) return;
+    try {
+      const res = await fetch(`/api/groups/${group.id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("削除失敗");
+      router.push("/groups");
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   if (!group) {
     return (
       <div className="bg-white p-4 rounded shadow">
-        <p>該当のグループが見つかりません</p>
+        <p>グループが見つかりませんでした。</p>
         <button
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-4"
           onClick={() => router.push("/groups")}
+          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
           一覧へ戻る
         </button>
@@ -47,60 +94,16 @@ export default function GroupDetailPage(): JSX.Element {
     );
   }
 
-  /**
-   * 編集内容を保存する
-   * @returns {void}
-   */
-  function handleSave(): void {
-    if (group) {
-      updateGroup(group.id, { name: editName, description: editDescription });
-      setIsEditing(false);
-    }
-  }
-
-  /**
-   * グループを削除する
-   * @returns {void}
-   */
-  function handleDelete(): void {
-    if (group) {
-      deleteGroup(group.id);
-      router.push("/groups");
-    }
-  }
-
   return (
     <div className="bg-white p-4 rounded shadow max-w-md mx-auto">
-      {!isEditing ? (
+      {isEditing ? (
         <>
-          <h2 className="text-lg font-bold mb-2">グループ詳細</h2>
-          <p className="text-gray-600">ID: {group.id}</p>
-          <p className="text-xl font-semibold mt-2">{group.name}</p>
-          <p className="mt-2">{group.description}</p>
-
-          <div className="flex justify-end space-x-2 mt-4">
-            <button className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400" onClick={() => router.back()}>
-              戻る
-            </button>
-            <button
-              className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-              onClick={() => setIsEditing(true)}
-            >
-              編集
-            </button>
-            <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onClick={handleDelete}>
-              削除
-            </button>
-          </div>
-        </>
-      ) : (
-        <>
-          <h2 className="text-lg font-bold mb-2">グループ編集</h2>
+          <h2 className="text-xl font-bold mb-2">グループ編集</h2>
           <div className="mb-4">
             <label className="block font-semibold mb-1">グループ名</label>
             <input
               type="text"
-              className="w-full border p-2 rounded"
+              className="w-full border rounded p-2"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
             />
@@ -108,17 +111,40 @@ export default function GroupDetailPage(): JSX.Element {
           <div className="mb-4">
             <label className="block font-semibold mb-1">説明</label>
             <textarea
-              className="w-full border p-2 rounded"
+              className="w-full border rounded p-2"
               value={editDescription}
               onChange={(e) => setEditDescription(e.target.value)}
             />
           </div>
           <div className="flex justify-end space-x-2">
-            <button className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400" onClick={() => setIsEditing(false)}>
+            <button onClick={() => setIsEditing(false)} className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">
               キャンセル
             </button>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={handleSave}>
+            <button onClick={handleSave} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
               保存
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <h2 className="text-xl font-bold mb-2">グループ詳細</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            ID: {group.id} / 作成日: {group.created_at}
+          </p>
+          <p className="text-lg font-semibold">{group.name}</p>
+          <p className="mt-2">{group.description}</p>
+          <div className="flex justify-end space-x-2 mt-4">
+            <button onClick={() => router.back()} className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">
+              戻る
+            </button>
+            <button
+              onClick={() => setIsEditing(true)}
+              className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+            >
+              編集
+            </button>
+            <button onClick={handleDelete} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+              削除
             </button>
           </div>
         </>

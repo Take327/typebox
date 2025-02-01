@@ -1,20 +1,20 @@
+/**
+ * @file layout.tsx
+ * @description groups配下のページに共通するレイアウト
+ */
 "use client";
 
 import React from "react";
-import { GroupsMockProvider } from "./GroupsMockProvider";
 
 /**
- * groups配下のレイアウト
- * @param {React.PropsWithChildren} props - 子要素
- * @returns {JSX.Element} - レイアウト
+ * グループ関連ページのレイアウト
+ * @param props.children ページコンテンツ
  */
 export default function GroupsLayout({ children }: { children: React.ReactNode }): JSX.Element {
   return (
-    <GroupsMockProvider>
-      <div className="p-4 bg-gray-100 min-h-screen">
-        <h1 className="text-2xl font-bold mb-6">グループ管理</h1>
-        {children}
-      </div>
-    </GroupsMockProvider>
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-6">グループ管理</h1>
+      {children}
+    </div>
   );
 }

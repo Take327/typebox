@@ -169,26 +169,6 @@ export type MBTIDiagnosisResult = {
 };
 
 /**
- * ユーザー管理関連の型定義
- */
-
-/**
- * グループ情報を表す型。
- *
- * グループには一意の識別子、名前、メンバー数、および役割が含まれます。
- */
-export type Group = {
-  /** グループの一意の識別子 */
-  id: string;
-  /** グループ名 */
-  name: string;
-  /** グループのメンバー数 */
-  members: number;
-  /** グループ内での役割 */
-  role: "管理者" | "メンバー";
-};
-
-/**
  * 通知を表す型。
  *
  * 通知には一意の識別子、メッセージ内容、および既読状態が含まれます。
@@ -210,4 +190,28 @@ export type Notification = {
 export type NotificationListProps = {
   /** 通知の配列 */
   notifications: Notification[];
+};
+
+/**
+ * @file group.ts
+ * @description グループ関連の型定義
+ */
+
+export type Group = {
+  id: number;
+  name: string;
+  description: string | null;
+  created_at: string; // or Date
+};
+
+export type GroupMember = {
+  group_id: number;
+  user_id: number;
+  joined_at: string; // or Date
+};
+
+export type GroupData = {
+  id: number;
+  name: string;
+  description: string | null;
 };

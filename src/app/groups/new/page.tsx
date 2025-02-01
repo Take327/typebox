@@ -1,57 +1,69 @@
+/**
+ * @file page.tsx (groups/new)
+ * @description グループを新規作成するフォーム
+ */
 "use client";
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useGroups } from "../GroupsMockProvider";
 
 /**
  * グループ新規作成ページ
- * @returns {JSX.Element} フォームUI
+ * @returns JSX.Element
  */
-export default function NewGroupPage(): JSX.Element {
+export default function GroupNewPage(): JSX.Element {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const { createGroup } = useGroups();
   const router = useRouter();
 
   /**
-   * フォーム送信処理
-   * @param {React.FormEvent} e - フォームイベント
+   * フォーム送信時の処理
    */
-  function handleSubmit(e: React.FormEvent): void {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name) return;
-    createGroup(name, description);
-    router.push("/groups");
+    try {
+      const res = await fetch("/api/groups", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, description }),
+      });
+      if (!res.ok) throw new Error("作成に失敗しました");
+      // 作成したグループ情報のレスポンスを取得
+      const newGroup = await res.json();
+      router.push(`/groups/${newGroup.id}`);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
-    <div className="bg-white p-4 rounded shadow max-w-md mx-auto">
-      <h2 className="text-lg font-bold mb-4">グループを新規作成</h2>
+    <div className="bg-white p-6 rounded shadow max-w-md mx-auto">
+      <h2 className="text-xl font-bold mb-4">グループ新規作成</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block font-semibold mb-1">グループ名</label>
           <input
             type="text"
-            className="w-full border p-2 rounded"
+            className="w-full border rounded p-2"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required
             placeholder="例: 開発チーム"
           />
         </div>
         <div>
           <label className="block font-semibold mb-1">説明</label>
           <textarea
-            className="w-full border p-2 rounded"
+            className="w-full border rounded p-2"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="グループの目的や活動内容を入力"
+            placeholder="例: フロントエンド・バックエンド総合開発チーム"
           />
         </div>
-        <div className="flex justify-end space-x-2">
+        <div className="flex justify-end">
           <button
             type="button"
-            className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+            className="mr-2 bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
             onClick={() => router.back()}
           >
             キャンセル
