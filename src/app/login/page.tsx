@@ -46,7 +46,7 @@ export default function LoginPage() {
             ringColor="focus:ring-gray-400"
             textColor="text-gray-700"
             borderColor="border border-gray-300"
-            icon={<GoogleIcon className="h-5 w-5" />}
+            icon={<GoogleIcon />}
             label="Sign in with Google"
           />
           <AuthButton
@@ -56,7 +56,7 @@ export default function LoginPage() {
             ringColor="focus:ring-gray-400"
             textColor="text-gray-700"
             borderColor="border border-gray-300"
-            icon={<MicrosoftIcon className="h-5 w-5" />}
+            icon={<MicrosoftIcon />}
             label="Sign in with Microsoft"
           />
         </div>

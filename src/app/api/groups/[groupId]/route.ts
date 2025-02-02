@@ -5,7 +5,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest, { params }: { params: { groupId: string } }) {
+export async function GET(request: NextRequest, props: { params: Promise<{ groupId: string }> }) {
+  const params = await props.params;
   /**
    * @description グループ詳細を取得する
    */
@@ -27,7 +28,8 @@ export async function GET(request: NextRequest, { params }: { params: { groupId:
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { groupId: string } }) {
+export async function PUT(request: NextRequest, props: { params: Promise<{ groupId: string }> }) {
+  const params = await props.params;
   /**
    * @description グループ情報を更新する
    */
@@ -47,7 +49,8 @@ export async function PUT(request: NextRequest, { params }: { params: { groupId:
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { groupId: string } }) {
+export async function DELETE(request: NextRequest, props: { params: Promise<{ groupId: string }> }) {
+  const params = await props.params;
   /**
    * @description グループを削除する
    */

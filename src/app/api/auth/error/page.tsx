@@ -3,11 +3,11 @@
  * OAuth エラーページ
  * OAuth 認証エラーが発生した場合に表示されるページ
  */
-
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function AuthErrorPage() {
+function ErrorMessage() {
   const searchParams = useSearchParams();
   const errorType = searchParams.get("error");
 
@@ -19,17 +19,27 @@ export default function AuthErrorPage() {
   };
 
   return (
+    <>
+      <h1 className="text-2xl font-bold text-red-600">ログインエラー</h1>
+      <p className="mt-4 text-gray-700">
+        {errorMessages[errorType as keyof typeof errorMessages] || errorMessages.Default}
+      </p>
+      <div className="mt-6">
+        <Link href="/login" className="text-blue-600 hover:underline">
+          ログイン画面に戻る
+        </Link>
+      </div>
+    </>
+  );
+}
+
+export default function AuthErrorPage() {
+  return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white shadow-lg rounded-lg p-6 max-w-md">
-        <h1 className="text-2xl font-bold text-red-600">ログインエラー</h1>
-        <p className="mt-4 text-gray-700">
-          {errorMessages[errorType as keyof typeof errorMessages] || errorMessages.Default}
-        </p>
-        <div className="mt-6">
-          <Link href="/login" className="text-blue-600 hover:underline">
-            ログイン画面に戻る
-          </Link>
-        </div>
+        <Suspense fallback={<div>Loading...</div>}>
+          <ErrorMessage />
+        </Suspense>
       </div>
     </div>
   );
