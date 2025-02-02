@@ -1,174 +1,213 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useProcessing } from "../../context/ProcessingContext";
+
+/** カスタムコンポーネント群 */
 import DiagnosisCard from "./card/DiagnosisCard";
 import GroupCard from "./card/GroupCard";
 import SettingsCard from "./card/SettingsCard";
-import { DiagnosisData, EISNTFJP_VALUES, MBTIScore } from "@/types";
-import { useRouter } from "next/navigation";
-import { formatDiagnosisData } from "@/utils/formatDiagnosisData";
-import { convertScoreToDiagnosisResult } from "@/utils/mbti/mbtiUtils";
 import NoDiagnosisCard from "./card/NoDiagnosisCard";
 
+/** 型定義やユーティリティ */
+import { DiagnosisData, MBTIDiagnosisResultFromServer, MBTIDiagnosisResult, isMBTIType, GroupData } from "@/types";
+import { formatDiagnosisData } from "@/utils/formatDiagnosisData";
+
+/**
+ * @typedef {Object} UserData
+ * @property {number} id - ユーザーID
+ * @property {string} name - ユーザー名
+ * @property {string} email - メールアドレス
+ * @property {boolean} autoApproval - 自動承認フラグ
+ */
+
+/**
+ * @typedef {Object} GroupData
+ * @property {number} id - グループID
+ * @property {string} name - グループ名
+ * @property {string|null} description - グループの説明
+ */
+
+/**
+ * @description マイページコンポーネント
+ * - 診断結果
+ * - グループ一覧
+ * - 設定カード（自動承認フラグなど）
+ */
 export default function MyPage(): React.JSX.Element {
-  const { setProcessing } = useProcessing();
   const { data: session, status } = useSession({ required: true });
   const router = useRouter();
-  const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [autoApproval, setAutoApproval] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const { setProcessing } = useProcessing();
 
-  /**
-   * 診断データのスコアが正しい型かを検証する関数
-   * @param score - 診断データのスコア情報（型が不明なデータ）
-   * @returns 正しい MBTI スコアの形式であれば true、それ以外は false
-   */
-  const isValidScore = (score: unknown): score is MBTIScore => {
-    return (
-      typeof score === "object" &&
-      score !== null &&
-      EISNTFJP_VALUES.every((key) => typeof (score as Record<string, unknown>)[key] === "number")
-    );
-  };
+  /** 診断結果 */
+  const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(null);
+  /** ユーザー情報 (自動承認フラグなど) */
+  const [userData, setUserData] = useState<any | null>(null);
+  /** ユーザーが所属するグループ一覧 */
+  const [groups, setGroups] = useState<GroupData[]>([]);
+  /** ローディング状態/エラー状態 */
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   /**
    * 診断結果を取得する非同期関数
-   * - `/api/diagnosisResult` へ GET リクエストを送信
-   * - 診断データがない場合は初回ログインと判断
-   * - スコアデータが不正な場合はエラーをスロー
+   * @async
+   * @returns {Promise<void>}
    */
-  const fetchDiagnosisResult = async () => {
-    setProcessing(true); // データ取得開始前に処理中状態にする
+  const fetchDiagnosisResult = async (): Promise<void> => {
+    setProcessing(true);
     try {
-      const response = await fetch("/api/diagnosisResult", {
-        method: "GET",
-        credentials: "include", // 認証情報を含めたリクエストを送信
-        headers: { "Content-Type": "application/json" },
-      });
-
-      // レスポンスのステータスコードが 200 以外ならエラーをスロー
+      const response = await fetch("/api/diagnosisResult", { method: "GET" });
       if (!response.ok) {
-        throw new Error(`エラー: ${response.status} ${response.statusText}`);
+        throw new Error(`診断結果APIエラー: ${response.status} ${response.statusText}`);
       }
 
-      // JSON データを取得
-      const result = await response.json();
-
-      // 診断結果が null や undefined の場合はエラー
+      const result: MBTIDiagnosisResultFromServer = await response.json();
       if (!result) throw new Error("診断結果が見つかりません");
 
-      // 初回ログイン時は診断結果がないため、処理を終了
       if (result.initialLogin) {
+        // 初回ログインの場合は診断結果がまだ無い状態 => return
         console.warn("初回ログインのため診断結果なし。");
         return;
       }
 
-      // 診断スコアの形式が正しくない場合はエラー
-      if (!isValidScore(result)) throw new Error("診断データのスコアが無効です");
+      if (!isMBTIType(result.type)) {
+        throw new Error("未知のMBTIタイプが返却されました: " + result.type);
+      }
 
-      // データを適切な形式に変換して状態を更新
-      setDiagnosisData(formatDiagnosisData(convertScoreToDiagnosisResult(result)));
-    } catch (err) {
+      const typedResult: MBTIDiagnosisResult = {
+        type: result.type,
+        ratio: result.ratio,
+        bias: result.bias,
+      };
+      setDiagnosisData(formatDiagnosisData(typedResult));
+    } catch (err: any) {
       console.error("診断データの取得に失敗:", err);
-      setError("診断データを取得できませんでした。");
+      setError(err.message || "診断データを取得できませんでした。");
     } finally {
-      setProcessing(false); // 処理終了後、処理中フラグを解除
+      setProcessing(false);
     }
   };
 
   /**
-   * ユーザーの初期設定（自動承認フラグなど）を取得する非同期関数
-   * - `/api/users` へ GET リクエストを送信し、メールアドレスをキーにユーザー情報を取得
-   * - セッションがない場合はログインページにリダイレクト
-   * - ユーザー情報の取得に失敗した場合はエラーをスロー
+   * ユーザー情報（自動承認フラグなど）を取得する非同期関数
+   * @async
+   * @returns {Promise<void>}
    */
-  const fetchInitialSettings = async () => {
+  const fetchUserData = async (): Promise<void> => {
     try {
-      // セッションがない場合はログイン画面にリダイレクト
-      if (!session) {
+      if (!session?.user?.email) {
         router.push("/login");
         return;
       }
-
-      const userResponse = await fetch(`/api/users?email=${session.user?.email}`, {
+      const res = await fetch(`/api/users?email=${session.user.email}`, {
         method: "GET",
-        headers: { "Content-Type": "application/json" },
       });
-
-      // レスポンスのステータスコードが 200 以外ならエラーをスロー
-      if (!userResponse.ok) throw new Error("ユーザー情報の取得に失敗しました。");
-
-      // JSON データを取得
-      const userData = await userResponse.json();
-
-      // ユーザー情報が取得できなかった場合はログインページにリダイレクト
-      if (!userData) {
+      if (!res.ok) {
+        throw new Error("ユーザー情報の取得に失敗しました。");
+      }
+      const data = await res.json();
+      if (!data) {
         router.push("/login");
         return;
       }
-
-      // 自動承認フラグを状態にセット
-      setAutoApproval(userData.autoApproval);
+      setUserData(data);
     } catch (err) {
-      console.error("初期設定の取得エラー:", err);
+      console.error("ユーザー情報の取得エラー:", err);
     }
   };
 
   /**
-   * コンポーネントのマウント時に診断データと初期設定を取得する
-   * - 認証状態 (`status`) が `"authenticated"` の場合のみ実行
-   * - コンポーネントがアンマウントされた場合に `isMounted` を利用して処理をキャンセル
+   * ユーザーが所属するグループ一覧を取得する
+   * @async
+   * @returns {Promise<void>}
+   */
+  const fetchGroups = async (): Promise<void> => {
+    try {
+      if (!userData?.id) return;
+
+      const res = await fetch(`/api/groups?userId=${userData.id}`, {
+        method: "GET",
+      });
+      if (!res.ok) {
+        throw new Error("グループ一覧の取得に失敗しました。");
+      }
+      const groupsData = await res.json();
+      setGroups(groupsData || []);
+    } catch (err) {
+      console.error("グループ一覧取得エラー:", err);
+    }
+  };
+
+  /**
+   * コンポーネント初回マウント時のデータ取得
+   * - セッションが "authenticated" の時のみ動作
    */
   useEffect(() => {
-    if (status !== "authenticated") return; // 認証されていない場合は何もしない
+    if (status !== "authenticated") return;
 
-    let isMounted = true; // コンポーネントがマウントされているかのフラグ
-    setIsLoading(true); // データ取得開始前にローディング状態を設定
+    let isMounted = true;
+    setIsLoading(true);
 
-    const fetchData = async () => {
+    const initialize = async () => {
       try {
         await fetchDiagnosisResult();
-        await fetchInitialSettings();
-      } catch (error) {
-        console.error("データ取得中にエラー:", error);
-        setError("データの取得に失敗しました。");
+        await fetchUserData();
+      } catch (err) {
+        console.error("初期化中にエラー:", err);
+        setError("初期データ取得でエラーが発生しました。");
       } finally {
-        if (isMounted) setIsLoading(false); // データ取得完了後にローディング終了
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
-
-    fetchData();
+    initialize();
 
     return () => {
-      isMounted = false; // コンポーネントがアンマウントされた場合にフラグをリセット
+      isMounted = false;
     };
-  }, [status]); // 認証状態が変わった場合に再実行
+  }, [status]);
+
+  /**
+   * ユーザー情報が取得できたら、そのユーザーが所属するグループ一覧も取得する
+   */
+  useEffect(() => {
+    if (userData?.id) {
+      fetchGroups();
+    }
+  }, [userData]);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-lg font-semibold">Loading...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <p className="text-red-600 font-semibold">エラー: {error}</p>
+      </div>
+    );
+  }
+
+  // 診断結果が null なら診断前カードを表示
+  const hasDiagnosis = diagnosisData !== null;
 
   return (
-    <>
-      {isLoading ? ( // ✅ 非同期処理中はローディング表示
-        <div className="flex justify-center items-center h-screen">
-          <p className="text-lg font-semibold">Loading...</p>
-        </div>
-      ) : diagnosisData == null ? ( // ✅ データがない場合は `NoDiagnosisCard`
-        <NoDiagnosisCard />
-      ) : (
-        <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
-          {/* 診断データ */}
-          <DiagnosisCard diagnosisData={diagnosisData} />
-          {/* 所属グループ */}
-          <GroupCard />
-          {/* 各種設定カード */}
-          <SettingsCard
-            session={session}
-            setProcessing={setProcessing}
-            autoApproval={autoApproval}
-            setAutoApproval={setAutoApproval}
-          />
-        </div>
-      )}
-    </>
+    <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
+      {/* 診断データ */}
+      {hasDiagnosis ? <DiagnosisCard diagnosisData={diagnosisData!} /> : <NoDiagnosisCard />}
+
+      {/* 所属グループ - 取得できたものを props で渡す */}
+      <GroupCard groups={groups} />
+
+      {/* 各種設定 - userData を渡して自動承認フラグなどを管理 */}
+      <SettingsCard session={session} setProcessing={setProcessing} />
+    </div>
   );
 }

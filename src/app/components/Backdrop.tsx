@@ -1,8 +1,6 @@
-import { CustomFlowbiteTheme, Spinner } from "flowbite-react";
+import { Spinner } from "flowbite-react";
 import React from "react";
 import { useProcessing } from "../../context/ProcessingContext";
-
-const customTheme: CustomFlowbiteTheme = {};
 
 const Backdrop: React.FC = () => {
   const { isProcessing } = useProcessing();

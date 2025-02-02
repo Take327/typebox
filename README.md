@@ -174,4 +174,229 @@
 
 ---
 
-takahashi-take327
+以下のドキュメントは、**TypeBox** のデザインガイドラインを総合的にまとめたものです。これまでの議論や実装方針を踏まえ、Tailwind CSS + Flowbite-React をベースに**マテリアルデザインのエッセンス**を取り入れています。開発チーム内で共有し、UI/UXを統一的に保ちつつ保守性を高めてください。
+
+---
+
+# TypeBox デザインガイドライン
+
+## 1. 概要
+
+- **フレームワーク / 言語**:
+  - Next.js (app routing, v15)
+  - TypeScript
+  - Tailwind CSS / Flowbite-React
+- **コンセプト**:
+  - MBTI診断を中心としたユーザー体験の提供
+  - 「シンプルで温かみのある」ビジュアルイメージ
+  - ユーザーが直感的に操作できるUI/UX
+
+マテリアルデザインで推奨される**階層感**や**余白の取り方**、**アクセシビリティ**を重視しています。
+
+---
+
+## 2. カラースキーム
+
+TypeBox全体で採用しているカラーは、大きく以下の4種類＋α です。Tailwind上では `tailwind.config.ts` 内の `extend.colors` で管理し、Flowbite-Reactのカスタムテーマにも反映させます。
+
+| 項目                 | 色（Hex） | 用途／メモ                                                   |
+| :------------------- | :-------: | :----------------------------------------------------------- |
+| **Primary (Header)** | `#F7E4C9` | ヘッダーやロゴ付近などで使用。淡いベージュ。                 |
+| **Primary (Footer)** | `#F6CEB4` | フッター用にやや濃いベージュ。                               |
+| **Accent**           | `#81D8D0` | ボタン・スイッチ・強調表示などインタラクティブ要素。         |
+| **Background**       | `#F3F4F6` | 全体の背景として採用する淡いグレー。                         |
+| **Text**             |  `#333`   | 主要テキスト色として利用（場合により `#444`, `#555` も可）。 |
+
+### 2.1 カラーバリエーション
+
+- **Primaryカラー**:
+  - `primary.50` → `#F7E4C9` (薄め)
+  - `primary.200` → `#F6CEB4` (やや濃いめ)
+- **Accentカラー**:
+  - `accent.DEFAULT` → `#81D8D0`
+  - `accent.light` / `accent.dark` などを拡張し、ホバーやアクティブ時に色変化をつける。
+
+#### 2.2 背景色とテキストコントラスト
+
+- 背景に `#F3F4F6` を使う場合、テキストは `#333` や `#444` など濃いめのグレーで **4.5:1** 以上のコントラストを確保。
+
+---
+
+## 3. タイポグラフィ
+
+- **推奨フォント**:
+  - `Noto Sans JP` や `Roboto`, もしくは `Inter` など
+  - Fallback として `system-ui`, `Arial`, `sans-serif` を指定
+- **階層例 (Tailwind)**:  
+  | スタイル | クラス例 | px換算 | 用途 |
+  |:-------:|:-------------------------:|:------:|:-------------------|
+  | H1 | `text-4xl font-bold` | ~32px | メイン見出し |
+  | H2 | `text-3xl font-medium` | ~28px | サブ見出し |
+  | H3 | `text-2xl font-medium` | ~24px | セクション見出し |
+  | Body1 | `text-base` | 16px | 本文 |
+  | Body2 | `text-sm` | 14px | サブ情報・注釈 |
+  | Caption | `text-xs` | 12px | ラベル・キャプション |
+
+---
+
+## 4. レイアウトとスペーシング
+
+- **Tailwind のグリッド・フレックス**ユーティリティを活用
+- **8px刻み**のマージン・パディング (e.g. `p-4`, `m-2` など)
+- マテリアルデザインに倣い、**12カラムレイアウト**や**適切な余白**を採用することで、情報の整理と見やすさを向上。
+
+---
+
+## 5. 主要コンポーネントのスタイル指針
+
+### 5.1 ヘッダー
+
+- **背景色**: `bg-primary-50` (`#F7E4C9`)
+- **テキスト色**: 濃いめのグレー (`text-gray-800` など)
+- **高さ**: 64px前後 (レスポンシブ対応)
+- **配置**: 左にロゴ、右にメニュー or ユーザーアイコン
+
+### 5.2 フッター
+
+- **背景色**: `bg-primary-200` (`#F6CEB4`)
+- **テキスト色**: 白文字 (`text-white`) やグレーなどコントラストを確保
+- **高さ**: 48～64px
+- **最下部配置**: コピーライトやフッターメニュー
+
+### 5.3 ボタン (Flowbite-React)
+
+- **アクセントカラー**: `bg-accent` (`#81D8D0`)
+- **テキスト色**: 白文字 (`text-white`)
+- **角丸**: `rounded-md` や `rounded-lg`
+- **ホバー効果**: `hover:bg-accent-dark` + 軽度のシャドウ推奨
+
+### 5.4 トグルスイッチ (Flowbite-React)
+
+- カスタムテーマの `toggleSwitch` 設定で `color="accent"` 時に `bg-accent` が反映されるようにする。
+- ON時: `bg-accent`、OFF時: `bg-gray-200`
+- **ラベル**を必ず付与し、可読性とアクセシビリティを確保。
+
+### 5.5 テキスト入力 (Flowbite-ReactのTextInput)
+
+- **ボーダー**: `border-gray-300`
+- **フォーカス時**: `focus:ring-accent` / `focus:border-accent`
+- エラー時や成功時など、色分けが必要なら各種 `border-red-500` / `border-green-500` のように設定する。
+
+### 5.6 カード・モーダル
+
+- **背景**: `bg-white` (もしくは `bg-background` で若干のグレードをつける)
+- **枠線またはシャドウ**: `border border-gray-200` + `shadow-md`
+- **角丸**: `rounded-lg` (8px程度)
+- **マージン・パディング**: 16px前後を確保
+
+### 5.7 プログレスバー / チャート
+
+- ベースのバー: `bg-gray-200`
+- 進捗部分 (bar): `bg-accent` / その他区分を使用するなら、パステル調の色をカスタム
+- テキストラベル: `text-sm text-gray-700`
+
+---
+
+## 6. Flowbite-React カスタムテーマ
+
+Tailwind と併用するため、`Flowbite` コンポーネントを**カスタムテーマ**でラップします。 例:
+
+```tsx
+import { Flowbite } from "flowbite-react";
+import customTheme from "path/to/customTheme";
+
+function MyApp({ Component, pageProps }) {
+  return (
+    <Flowbite theme={{ theme: customTheme }}>
+      <Component {...pageProps} />
+    </Flowbite>
+  );
+}
+
+export default MyApp;
+```
+
+### 6.1 カスタムテーマの例
+
+- `toggleSwitch` や `progress` など、TypeBox独自の色名 `accent` を使用
+- ON 時やアクティブ時に `bg-accent` が適用されるよう定義
+
+```ts
+/**
+ * @file customTheme.ts
+ * @description TypeBoxのカラーパレットをFlowbite-React向けにマッピング
+ */
+import type { CustomFlowbiteTheme } from "flowbite-react";
+
+const customTheme: CustomFlowbiteTheme = {
+  toggleSwitch: {
+    toggle: {
+      base: "relative rounded-full border after:absolute after:rounded-full after:bg-white after:transition-all",
+      checked: {
+        on: "after:translate-x-full after:border-white",
+        off: "border-gray-200 bg-gray-200",
+        color: {
+          accent: "border-accent bg-accent", // ON時の色
+        },
+      },
+    },
+  },
+  // その他Spinner, Alert, ProgressBarなども同様に定義
+};
+
+export default customTheme;
+```
+
+---
+
+## 7. globals.css (Tailwind/CSS)
+
+- **Tailwindのプリフライト**（`@tailwind base; @tailwind components; @tailwind utilities;`）を利用
+- 全体の背景・テキスト色は原則Tailwindクラスを使うが、必要に応じて `:root` 変数で指定
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f3f4f6;
+  --foreground: #333;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: "Noto Sans JP", "Roboto", ui-sans-serif, Arial, sans-serif;
+}
+
+/* Rangeスライダーなど一部ブラウザに依存する要素にアクセントカラーを適用 */
+input[type="range"]::-webkit-slider-thumb {
+  background-color: #81d8d0; /* Accent */
+  /* ... */
+}
+```
+
+---
+
+## 8. アクセシビリティ (A11y)
+
+- **コントラスト**: 背景色と文字色の比率を常に4.5:1以上を目標とする (WCAG 2.1 AA)。
+- **フォーカス可視化**: `focus:ring-2 focus:ring-accent` などのTailwindクラスを利用し、キーボード操作時に明確なフォーカスリングを表示。
+- **ラベル対応**: ボタン・トグルスイッチなどはテキストラベルか `aria-label` を設定して、スクリーンリーダー対応を行う。
+
+---
+
+## 9. 今後の運用と拡張
+
+1. **コンポーネント管理**:
+   - 共通部品（ボタン、カード、フォームコントロールなど）は `/components/ui/` にまとめ、Storybookで可視化／テストすることを推奨。
+2. **カラーバリエーション追加**:
+   - 必要に応じて `primary.300` や `accent.dark` などをTailwind設定やFlowbiteテーマに追記し、ホバー・アクティブ時のバリエーションを増やす。
+3. **パステルカラーのチャート**:
+   - グラフ・プログレスバーで複数種類の色を使う場合、**同系統のパステルトーン**を抽出して、見やすさとブランドイメージを両立する。
+4. **アクセシビリティ強化**:
+   - フォントサイズの拡大（ユーザー設定）に対応できる相対指定 (rem / em) などを検討。
+   - スクリーンリーダーによる読み上げテストを行い、追加の `aria-` 属性が必要な箇所を整備。
+
+---

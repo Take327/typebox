@@ -106,25 +106,25 @@ const createTendencies = (score: MBTIScore): MBTITendency[] => {
       labelMinus: "外向型(E)",
       labelPlus: "内向型(I)",
       value: score.I - score.E,
-      color: "#3498db",
+      color: "#81D8D0",
     },
     {
       labelMinus: "感覚型(S)",
       labelPlus: "直観型(N)",
       value: score.N - score.S,
-      color: "#2ecc71",
+      color: "#F6CEB4",
     },
     {
       labelMinus: "思考型(T)",
       labelPlus: "感情型(F)",
       value: score.F - score.T,
-      color: "#f1c40f",
+      color: "#FAD4E0",
     },
     {
       labelMinus: "判断型(J)",
       labelPlus: "知覚型(P)",
       value: score.P - score.J,
-      color: "#e67e22",
+      color: "#CDE7F4",
     },
   ];
 };

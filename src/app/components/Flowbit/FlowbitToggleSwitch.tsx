@@ -8,6 +8,6 @@ const FlowbitToggleSwitch = ({
 }: {
   isChecked: boolean;
   onChange: (e: boolean) => Promise<void>;
-}) => <ToggleSwitch checked={isChecked} onChange={onChange} />;
+}) => <ToggleSwitch color="accent" checked={isChecked} onChange={onChange} />;
 
 export default FlowbitToggleSwitch;

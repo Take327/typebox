@@ -1,7 +1,6 @@
 "use client";
 
 import Header from "./Header";
-import SideMenu from "./SideMenu";
 import { MenuProvider } from "../../context/MenuContext";
 import { usePathname } from "next/navigation";
 
@@ -18,7 +17,6 @@ export default function HeaderWithMenu() {
   return (
     <MenuProvider>
       <Header />
-      <SideMenu />
     </MenuProvider>
   );
 }

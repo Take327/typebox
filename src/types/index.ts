@@ -17,11 +17,19 @@ export const EISNTFJP_VALUES = ["E", "I", "S", "N", "T", "F", "J", "P"] as const
  */
 export type EISNTFJP = (typeof EISNTFJP_VALUES)[number];
 
-/**
- * MBTIの16種類のタイプを表す定数。
- *
- * MBTIのタイプは4つの構成要素から構成され、例として "ESTJ" や "INFP" などがあります。
- */
+export type DiagnosisRow = {
+  type_E: number;
+  type_I: number;
+  type_S: number;
+  type_N: number;
+  type_T: number;
+  type_F: number;
+  type_J: number;
+  type_P: number;
+  // 例: user_id, created_at など必要があれば追加
+};
+
+/** MBTIの16種類のタイプを表す定数 */
 export const MBTI_TYPES = [
   "ESTJ",
   "ESTP",
@@ -48,6 +56,27 @@ export const MBTI_TYPES = [
  * 例: "ESTJ", "INFP" など。
  */
 export type MBTIType = (typeof MBTI_TYPES)[number];
+
+/**
+ * サーバーが返してくる診断結果の型
+ *   - 'type' は string で返ってきてしまう
+ *   - 'ratio' と 'bias' はオブジェクト
+ *   - 初回ログインなら 'initialLogin?: boolean'
+ */
+export type MBTIDiagnosisResultFromServer = {
+  type: string; // サーバーは特に型を限定せず string で返している
+  ratio: MBTIScore;
+  bias: MBTIBias;
+  initialLogin?: boolean;
+};
+
+/**
+ * サーバーから受け取った任意の文字列が、16種類の MBTIType に含まれるか検証する型ガード
+ */
+export function isMBTIType(value: string): value is MBTIType {
+  // MBTI_TYPES (16種類の定数配列) に含まれていれば true
+  return MBTI_TYPES.includes(value as MBTIType);
+}
 
 /**
  * MBTIの傾向を表す型。
@@ -140,26 +169,6 @@ export type MBTIDiagnosisResult = {
 };
 
 /**
- * ユーザー管理関連の型定義
- */
-
-/**
- * グループ情報を表す型。
- *
- * グループには一意の識別子、名前、メンバー数、および役割が含まれます。
- */
-export type Group = {
-  /** グループの一意の識別子 */
-  id: string;
-  /** グループ名 */
-  name: string;
-  /** グループのメンバー数 */
-  members: number;
-  /** グループ内での役割 */
-  role: "管理者" | "メンバー";
-};
-
-/**
  * 通知を表す型。
  *
  * 通知には一意の識別子、メッセージ内容、および既読状態が含まれます。
@@ -181,4 +190,28 @@ export type Notification = {
 export type NotificationListProps = {
   /** 通知の配列 */
   notifications: Notification[];
+};
+
+/**
+ * @file group.ts
+ * @description グループ関連の型定義
+ */
+
+export type Group = {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string; // or Date
+};
+
+export type GroupMember = {
+  group_id: number;
+  user_id: number;
+  joined_at: string; // or Date
+};
+
+export type GroupData = {
+  id: number;
+  name: string;
+  description: string | null;
 };

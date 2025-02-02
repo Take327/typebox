@@ -55,23 +55,26 @@ export default function Page() {
     <div className="container mx-auto p-4">
       <h1 className="mb-4 text-center text-2xl font-bold">MBTI 診断結果</h1>
       <Card className="mb-6 shadow-lg">
-        {/* MBTIタイプと特徴 */}
-        <p className="mb-2 text-gray-600">
-          あなたのMBTIタイプ: <strong>{diagnosisData.mbtiType}</strong>
-        </p>
-        <p className="mb-2 text-sm text-gray-400">特徴: {diagnosisData.traits}</p>
+        <div className="flex flex-col w-full justify-center items-center ">
+          {/* MBTIタイプと特徴 */}
+          <p className="mb-2 text-gray-600">
+            あなたのMBTIタイプ: <strong>{diagnosisData.mbtiType}</strong>
+          </p>
+          <p className="mb-2 text-sm text-gray-400">特徴: {diagnosisData.traits}</p>
 
-        {/* 傾向チャート */}
-        <div className="w-full max-w-[40vw]">
-          {diagnosisData.tendencies.map((tendency, index) => (
-            <MBTITendenciesChart tendency={tendency} key={index} />
-          ))}
+          {/* 傾向チャート */}
+          <div className="w-full max-w-[40vw]">
+            {diagnosisData.tendencies.map((tendency, index) => (
+              <MBTITendenciesChart tendency={tendency} key={index} />
+            ))}
+          </div>
         </div>
-
-        {/* 診断開始ボタン */}
-        <Link href="/" className="mt-auto">
-          <button className="rounded bg-81d8d0 px-4 py-2 text-white hover:bg-81d8d0/90">ホームに戻る</button>
-        </Link>
+        <div className="flex flex-row-reverse">
+          {/* 診断開始ボタン */}
+          <Link href="/" className="mt-auto">
+            <button className="rounded bg-accent hover:bg-accent-dark px-4 py-2 text-white">ホームに戻る</button>
+          </Link>
+        </div>
       </Card>
     </div>
   );

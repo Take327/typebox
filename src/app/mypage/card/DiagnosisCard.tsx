@@ -16,23 +16,27 @@ export default function DiagnosisCard({ diagnosisData }: { diagnosisData: Diagno
           </Link>
         </div>
       ) : (
-        <>
-          <p className="mb-2 text-gray-600">
-            現在のMBTIタイプ: <strong>{diagnosisData.mbtiType}</strong>
-          </p>
-          <p className="mb-2 text-sm text-gray-400">特徴: {diagnosisData?.traits}</p>
+        <div className="flex w-full h-full flex-col justify-between">
+          <div>
+            <p className="mb-2 text-gray-600">
+              現在のMBTIタイプ: <strong>{diagnosisData.mbtiType}</strong>
+            </p>
+            <p className="mb-2 text-sm text-gray-400">特徴: {diagnosisData?.traits}</p>
 
-          {/* 傾向をグラフ表示 */}
-          <div className="w-full">
-            {diagnosisData?.tendencies?.map((tendency, index) => (
-              <MBTITendenciesChart tendency={tendency} key={index} />
-            ))}
+            {/* 傾向をグラフ表示 */}
+            <div className="w-full">
+              {diagnosisData?.tendencies?.map((tendency, index) => (
+                <MBTITendenciesChart tendency={tendency} key={index} />
+              ))}
+            </div>
           </div>
 
           <Link href="/diagnosis/start">
-            <button className="px-4 py-2 mt-4 text-white rounded bg-81d8d0 hover:bg-81d8d0/90">診断を開始する</button>
+            <button className="bg-accent hover:bg-accent-dark px-4 py-2 mt-4 text-white rounded ">
+              診断を開始する
+            </button>
           </Link>
-        </>
+        </div>
       )}
     </Card>
   );

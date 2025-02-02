@@ -4,8 +4,5 @@
   "eslint.format.enable": true, // ESLintをフォーマッターとして有効化
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "always" // 保存時にESLintで自動修正
-  },
-  "files.associations": {
-    "*.css": "tailwindcss"
   }
 }

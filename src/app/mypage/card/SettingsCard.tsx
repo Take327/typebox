@@ -7,20 +7,30 @@ import Card from "../../components/Card";
 import { notifications } from "../../../mock";
 import { Session } from "next-auth";
 
-interface SettingsCardProps {
-  session: Session | null; // NextAuthのSession型など適切な型に差し替えてください
+type SettingsCardProps = {
+  /**
+   * ユーザーのセッション情報
+   */
+  session: Session | null; // NextAuthのSession型など適切な型に合わせてください
+  /**
+   * 処理中フラグをセットする関数
+   */
   setProcessing: (processing: boolean) => void;
-  autoApproval: boolean;
-  setAutoApproval: (newState: boolean) => void;
-}
+};
 
-export default function SettingsCard({ session, setProcessing, autoApproval, setAutoApproval }: SettingsCardProps) {
+/**
+ * 設定カードコンポーネント
+ * @param session ユーザーのセッション情報
+ * @param setProcessing 処理中フラグをセットする関数
+ */
+export default function SettingsCard({ session, setProcessing }: SettingsCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(session?.user?.name || "");
   const displayedNotifications = notifications.slice(0, 4);
+  const [autoApproval, setAutoApproval] = useState(session?.user?.autoApproval || false);
 
   /**
-   * アカウント名を編集する
+   * アカウント名編集モードに入る
    */
   const handleEditClick = () => {
     setIsEditing(true);
@@ -28,6 +38,7 @@ export default function SettingsCard({ session, setProcessing, autoApproval, set
 
   /**
    * アカウント名を保存する（フォーカスを外したタイミングで発火）
+   * @param e フォーカスイベント
    */
   const handleSave = async (e: React.FocusEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -45,20 +56,38 @@ export default function SettingsCard({ session, setProcessing, autoApproval, set
 
     // 保存処理（API呼び出しなど）を実装
     try {
-      // ここでAPIに送るなど
+      setProcessing(true);
+
+      const response = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: session?.user?.id,
+          newName: trimmedValue,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("アカウント名の更新に失敗しました。");
+      }
+
       console.log("アカウント名を保存:", trimmedValue);
+      // ここで必要に応じてステートやコンテキストを更新する
     } catch (error) {
       console.error("保存中にエラーが発生しました:", error);
+      // エラー時に表示するUIが必要な場合はここで実装
+    } finally {
+      setProcessing(false);
     }
   };
 
   /**
    * トグルスイッチの変更を処理し、データベースを更新
+   * @param newState 新しいトグル状態
    */
   const handleToggleChange = async (newState: boolean) => {
     try {
       setProcessing(true);
-      setAutoApproval(newState);
 
       const response = await fetch("/api/users", {
         method: "POST",
@@ -74,6 +103,7 @@ export default function SettingsCard({ session, setProcessing, autoApproval, set
       }
 
       console.log("自動承認フラグが正常に更新されました。");
+      setAutoApproval(newState);
     } catch (err) {
       console.error("トグルスイッチの更新中にエラー:", err);
       // 失敗時は元の状態に戻す
