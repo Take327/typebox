@@ -198,7 +198,7 @@ export type NotificationListProps = {
  */
 
 export type Group = {
-  id: number;
+  id: string;
   name: string;
   description: string | null;
   created_at: string; // or Date

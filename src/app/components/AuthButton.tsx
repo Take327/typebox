@@ -2,7 +2,7 @@
 
 import React from "react";
 
-interface AuthButtonProps {
+type AuthButtonProps = {
   onClick: () => void;
   bgColor: string;
   hoverColor: string;
@@ -11,7 +11,7 @@ interface AuthButtonProps {
   borderColor?: string;
   icon: React.ReactNode;
   label: string;
-}
+};
 
 const AuthButton: React.FC<AuthButtonProps> = ({
   onClick,

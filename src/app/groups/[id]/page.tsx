@@ -6,13 +6,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-
-interface Group {
-  id: number;
-  name: string;
-  description: string;
-  created_at: string;
-}
+import { Group } from "@/types";
 
 export default function GroupDetailPage(): JSX.Element {
   const params = useParams() as { id: string };

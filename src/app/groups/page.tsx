@@ -6,12 +6,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-interface Group {
-  id: number;
-  name: string;
-  description: string;
-}
+import { Group } from "@/types";
 
 export default function GroupListPage(): JSX.Element {
   const [groups, setGroups] = useState<Group[]>([]);

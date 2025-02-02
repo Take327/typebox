@@ -2,25 +2,17 @@
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { v4 as uuidv4 } from "uuid";
-
-/**
- * グループの型定義
- */
-export interface Group {
-  id: string;
-  name: string;
-  description: string;
-}
+import { Group } from "@/types";
 
 /**
  * Contextで提供する値の型
  */
-interface GroupsContextValue {
+type GroupsContextValue = {
   groups: Group[];
   createGroup: (name: string, description: string) => void;
   updateGroup: (id: string, updated: { name: string; description: string }) => void;
   deleteGroup: (id: string) => void;
-}
+};
 
 /**
  * グループ情報を保持するContext
@@ -30,9 +22,9 @@ const GroupsContext = createContext<GroupsContextValue | undefined>(undefined);
 /**
  * GroupsMockProviderのProps
  */
-interface GroupsMockProviderProps {
+type GroupsMockProviderProps = {
   children: ReactNode;
-}
+};
 
 /**
  * グループ情報を管理するContextプロバイダ
@@ -43,14 +35,16 @@ export function GroupsMockProvider({ children }: GroupsMockProviderProps): JSX.E
   // 初期データ: モック用
   const [groups, setGroups] = useState<Group[]>([
     {
-      id: uuidv4(),
+      id: (Date.now() + Math.floor(Math.random() * 10000)).toString(),
       name: "開発チーム",
       description: "フロントエンド・バックエンド・デザイン担当が所属するチームです。",
+      created_at: new Date().toISOString(),
     },
     {
-      id: uuidv4(),
+      id: (Date.now() + Math.floor(Math.random() * 10000)).toString(),
       name: "マーケティング",
       description: "広告運用やSNS運用を行うチームです。",
+      created_at: new Date().toISOString(),
     },
   ]);
 
@@ -61,9 +55,10 @@ export function GroupsMockProvider({ children }: GroupsMockProviderProps): JSX.E
    */
   function createGroup(name: string, description: string): void {
     const newGroup: Group = {
-      id: uuidv4(),
+      id: (Date.now() + Math.floor(Math.random() * 10000)).toString(),
       name,
       description,
+      created_at: new Date().toISOString(),
     };
     setGroups((prev) => [...prev, newGroup]);
   }

@@ -6,12 +6,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-
-interface Member {
-  group_id: number;
-  user_id: number;
-  joined_at: string;
-}
+import { GroupMember } from "@/types";
 
 /**
  * グループメンバー管理画面
@@ -19,7 +14,7 @@ interface Member {
  */
 export default function GroupMembersPage(): JSX.Element {
   const params = useParams() as { id: string };
-  const [members, setMembers] = useState<Member[]>([]);
+  const [members, setMembers] = useState<GroupMember[]>([]);
   const [inviteUserId, setInviteUserId] = useState("");
 
   useEffect(() => {

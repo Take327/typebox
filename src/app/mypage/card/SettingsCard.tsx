@@ -7,7 +7,7 @@ import Card from "../../components/Card";
 import { notifications } from "../../../mock";
 import { Session } from "next-auth";
 
-interface SettingsCardProps {
+type SettingsCardProps = {
   /**
    * ユーザーのセッション情報
    */
@@ -16,7 +16,7 @@ interface SettingsCardProps {
    * 処理中フラグをセットする関数
    */
   setProcessing: (processing: boolean) => void;
-}
+};
 
 /**
  * 設定カードコンポーネント
