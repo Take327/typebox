@@ -1,9 +1,6 @@
 import React from "react";
-import { Flowbite } from "flowbite-react";
-import customTheme from "./components/Flowbit/customTheme";
-import Footer from "./components/Footer";
-import HeaderWithMenu from "./components/HeaderWithMenu";
 import "./globals.css";
+import ClientLayout from "./clientLayout";
 
 /**
  * サイト情報を定義する定数。
@@ -63,12 +60,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
           }}
         />
       </head>
+
       <body className="flex flex-col">
-        <HeaderWithMenu />
-        <Flowbite theme={{ theme: customTheme }}>
-          <main className="min-h-[calc(100vh-42px)] flex-grow bg-gray-100">{children}</main>
-        </Flowbite>
-        <Footer />
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
