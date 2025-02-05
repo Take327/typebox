@@ -7,7 +7,6 @@ import { useProcessing } from "../../context/ProcessingContext";
 /** カスタムコンポーネント群 */
 import DiagnosisCard from "./card/DiagnosisCard";
 import GroupCard from "./card/GroupCard";
-import SettingsCard from "./card/SettingsCard";
 import NoDiagnosisCard from "./card/NoDiagnosisCard";
 
 /** 型定義やユーティリティ */
@@ -197,17 +196,20 @@ export default function MyPage(): React.JSX.Element {
 
   // 診断結果が null なら診断前カードを表示
   const hasDiagnosis = diagnosisData !== null;
+  if (!hasDiagnosis) {
+    return (
+      <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
+        <NoDiagnosisCard />
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
       {/* 診断データ */}
-      {hasDiagnosis ? <DiagnosisCard diagnosisData={diagnosisData!} /> : <NoDiagnosisCard />}
-
+      <DiagnosisCard diagnosisData={diagnosisData!} />
       {/* 所属グループ - 取得できたものを props で渡す */}
       <GroupCard groups={groups} />
-
-      {/* 各種設定 - userData を渡して自動承認フラグなどを管理 */}
-      <SettingsCard session={session} setProcessing={setProcessing} />
     </div>
   );
 }
