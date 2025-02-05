@@ -4,22 +4,34 @@ import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { BiEdit } from "react-icons/bi";
 import { useProcessing } from "../../../context/ProcessingContext";
+import { LuLogOut } from "react-icons/lu";
 
 export default function FlowbitAvatar() {
-  // 処理中の状態を管理（Backdrop表示用）
   const { setProcessing } = useProcessing();
   const { data: session, status } = useSession({ required: true });
   const [isEditing, setIsEditing] = useState(false);
-  const [inputValue, setInputValue] = useState(session?.user?.name || "");
 
-  const handleLogout = async () => {
-    await signOut({ callbackUrl: "/login" }); // ログアウト後にログイン画面へリダイレクト
-  };
+  // DBから取得したアカウント名を保持
+  const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
-    if (session?.user?.name) {
-      setInputValue(session.user.name);
-    }
+    const fetchUserName = async () => {
+      if (!session?.user?.email) return;
+
+      try {
+        const email = encodeURIComponent(session.user.email);
+        const response = await fetch(`/api/users?email=${email}`);
+
+        if (!response.ok) throw new Error("ユーザー情報の取得に失敗しました");
+
+        const data = await response.json();
+        setInputValue(data.name || "未設定");
+      } catch (error) {
+        console.error("ユーザー情報の取得エラー:", error);
+      }
+    };
+
+    fetchUserName();
   }, [session]);
 
   /**
@@ -37,7 +49,6 @@ export default function FlowbitAvatar() {
     e.preventDefault();
     const trimmedValue = e.target.value.trim();
 
-    // 空文字の場合は保存しない
     if (!trimmedValue) {
       console.error("入力値が空です。保存できません。");
       setIsEditing(false);
@@ -47,10 +58,8 @@ export default function FlowbitAvatar() {
     setIsEditing(false);
     setInputValue(trimmedValue);
 
-    // 保存処理（API呼び出しなど）を実装
     try {
       setProcessing(true);
-
       const response = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -60,24 +69,23 @@ export default function FlowbitAvatar() {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("アカウント名の更新に失敗しました。");
-      }
+      if (!response.ok) throw new Error("アカウント名の更新に失敗しました");
 
       console.log("アカウント名を保存:", trimmedValue);
-      // ここで必要に応じてステートやコンテキストを更新する
     } catch (error) {
       console.error("保存中にエラーが発生しました:", error);
-      // エラー時に表示するUIが必要な場合はここで実装
     } finally {
       setProcessing(false);
     }
   };
 
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/login" });
+  };
+
   return (
     <Dropdown label={<Avatar rounded />} arrowIcon={false} inline>
       <DropdownHeader>
-        {/* アカウント情報 */}
         <div className="mb-4">
           <h2 className="mb-2 text-lg font-bold">アカウント情報</h2>
           <div className="flex items-center justify-between text-gray-700">
@@ -88,12 +96,12 @@ export default function FlowbitAvatar() {
                   type="text"
                   className="ml-3"
                   value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)} // 入力値を更新
-                  onBlur={handleSave} // フォーカスを外したら保存
-                  autoFocus // 自動的にフォーカスを当てる
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onBlur={handleSave}
+                  autoFocus
                 />
               ) : (
-                <span className="ml-3">{inputValue || "未ログイン"}</span>
+                <span className="ml-3">{inputValue || "未設定"}</span>
               )}
             </div>
             {!isEditing && (
@@ -109,7 +117,10 @@ export default function FlowbitAvatar() {
         </div>
       </DropdownHeader>
       <DropdownDivider />
-      <DropdownItem onClick={handleLogout}>Sign out</DropdownItem>
+      <DropdownItem onClick={handleLogout} className="flex items-center space-x-2">
+        <LuLogOut className="h-5 w-5" />
+        <span>ログアウト</span>
+      </DropdownItem>
     </Dropdown>
   );
 }

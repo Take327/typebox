@@ -23,7 +23,7 @@ export default function Header() {
       </div>
 
       {/* 右端のアイコン・ログアウトボタン */}
-      <nav className="ml-auto flex items-center space-x-4">
+      <nav className="ml-auto flex items-center space-x-4 mr-2">
         <FlowbitAvatar />
       </nav>
     </header>
