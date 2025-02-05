@@ -12,7 +12,7 @@ export default function DiagnosisCard({ diagnosisData }: { diagnosisData: Diagno
         <div className="flex flex-col items-center justify-center">
           <p className="text-gray-600"></p>
           <Link href="/diagnosis/start">
-            <button className="px-4 py-2 mt-4 text-white rounded bg-81d8d0 hover:bg-81d8d0/90">診断を開始する</button>
+            <button className="px-4 py-2 mt-4 text-white rounded bg-accent hover:bg-accent-dark">診断を開始する</button>
           </Link>
         </div>
       ) : (

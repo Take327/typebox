@@ -7,6 +7,7 @@ import flowbitePlugin from "flowbite/plugin";
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: ["class"],
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -17,17 +18,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // マテリアルデザインのPrimaryカラーとして扱う薄いベージュ系（例：ヘッダーなど）
         primary: {
-          50: "#f7e4c9", // ヘッダー用
-          100: "#f7e4c9", // 必要に応じて追加
-          200: "#f6ceb4", // フッター用
+          "50": "#f7e4c9",
+          "100": "#f7e4c9",
+          "200": "#f6ceb4",
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
-        // ボタンやスイッチなど強調したい要素に用いるアクセントカラー
         accent: {
           DEFAULT: "#81d8d0",
           light: "#a3e5de", // ホバー時などに使用する例
           dark: "#5bc2ba", // アクティブ時などに使用する例
+          foreground: "hsl(var(--accent-foreground))",
         },
         // 全体的な背景カラー
         background: "#f3f4f6",
@@ -37,17 +39,48 @@ const config: Config = {
         pastelPeach: "#F6CEB4",
         pastelPink: "#FAD4E0",
         pastelSky: "#CDE7F4",
-
-        // 必要であれば単純にカラー名として定義しておき、ユーティリティクラスで使用することも可
-        // "81d8d0": "#81d8d0",
-        // "f6ceb4": "#f6ceb4",
-        // "f7e4c9": "#f7e4c9",
+        foreground: "hsl(var(--foreground))",
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        chart: {
+          "1": "hsl(var(--chart-1))",
+          "2": "hsl(var(--chart-2))",
+          "3": "hsl(var(--chart-3))",
+          "4": "hsl(var(--chart-4))",
+          "5": "hsl(var(--chart-5))",
+        },
       },
-      // フォントや他の拡張設定があればここに追加
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
     },
   },
   plugins: [
     flowbitePlugin, // Flowbiteプラグイン
+    require("tailwindcss-animate"),
   ],
 };
 

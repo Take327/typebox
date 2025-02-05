@@ -12,6 +12,7 @@ import NoDiagnosisCard from "./card/NoDiagnosisCard";
 /** 型定義やユーティリティ */
 import { DiagnosisData, MBTIDiagnosisResultFromServer, MBTIDiagnosisResult, isMBTIType, GroupData } from "@/types";
 import { formatDiagnosisData } from "@/utils/formatDiagnosisData";
+import DiagnosisListCard from "./card/DiagnosisListCard";
 
 /**
  * @typedef {Object} UserData
@@ -208,6 +209,8 @@ export default function MyPage(): React.JSX.Element {
     <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
       {/* 診断データ */}
       <DiagnosisCard diagnosisData={diagnosisData!} />
+      {/* 所属グループ - 取得できたものを props で渡す */}
+      <DiagnosisListCard />
       {/* 所属グループ - 取得できたものを props で渡す */}
       <GroupCard groups={groups} />
     </div>
