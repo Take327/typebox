@@ -5,6 +5,7 @@
 "use client";
 
 import React from "react";
+import Backdrop from "../components/Backdrop";
 
 /**
  * グループ関連ページのレイアウト
@@ -12,9 +13,9 @@ import React from "react";
  */
 export default function GroupsLayout({ children }: { children: React.ReactNode }): JSX.Element {
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">グループ管理</h1>
-      {children}
-    </div>
+    <>
+      <div className="container mx-auto py-8">{children}</div>
+      <Backdrop />
+    </>
   );
 }

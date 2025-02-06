@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserData } from "@/hooks/useUserData";
 import { useGroups } from "@/hooks/useGroups";
+import { useProcessing } from "@/context/ProcessingContext";
 
 /**
  * グループ一覧ページ
@@ -11,15 +12,19 @@ import { useGroups } from "@/hooks/useGroups";
 export default function GroupListPage(): JSX.Element {
   const router = useRouter();
   const userData = useUserData();
-  const { groups, isLoading, error } = useGroups(userData?.id || null);
+  const { groups, error } = useGroups(userData?.id || null);
+  const { setProcessing } = useProcessing(); // ローディング制御
+  const [isDataFetched, setIsDataFetched] = useState(false);
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-lg font-semibold">Loading...</p>
-      </div>
-    );
-  }
+  // ローディング状態を管理
+  useEffect(() => {
+    if (userData && groups) {
+      setProcessing(false);
+      setIsDataFetched(true);
+    } else {
+      setProcessing(true);
+    }
+  }, [userData, groups, setProcessing]);
 
   if (error) {
     return (
@@ -35,13 +40,13 @@ export default function GroupListPage(): JSX.Element {
         <h2 className="text-xl font-semibold">グループ一覧</h2>
         <button
           onClick={() => router.push("/groups/new")}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          className="bg-accent hover:bg-accent-dark text-white px-4 py-2 rounded"
         >
           新規作成
         </button>
       </div>
 
-      {groups.length === 0 ? (
+      {isDataFetched && groups.length === 0 ? (
         <p className="text-gray-500">所属グループがありません。</p>
       ) : (
         <ul className="space-y-4">

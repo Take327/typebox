@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useUserData } from "@/hooks/useUserData";
 import { useGroups } from "@/hooks/useGroups";
 import { useDiagnosisData } from "@/hooks/useDiagnosisData";
+import { useProcessing } from "@/context/ProcessingContext";
 import DiagnosisCard from "./card/DiagnosisCard";
 import GroupCard from "./card/GroupCard";
 import NoDiagnosisCard from "./card/NoDiagnosisCard";
@@ -14,17 +15,20 @@ import DiagnosisListCard from "./card/DiagnosisListCard";
  */
 export default function MyPage(): React.JSX.Element {
   const userData = useUserData();
-  const { groups, isLoading, error } = useGroups(userData?.id || null);
+  const { groups, error } = useGroups(userData?.id || null);
   const { diagnosisData, diagnosisHistory } = useDiagnosisData(userData?.id || null);
+  const { setProcessing } = useProcessing(); // グローバルローディング状態管理
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-lg font-semibold">Loading...</p>
-      </div>
-    );
-  }
+  // ローディングの状態を適切に制御
+  useEffect(() => {
+    if (!userData || !groups || !diagnosisData) {
+      setProcessing(true); // データ未取得時はローディングを開始
+    } else {
+      setProcessing(false); // すべてのデータ取得後にローディングを解除
+    }
+  }, [userData, groups, diagnosisData, setProcessing]);
 
+  // エラー発生時の表示
   if (error) {
     return (
       <div className="p-6">
