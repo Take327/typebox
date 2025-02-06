@@ -30,7 +30,7 @@ export default function GroupCard({
             <p className="text-gray-500">現在所属しているグループはありません</p>
           ) : (
             <ul className="space-y-2">
-              {groups.map((group) => (
+              {groups.slice(0, 4).map((group) => (
                 <li
                   key={group.id}
                   className="p-4 border rounded hover:bg-gray-50 cursor-pointer"

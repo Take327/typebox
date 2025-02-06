@@ -142,7 +142,12 @@ export default function MyPage(): React.JSX.Element {
     try {
       if (!userData?.id) return;
 
-      const res = await fetch(`/api/groups?userId=${userData.id}`, { method: "GET" });
+      const res = await fetch(`/api/groups?userId=${userData.id}`, {
+        method: "GET",
+        headers: {
+          "x-user-id": userData.id.toString(), // IDを文字列化
+        },
+      });
       if (!res.ok) {
         throw new Error("グループ一覧の取得に失敗しました。");
       }
