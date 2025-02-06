@@ -12,13 +12,21 @@ import NoDiagnosisCard from "./card/NoDiagnosisCard";
 import DiagnosisListCard from "./card/DiagnosisListCard";
 
 /** 型定義やユーティリティ */
-import { DiagnosisData, MBTIDiagnosisResultFromServer, MBTIDiagnosisResult, isMBTIType, GroupData } from "@/types";
+import {
+  DiagnosisData,
+  MBTIDiagnosisResultFromServer,
+  MBTIDiagnosisResult,
+  isMBTIType,
+  GroupData,
+  MBTIScore,
+} from "@/types";
 import { formatDiagnosisData } from "@/utils/formatDiagnosisData";
 
 /**
  * マイページコンポーネント
  *
  * - ユーザーの MBTI 診断結果を表示
+ * - 診断履歴を表示
  * - 所属グループ一覧を表示
  * - ユーザー情報（自動承認フラグなど）の取得
  *
@@ -29,9 +37,11 @@ export default function MyPage(): React.JSX.Element {
   const router = useRouter();
   const { setProcessing } = useProcessing();
 
-  /** 診断結果 */
+  /** 最新の診断結果 */
   const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(null);
-  /** ユーザー情報（自動承認フラグなど） */
+  /** 診断履歴一覧 */
+  const [diagnosisHistory, setDiagnosisHistory] = useState<Array<{ date: string } & MBTIScore>>([]);
+  /** ユーザー情報 */
   const [userData, setUserData] = useState<any | null>(null);
   /** ユーザーが所属するグループ一覧 */
   const [groups, setGroups] = useState<GroupData[]>([]);
@@ -40,10 +50,7 @@ export default function MyPage(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * 診断結果を取得する非同期関数
-   *
-   * @async
-   * @returns {Promise<void>}
+   * 最新の診断結果を取得する
    */
   const fetchDiagnosisResult = async (): Promise<void> => {
     setProcessing(true);
@@ -81,10 +88,28 @@ export default function MyPage(): React.JSX.Element {
   };
 
   /**
-   * ユーザー情報（自動承認フラグなど）を取得する
-   *
-   * @async
-   * @returns {Promise<void>}
+   * 診断履歴一覧を取得する
+   */
+  const fetchDiagnosisHistory = async (): Promise<void> => {
+    try {
+      if (!userData?.id) return;
+
+      const response = await fetch(`/api/diagnosisListResult?user_id=${userData.id}`, { method: "GET" });
+      if (!response.ok) {
+        throw new Error("診断履歴の取得に失敗しました。");
+      }
+
+      const historyData: Array<{ date: string } & MBTIScore>[] = await response.json();
+
+      // 二重配列（[][]）の可能性がある場合、.flat() を使用して1次元配列に変換
+      setDiagnosisHistory(historyData.flat());
+    } catch (err) {
+      console.error("診断履歴取得エラー:", err);
+    }
+  };
+
+  /**
+   * ユーザー情報を取得する
    */
   const fetchUserData = async (): Promise<void> => {
     try {
@@ -160,10 +185,11 @@ export default function MyPage(): React.JSX.Element {
   }, [status]);
 
   /**
-   * ユーザー情報が取得できたら、そのユーザーが所属するグループ一覧も取得
+   * ユーザー情報が取得できたら診断履歴とグループ情報を取得
    */
   useEffect(() => {
     if (userData?.id) {
+      fetchDiagnosisHistory();
       fetchGroups();
     }
   }, [userData]);
@@ -184,21 +210,12 @@ export default function MyPage(): React.JSX.Element {
     );
   }
 
-  // 診断結果が null なら診断前カードを表示
-  if (!diagnosisData) {
-    return (
-      <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
-        <NoDiagnosisCard />
-      </div>
-    );
-  }
-
   return (
     <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
       {/* 診断データ */}
-      <DiagnosisCard diagnosisData={diagnosisData} />
+      {diagnosisData ? <DiagnosisCard diagnosisData={diagnosisData} /> : <NoDiagnosisCard />}
       {/* 診断履歴一覧 */}
-      <DiagnosisListCard />
+      <DiagnosisListCard rawData={diagnosisHistory} />
       {/* 所属グループ */}
       <GroupCard groups={groups} />
     </div>

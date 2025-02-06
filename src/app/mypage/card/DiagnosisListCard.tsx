@@ -3,6 +3,7 @@
 import React from "react";
 import Card from "../../components/Card";
 import { MBTITransitionChart } from "../../components/MBTITransitionChart";
+import { MBTIScore } from "@/types";
 
 /**
  * 診断結果の遷移を表示するカードコンポーネント。
@@ -13,10 +14,10 @@ import { MBTITransitionChart } from "../../components/MBTITransitionChart";
  *
  * @returns {JSX.Element} 診断結果遷移カードの JSX 要素
  */
-export default function DiagnosisListCard(): JSX.Element {
+export default function DiagnosisListCard({ rawData }: { rawData: Array<{ date: string } & MBTIScore> }): JSX.Element {
   return (
     <Card title="診断結果遷移">
-      <MBTITransitionChart />
+      <MBTITransitionChart rawData={rawData} />
     </Card>
   );
 }
