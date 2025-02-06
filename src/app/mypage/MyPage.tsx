@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -8,32 +9,20 @@ import { useProcessing } from "../../context/ProcessingContext";
 import DiagnosisCard from "./card/DiagnosisCard";
 import GroupCard from "./card/GroupCard";
 import NoDiagnosisCard from "./card/NoDiagnosisCard";
+import DiagnosisListCard from "./card/DiagnosisListCard";
 
 /** 型定義やユーティリティ */
 import { DiagnosisData, MBTIDiagnosisResultFromServer, MBTIDiagnosisResult, isMBTIType, GroupData } from "@/types";
 import { formatDiagnosisData } from "@/utils/formatDiagnosisData";
-import DiagnosisListCard from "./card/DiagnosisListCard";
 
 /**
- * @typedef {Object} UserData
- * @property {number} id - ユーザーID
- * @property {string} name - ユーザー名
- * @property {string} email - メールアドレス
- * @property {boolean} autoApproval - 自動承認フラグ
- */
-
-/**
- * @typedef {Object} GroupData
- * @property {number} id - グループID
- * @property {string} name - グループ名
- * @property {string|null} description - グループの説明
- */
-
-/**
- * @description マイページコンポーネント
- * - 診断結果
- * - グループ一覧
- * - 設定カード（自動承認フラグなど）
+ * マイページコンポーネント
+ *
+ * - ユーザーの MBTI 診断結果を表示
+ * - 所属グループ一覧を表示
+ * - ユーザー情報（自動承認フラグなど）の取得
+ *
+ * @returns {React.JSX.Element} マイページの JSX 要素
  */
 export default function MyPage(): React.JSX.Element {
   const { data: session, status } = useSession({ required: true });
@@ -42,16 +31,17 @@ export default function MyPage(): React.JSX.Element {
 
   /** 診断結果 */
   const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(null);
-  /** ユーザー情報 (自動承認フラグなど) */
+  /** ユーザー情報（自動承認フラグなど） */
   const [userData, setUserData] = useState<any | null>(null);
   /** ユーザーが所属するグループ一覧 */
   const [groups, setGroups] = useState<GroupData[]>([]);
-  /** ローディング状態/エラー状態 */
+  /** ローディング状態・エラー状態 */
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   /**
    * 診断結果を取得する非同期関数
+   *
    * @async
    * @returns {Promise<void>}
    */
@@ -91,7 +81,8 @@ export default function MyPage(): React.JSX.Element {
   };
 
   /**
-   * ユーザー情報（自動承認フラグなど）を取得する非同期関数
+   * ユーザー情報（自動承認フラグなど）を取得する
+   *
    * @async
    * @returns {Promise<void>}
    */
@@ -101,9 +92,7 @@ export default function MyPage(): React.JSX.Element {
         router.push("/login");
         return;
       }
-      const res = await fetch(`/api/users?email=${session.user.email}`, {
-        method: "GET",
-      });
+      const res = await fetch(`/api/users?email=${session.user.email}`, { method: "GET" });
       if (!res.ok) {
         throw new Error("ユーザー情報の取得に失敗しました。");
       }
@@ -119,7 +108,8 @@ export default function MyPage(): React.JSX.Element {
   };
 
   /**
-   * ユーザーが所属するグループ一覧を取得する
+   * ユーザーが所属するグループ一覧を取得
+   *
    * @async
    * @returns {Promise<void>}
    */
@@ -127,9 +117,7 @@ export default function MyPage(): React.JSX.Element {
     try {
       if (!userData?.id) return;
 
-      const res = await fetch(`/api/groups?userId=${userData.id}`, {
-        method: "GET",
-      });
+      const res = await fetch(`/api/groups?userId=${userData.id}`, { method: "GET" });
       if (!res.ok) {
         throw new Error("グループ一覧の取得に失敗しました。");
       }
@@ -141,7 +129,8 @@ export default function MyPage(): React.JSX.Element {
   };
 
   /**
-   * コンポーネント初回マウント時のデータ取得
+   * コンポーネントの初回マウント時にデータを取得
+   *
    * - セッションが "authenticated" の時のみ動作
    */
   useEffect(() => {
@@ -171,7 +160,7 @@ export default function MyPage(): React.JSX.Element {
   }, [status]);
 
   /**
-   * ユーザー情報が取得できたら、そのユーザーが所属するグループ一覧も取得する
+   * ユーザー情報が取得できたら、そのユーザーが所属するグループ一覧も取得
    */
   useEffect(() => {
     if (userData?.id) {
@@ -196,8 +185,7 @@ export default function MyPage(): React.JSX.Element {
   }
 
   // 診断結果が null なら診断前カードを表示
-  const hasDiagnosis = diagnosisData !== null;
-  if (!hasDiagnosis) {
+  if (!diagnosisData) {
     return (
       <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
         <NoDiagnosisCard />
@@ -208,10 +196,10 @@ export default function MyPage(): React.JSX.Element {
   return (
     <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
       {/* 診断データ */}
-      <DiagnosisCard diagnosisData={diagnosisData!} />
-      {/* 所属グループ - 取得できたものを props で渡す */}
+      <DiagnosisCard diagnosisData={diagnosisData} />
+      {/* 診断履歴一覧 */}
       <DiagnosisListCard />
-      {/* 所属グループ - 取得できたものを props で渡す */}
+      {/* 所属グループ */}
       <GroupCard groups={groups} />
     </div>
   );

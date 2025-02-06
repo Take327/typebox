@@ -4,29 +4,43 @@
 @tailwind utilities;
 
 /* 
-  TypeBoxデザインガイドラインに合わせて変数を修正
-  - 背景: #f3f4f6
-  - 文字色: #333 or #444（#171717はやや濃すぎるので修正推奨）
-  - フォントファミリは Noto Sans JP や Roboto が推奨（fallbackとして system-ui / Arialなど）
+  TypeBox デザインガイドラインに準拠したスタイル定義
+  - 背景色: #f3f4f6（デフォルトのライトモード）
+  - 文字色: #333 または #444（より適度なコントラスト）
+  - フォントファミリ: "Noto Sans JP", "Roboto"（fallback として system-ui / Arial など）
 */
-:root {
-  /* デザインガイドラインに準じた背景色 */ /* 適度にコントラストがある濃いグレー */
-}
 
-body {
-  font-family: "Noto Sans JP", "Roboto", ui-sans-serif, Arial, Helvetica, sans-serif;
-  /* ↑好みに合わせて fallback を追加 */
+:root {
+  /* グローバルな背景色 */
+  --background: #f3f4f6;
+  /* 標準のテキストカラー */
+  --foreground: #333;
 }
 
 /* 
-  rangeスライダーのサム部分。アクセントカラー(#81d8d0)を使用 
-  サイズはブラウザによって変わるので、webkit/moz/ms で統一
+  フォントの統一
+  - 日本語対応フォント: Noto Sans JP
+  - 英語対応フォント: Roboto
+  - フォールバック: Arial, Helvetica, system-ui
+*/
+body {
+  font-family: "Noto Sans JP", "Roboto", ui-sans-serif, Arial, Helvetica, sans-serif;
+}
+
+/* ============================= */
+/* Rangeスライダーのカスタムスタイル */
+/* ============================= */
+
+/* 
+  - スライダーのサム部分（丸いドラッグ部分）のデザイン
+  - Tailwind カラーアクセント (#81d8d0) を使用
+  - サイズとスタイルを統一するために `webkit` / `moz` / `ms` を指定
 */
 input[type="range"]::-webkit-slider-thumb {
   appearance: none;
   width: 20px;
   height: 20px;
-  background-color: #81d8d0; /* デザインガイドラインのaccentカラー */
+  background-color: #81d8d0;
   border-radius: 50%;
   cursor: pointer;
   z-index: 5;
@@ -50,8 +64,13 @@ input[type="range"]::-ms-thumb {
   z-index: 5;
 }
 
+/* ============================= */
+/* カラーパレットの定義（ライト / ダークモード） */
+/* ============================= */
+
 @layer base {
   :root {
+    /* ライトモードのカラーパレット */
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
@@ -71,16 +90,22 @@ input[type="range"]::-ms-thumb {
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
+
+    /* チャート用のカラーバリエーション */
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --chart-6: 310 50% 50%; /* 追加 */
-    --chart-7: 45 65% 55%; /* 追加 */
-    --chart-8: 90 70% 50%; /* 追加 */
+    --chart-6: 310 50% 50%;
+    --chart-7: 45 65% 55%;
+    --chart-8: 90 70% 50%;
+
+    /* 角丸の統一（カードやボタンなど） */
     --radius: 0.5rem;
   }
+
+  /* ダークモードのカラーパレット */
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -101,21 +126,30 @@ input[type="range"]::-ms-thumb {
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
+
+    /* チャート用のダークモードカラーバリエーション */
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --chart-6: 20 50% 60%; /* 追加 */
-    --chart-7: 40 60% 50%; /* 追加 */
-    --chart-8: 60 70% 40%; /* 追加 */
+    --chart-6: 20 50% 60%;
+    --chart-7: 40 60% 50%;
+    --chart-8: 60 70% 40%;
   }
 }
 
+/* ============================= */
+/* Tailwind ユーティリティ適用 */
+/* ============================= */
+
 @layer base {
+  /* デフォルトのボーダーカラーを適用 */
   * {
     @apply border-border;
   }
+
+  /* 背景とテキストの基本設定 */
   body {
     @apply bg-background text-foreground;
   }
