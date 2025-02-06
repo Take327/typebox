@@ -7,12 +7,28 @@ import { DiagnosisData } from "../../../types";
 import { formatDiagnosisData } from "../../../utils/formatDiagnosisData";
 import MBTITendenciesChart from "../../components/MBTITendenciesChart";
 
-export default function Page() {
+/**
+ * MBTI 診断結果ページ。
+ *
+ * - 診断 API から MBTI 診断結果を取得し、表示
+ * - `formatDiagnosisData` を用いてデータを整形
+ * - `MBTITendenciesChart` により診断傾向をグラフ表示
+ *
+ * @returns {JSX.Element} 診断結果ページの JSX 要素
+ */
+export default function Page(): JSX.Element {
+  /** 診断データの状態 */
   const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(null);
+  /** エラーメッセージの状態 */
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // データを取得する非同期関数
+    /**
+     * 診断データを取得する非同期関数。
+     *
+     * - API から診断結果を取得
+     * - データ整形後、状態を更新
+     */
     const fetchDiagnosisData = async () => {
       try {
         const response = await fetch("/api/diagnosisResult");
@@ -33,6 +49,7 @@ export default function Page() {
     fetchDiagnosisData();
   }, []);
 
+  /** エラー発生時の UI */
   if (error) {
     return (
       <div className="container mx-auto p-4">
@@ -42,6 +59,7 @@ export default function Page() {
     );
   }
 
+  /** データ読み込み中の UI */
   if (!diagnosisData) {
     return (
       <div className="container mx-auto p-4">
@@ -55,14 +73,14 @@ export default function Page() {
     <div className="container mx-auto p-4">
       <h1 className="mb-4 text-center text-2xl font-bold">MBTI 診断結果</h1>
       <Card className="mb-6 shadow-lg">
-        <div className="flex flex-col w-full justify-center items-center ">
+        <div className="flex flex-col w-full justify-center items-center">
           {/* MBTIタイプと特徴 */}
           <p className="mb-2 text-gray-600">
             あなたのMBTIタイプ: <strong>{diagnosisData.mbtiType}</strong>
           </p>
           <p className="mb-2 text-sm text-gray-400">特徴: {diagnosisData.traits}</p>
 
-          {/* 傾向チャート */}
+          {/* 診断傾向チャート */}
           <div className="w-full max-w-[40vw]">
             {diagnosisData.tendencies.map((tendency, index) => (
               <MBTITendenciesChart tendency={tendency} key={index} />
@@ -70,7 +88,7 @@ export default function Page() {
           </div>
         </div>
         <div className="flex flex-row-reverse">
-          {/* 診断開始ボタン */}
+          {/* ホームへ戻るボタン */}
           <Link href="/" className="mt-auto">
             <button className="rounded bg-accent hover:bg-accent-dark px-4 py-2 text-white">ホームに戻る</button>
           </Link>

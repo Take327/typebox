@@ -1,4 +1,5 @@
 "use client";
+
 import { Avatar, Dropdown, DropdownDivider, DropdownHeader, DropdownItem, TextInput } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
@@ -6,15 +7,30 @@ import { BiEdit } from "react-icons/bi";
 import { useProcessing } from "../../../context/ProcessingContext";
 import { LuLogOut } from "react-icons/lu";
 
-export default function FlowbitAvatar() {
+/**
+ * ユーザーアバターのドロップダウンメニュー。
+ *
+ * - `Avatar` をクリックするとアカウント情報のメニューを表示
+ * - ユーザー名の表示・編集機能を提供
+ * - ログアウト機能を実装
+ *
+ * @returns {JSX.Element} ユーザーアバターのドロップダウンコンポーネント
+ */
+export default function FlowbitAvatar(): JSX.Element {
   const { setProcessing } = useProcessing();
   const { data: session, status } = useSession({ required: true });
   const [isEditing, setIsEditing] = useState(false);
 
-  // DBから取得したアカウント名を保持
+  /** DBから取得したアカウント名を保持 */
   const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
+    /**
+     * ユーザー名を取得する非同期関数。
+     *
+     * - `session.user.email` をキーに `/api/users` からデータ取得
+     * - 取得後、`inputValue` にユーザー名を設定
+     */
     const fetchUserName = async () => {
       if (!session?.user?.email) return;
 
@@ -35,15 +51,16 @@ export default function FlowbitAvatar() {
   }, [session]);
 
   /**
-   * アカウント名編集モードに入る
+   * アカウント名編集モードに入る。
    */
   const handleEditClick = () => {
     setIsEditing(true);
   };
 
   /**
-   * アカウント名を保存する（フォーカスを外したタイミングで発火）
-   * @param e フォーカスイベント
+   * アカウント名を保存する（フォーカスを外したタイミングで発火）。
+   *
+   * @param {React.FocusEvent<HTMLInputElement>} e - フォーカスイベント
    */
   const handleSave = async (e: React.FocusEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -79,6 +96,9 @@ export default function FlowbitAvatar() {
     }
   };
 
+  /**
+   * ログアウト処理を実行する。
+   */
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/login" });
   };
