@@ -205,9 +205,12 @@ export type Group = {
 };
 
 export type GroupMember = {
-  group_id: number;
-  user_id: number;
-  joined_at: string; // or Date
+  id: number; // メンバーのID（主キー）
+  group_id: number; // 所属グループのID
+  user_id: number; // ユーザーのID
+  user_name: string; // ユーザーの名前
+  mbti_type: string | null; // MBTI タイプ（null の可能性あり）
+  joined_at: string; // ISO 8601 形式の日時 (例: "2025-01-01T12:00:00Z")
 };
 
 export type GroupData = {
