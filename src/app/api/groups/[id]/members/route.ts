@@ -8,16 +8,19 @@ import { getPool } from "@/lib/db"; // MSSQL 接続
 import sql from "mssql";
 import { convertScoreToDiagnosisResult } from "@/utils/mbti/mbtiUtils"; // MBTIタイプ変換
 
-export async function GET(request: NextRequest, { params }: { params: { id?: string } }) {
-  if (!params || !params.id) {
+export async function GET(request: NextRequest, context: any) {
+  // params は非同期かもしれないので await
+  const routeParams = await context.params;
+
+  // routeParams.id を実行時にバリデーション
+  if (!routeParams?.id) {
     return NextResponse.json({ error: "グループIDが指定されていません" }, { status: 400 });
   }
 
-  const groupId = parseInt(params.id, 10);
+  const groupId = parseInt(routeParams.id, 10);
   if (isNaN(groupId) || groupId <= 0) {
     return NextResponse.json({ error: "無効なグループIDです" }, { status: 400 });
   }
-
   // ユーザー認証チェック
   const userId = request.headers.get("x-user-id");
   if (!userId || isNaN(Number(userId))) {

@@ -174,10 +174,17 @@ export default function GroupDetailPage(): JSX.Element {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="mb-6 text-center text-2xl font-bold">グループ詳細</h1>
-
-      <Card className="max-w-2xl mx-auto shadow-lg p-6">
+    <div
+      className="
+        container mx-auto px-4 py-6
+        grid grid-cols-1 gap-6
+        sm:grid-cols-1
+        md:grid-cols-2
+        lg:grid-cols-2
+      "
+    >
+      {/* Left Column (Group Info) */}
+      <Card className="w-full shadow-lg p-6">
         <h2 className="text-xl font-semibold mb-4">{group?.name}</h2>
         <p className="text-gray-500 text-sm mb-4">
           ID: {group?.id} / 作成日: {group?.created_at}
@@ -201,7 +208,7 @@ export default function GroupDetailPage(): JSX.Element {
           )}
         </div>
 
-        <div className="flex justify-end space-x-3 mt-6">
+        <div className="flex flex-wrap justify-end space-x-3 mt-6">
           <button
             onClick={() => router.back()}
             className="px-6 py-3 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition"
@@ -221,6 +228,12 @@ export default function GroupDetailPage(): JSX.Element {
             削除
           </button>
         </div>
+      </Card>
+
+      {/* Right Column (Additional content) */}
+      <Card className="w-full shadow-lg p-6">
+        <h2 className="text-xl font-semibold mb-4">テストカード</h2>
+        <p>こちらは2カラム時に右側に表示される例用のカードです。 画面幅が小さい場合は下に回りこみます。</p>
       </Card>
     </div>
   );

@@ -19,21 +19,22 @@ import sql from "mssql";
  * }
  * ```
  */
-export async function getUserInfoByEmail(email: string): Promise<object | null> {
-  // データベース接続プールを取得
-  const pool = await getPool();
 
-  // SQL クエリを実行し、指定されたメールアドレスのユーザー情報を取得
+interface UserInfo {
+  id: number;
+  auto_approval: boolean;
+  // 他に必要なカラムがあれば追加
+}
+export async function getUserInfoByEmail(email: string): Promise<UserInfo | null> {
+  const pool = await getPool();
   const result = await pool
     .request()
     .input("email", sql.VarChar, email)
     .query("SELECT * FROM Users WHERE email = @email");
 
-  // ユーザーが存在しない場合は null を返す
   if (result.recordset.length === 0) {
     return null;
   }
-
-  // 実際のテーブル定義に合わせたユーザーデータを返す
-  return result.recordset[0];
+  // recordset[0] を UserInfo だとみなす
+  return result.recordset[0] as UserInfo;
 }

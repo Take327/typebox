@@ -162,7 +162,13 @@ export const authOptions: AuthOptions = {
         return session;
       }
 
+      // userInfo が null の可能性を排除する
       const userInfo = await getUserInfoByEmail(session.user.email);
+
+      if (!userInfo) {
+        // 例: null の場合、エラーを投げる・リダイレクトする等の処理
+        throw new Error("User not found.");
+      }
       session.user.id = userInfo.id;
       session.user.autoApproval = userInfo.auto_approval;
       session.accessToken = token.accessToken;
