@@ -8,28 +8,30 @@ import { getPool } from "@/lib/db"; // MSSQL 接続
 import sql from "mssql";
 import { convertScoreToDiagnosisResult } from "@/utils/mbti/mbtiUtils"; // MBTIタイプ変換
 
-export async function GET(request: NextRequest, context: { params: { id?: string } }) {
+export async function GET(request: NextRequest, { params }: { params: { id?: string } }) {
+  if (!params || !params.id) {
+    return NextResponse.json({ error: "グループIDが指定されていません" }, { status: 400 });
+  }
+
+  const groupId = parseInt(params.id, 10);
+  if (isNaN(groupId) || groupId <= 0) {
+    return NextResponse.json({ error: "無効なグループIDです" }, { status: 400 });
+  }
+
+  // ユーザー認証チェック
+  const userId = request.headers.get("x-user-id");
+  if (!userId || isNaN(Number(userId))) {
+    return NextResponse.json({ error: "認証情報が不足しています" }, { status: 401 });
+  }
+
   try {
-    const { id } = context.params;
-    if (!id) {
-      return NextResponse.json({ error: "グループIDが指定されていません" }, { status: 400 });
-    }
-
-    const groupId = parseInt(id, 10);
-    if (isNaN(groupId) || groupId <= 0) {
-      return NextResponse.json({ error: "無効なグループIDです" }, { status: 400 });
-    }
-
-    // ユーザー認証チェック
-    const userId = request.headers.get("x-user-id");
-    if (!userId || isNaN(Number(userId))) {
-      return NextResponse.json({ error: "認証情報が不足しています" }, { status: 401 });
-    }
-
     const db = await getPool();
 
     // **認可チェック**: ユーザーがこのグループに所属しているか確認
-    const authCheck = await db.request().input("group_id", sql.Int, groupId).input("user_id", sql.Int, Number(userId))
+    const authCheck = await db
+      .request()
+      .input("group_id", sql.Int, groupId)
+      .input("user_id", sql.Int, Number(userId))
       .query(`
         SELECT COUNT(*) AS count
         FROM GroupMembers
@@ -41,7 +43,10 @@ export async function GET(request: NextRequest, context: { params: { id?: string
     }
 
     // **メンバー情報を取得 (診断結果含む)**
-    const result = await db.request().input("group_id", sql.Int, groupId).query(`
+    const result = await db
+      .request()
+      .input("group_id", sql.Int, groupId)
+      .query(`
         SELECT 
           gm.id, 
           gm.group_id, 

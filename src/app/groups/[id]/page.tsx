@@ -22,12 +22,30 @@ export default function GroupDetailPage(): JSX.Element {
   useEffect(() => {
     if (status === "loading") return;
     if (!session) {
-      router.push("/api/auth/signin"); // 未ログインならログインページへ
+      router.push("/api/auth/signin");
       return;
     }
-    fetchGroupDetail();
-    fetchGroupMembers();
-  }, [params.id, session, status]);
+  }, [status, session]);
+
+  useEffect(() => {
+    if (status !== "authenticated" || !params.id) return;
+    let isMounted = true;
+
+    async function fetchData() {
+      try {
+        await fetchGroupDetail();
+        await fetchGroupMembers();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    fetchData();
+
+    return () => {
+      isMounted = false; // クリーンアップ
+    };
+  }, [status, params.id]);
 
   /**
    * グループ詳細を取得
