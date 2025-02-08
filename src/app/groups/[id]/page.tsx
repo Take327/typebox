@@ -4,9 +4,46 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Card } from "flowbite-react";
-import { Group, GroupMember } from "@/types";
+import { Group, GroupMember, MBTIType } from "@/types";
 import { useProcessing } from "@/context/ProcessingContext"; // ローディング管理
 import GroupRelationFlow from "@/app/components/ReactFlow/GroupRelationFlow";
+import { mbtiCompatibility, compatibilityLabels } from "@/utils/mbti/Compatibility";
+
+/**
+ * 入力データからReact Flow用のノードとエッジを生成する
+ */
+function generateGraphData(members: GroupMember[]) {
+  // ノード生成 (id を number に統一)
+  const nodes = members.map((member) => ({
+    id: member.user_id, // number 型に統一
+    user_name: member.user_name,
+    mbti_type: member.mbti_type ?? "ISTJ", // NULL ガード (ISTJをデフォルトとする)
+  }));
+
+  // エッジ生成
+  const edges = [];
+  for (let i = 0; i < members.length; i++) {
+    for (let j = i + 1; j < members.length; j++) {
+      const source = members[i];
+      const target = members[j];
+
+      // MBTI相性スコア取得 (NULL の場合 "ISTJ" をデフォルト)
+      const sourceType: MBTIType = (source.mbti_type ?? "ISTJ") as MBTIType;
+      const targetType: MBTIType = (target.mbti_type ?? "ISTJ") as MBTIType;
+      const score: number = mbtiCompatibility[sourceType]?.[targetType] ?? 1;
+      const label: string = compatibilityLabels[score] ?? "Bad";
+
+      edges.push({
+        id: `e${source.user_id}-${target.user_id}`,
+        source: source.user_id.toString(),
+        target: target.user_id.toString(),
+        label: label,
+      });
+    }
+  }
+
+  return { nodes, edges };
+}
 
 export default function GroupDetailPage(): JSX.Element {
   const { data: session, status } = useSession();
@@ -15,9 +52,6 @@ export default function GroupDetailPage(): JSX.Element {
   const { setProcessing } = useProcessing(); // ローディング制御
   const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<GroupMember[]>([]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editName, setEditName] = useState("");
-  const [editDescription, setEditDescription] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -48,10 +82,6 @@ export default function GroupDetailPage(): JSX.Element {
     };
   }, [status, params.id]);
 
-  useEffect(() => {
-    console.log("members:", members);
-  }, [members]);
-
   /**
    * グループ詳細を取得
    */
@@ -69,8 +99,6 @@ export default function GroupDetailPage(): JSX.Element {
       if (!res.ok) throw new Error("グループ情報の取得に失敗しました");
       const data = await res.json();
       setGroup(data);
-      setEditName(data.name);
-      setEditDescription(data.description || "");
     } catch (error) {
       console.error(error);
       setError("グループ情報を取得できませんでした。");
@@ -104,60 +132,6 @@ export default function GroupDetailPage(): JSX.Element {
     }
   }
 
-  /**
-   * グループ情報を保存
-   */
-  async function handleSave() {
-    if (!group || !session?.user?.id) return;
-    setProcessing(true);
-    try {
-      const res = await fetch(`/api/groups/${group.id}`, {
-        method: "PUT",
-        headers: {
-          "x-user-id": session.user.id.toString(),
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          name: editName,
-          description: editDescription,
-        }),
-      });
-      if (!res.ok) throw new Error("更新に失敗しました");
-      await fetchGroupDetail();
-      setIsEditing(false);
-    } catch (error) {
-      console.error(error);
-      setError("グループの更新に失敗しました。");
-    } finally {
-      setProcessing(false);
-    }
-  }
-
-  /**
-   * グループを削除
-   */
-  async function handleDelete() {
-    if (!group || !session?.user?.id) return;
-    setProcessing(true);
-    try {
-      const res = await fetch(`/api/groups/${group.id}`, {
-        method: "DELETE",
-        headers: {
-          "x-user-id": session.user.id.toString(),
-        },
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("削除に失敗しました");
-      router.push("/groups");
-    } catch (error) {
-      console.error(error);
-      setError("グループの削除に失敗しました。");
-    } finally {
-      setProcessing(false);
-    }
-  }
-
   /** エラー時の表示 */
   if (error) {
     return (
@@ -173,6 +147,9 @@ export default function GroupDetailPage(): JSX.Element {
       </div>
     );
   }
+
+  // メンバー情報をGraphデータに変換
+  const { nodes, edges } = generateGraphData(members);
 
   return (
     <div
@@ -208,33 +185,12 @@ export default function GroupDetailPage(): JSX.Element {
             </ul>
           )}
         </div>
-
-        <div className="flex flex-wrap justify-end space-x-3 mt-6">
-          <button
-            onClick={() => router.back()}
-            className="px-6 py-3 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition"
-          >
-            戻る
-          </button>
-          <button
-            onClick={() => setIsEditing(true)}
-            className="px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
-          >
-            編集
-          </button>
-          <button
-            onClick={handleDelete}
-            className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-          >
-            削除
-          </button>
-        </div>
       </Card>
 
-      {/* Right Column (Additional content) */}
+      {/* Right Column (相関図) */}
       <Card className="w-full shadow-lg p-6">
         <h2 className="text-xl font-semibold mb-4">相関図（React Flow）</h2>
-        <GroupRelationFlow />{" "}
+        <GroupRelationFlow members={nodes} initialEdges={edges} />
       </Card>
     </div>
   );
