@@ -47,6 +47,10 @@ export default function GroupDetailPage(): JSX.Element {
     };
   }, [status, params.id]);
 
+  useEffect(() => {
+    console.log("members:", members);
+  }, [members]);
+
   /**
    * グループ詳細を取得
    */

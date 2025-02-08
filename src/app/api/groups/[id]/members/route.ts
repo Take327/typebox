@@ -28,10 +28,7 @@ export async function GET(request: NextRequest, { params }: { params: { id?: str
     const db = await getPool();
 
     // **認可チェック**: ユーザーがこのグループに所属しているか確認
-    const authCheck = await db
-      .request()
-      .input("group_id", sql.Int, groupId)
-      .input("user_id", sql.Int, Number(userId))
+    const authCheck = await db.request().input("group_id", sql.Int, groupId).input("user_id", sql.Int, Number(userId))
       .query(`
         SELECT COUNT(*) AS count
         FROM GroupMembers
@@ -46,21 +43,39 @@ export async function GET(request: NextRequest, { params }: { params: { id?: str
     const result = await db
       .request()
       .input("group_id", sql.Int, groupId)
-      .query(`
-        SELECT 
-          gm.id, 
-          gm.group_id, 
-          gm.user_id, 
-          u.name AS user_name, 
-          d.type_E, d.type_I, d.type_S, d.type_N, 
-          d.type_T, d.type_F, d.type_J, d.type_P, 
+      .query(
+        `
+      SELECT
+          gm.id,
+          gm.group_id,
+          gm.user_id,
+          u.name AS user_name,
+          d.type_E,
+          d.type_I,
+          d.type_S,
+          d.type_N,
+          d.type_T,
+          d.type_F,
+          d.type_J,
+          d.type_P,
           gm.joined_at
-        FROM GroupMembers gm
-        JOIN Users u ON gm.user_id = u.id
-        LEFT JOIN DiagnosisResults d ON gm.user_id = d.user_id
-        WHERE gm.group_id = @group_id
-        ORDER BY gm.joined_at ASC
-      `);
+      FROM GroupMembers gm
+      JOIN Users u
+        ON gm.user_id = u.id
+      LEFT JOIN (
+          SELECT *
+          FROM DiagnosisResults ds
+          WHERE ds.created_at = (
+              -- ユーザーごとに最新のcreated_atを検索
+              SELECT MAX(ds2.created_at)
+              FROM DiagnosisResults ds2
+              WHERE ds2.user_id = ds.user_id
+          )
+      ) d
+        ON gm.user_id = d.user_id
+      WHERE gm.group_id = @group_id
+      ORDER BY gm.joined_at ASC;`
+      );
 
     // **MBTIタイプを計算**
     const membersWithMBTI = result.recordset.map((member) => {
