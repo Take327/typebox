@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { Card } from "flowbite-react";
 import { Group, GroupMember } from "@/types";
 import { useProcessing } from "@/context/ProcessingContext"; // ローディング管理
+import GroupRelationFlow from "@/app/components/ReactFlow/GroupRelationFlow";
 
 export default function GroupDetailPage(): JSX.Element {
   const { data: session, status } = useSession();
@@ -232,8 +233,8 @@ export default function GroupDetailPage(): JSX.Element {
 
       {/* Right Column (Additional content) */}
       <Card className="w-full shadow-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">テストカード</h2>
-        <p>こちらは2カラム時に右側に表示される例用のカードです。 画面幅が小さい場合は下に回りこみます。</p>
+        <h2 className="text-xl font-semibold mb-4">相関図（React Flow）</h2>
+        <GroupRelationFlow />{" "}
       </Card>
     </div>
   );
