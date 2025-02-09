@@ -7,7 +7,7 @@ import { Card } from "flowbite-react";
 import { Group, GroupMember, MBTIType } from "@/types";
 import { useProcessing } from "@/context/ProcessingContext"; // ローディング管理
 import GroupRelationFlow from "@/app/components/ReactFlow/GroupRelationFlow";
-import { mbtiCompatibility, compatibilityLabels } from "@/utils/mbti/Compatibility";
+import { mbtiRelations, compatibilityLabels } from "@/utils/mbti/Compatibility";
 
 /**
  * 入力データからReact Flow用のノードとエッジを生成する
@@ -30,7 +30,7 @@ function generateGraphData(members: GroupMember[]) {
       // MBTI相性スコア取得 (NULL の場合 "ISTJ" をデフォルト)
       const sourceType: MBTIType = (source.mbti_type ?? "ISTJ") as MBTIType;
       const targetType: MBTIType = (target.mbti_type ?? "ISTJ") as MBTIType;
-      const score: number = mbtiCompatibility[sourceType]?.[targetType] ?? 1;
+      const score: number = mbtiRelations[sourceType]?.[targetType] ?? 1;
       const label: string = compatibilityLabels[score] ?? "Bad";
 
       edges.push({
@@ -190,7 +190,7 @@ export default function GroupDetailPage(): JSX.Element {
       {/* Right Column (相関図) */}
       <Card className="w-full shadow-lg p-6">
         <h2 className="text-xl font-semibold mb-4">相関図（React Flow）</h2>
-        <GroupRelationFlow members={nodes} initialEdges={edges} />
+        <GroupRelationFlow members={nodes} />
       </Card>
     </div>
   );
