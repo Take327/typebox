@@ -1,39 +1,75 @@
 "use client";
-
+import { GroupMember } from "@/types";
+import { MBTI_COORDS, mbtiRelations } from "@/utils/mbti/Compatibility";
 import { useEffect, useState } from "react";
 import ReactFlow, { Background, Controls, Edge, Node } from "reactflow";
 import "reactflow/dist/style.css";
-
-// 事前に定義した座標と相性データをインポート
-import { GroupMember, MBTI_TYPES } from "@/types";
-import { MBTI_COORDS, mbtiRelations } from "@/utils/mbti/Compatibility";
 import MbtiNode from "./MbtiNode";
+
+const MBTI_MATRIX = [
+  ["ENTP", "ISFP", "ISTP", "ENFP"],
+  ["ESFJ", "INTJ", "INFJ", "ESTJ"],
+  ["INTP", "ESFP", "ESTP", "INFP"],
+  ["ISFJ", "ENTJ", "ENFJ", "ISTJ"],
+];
+
+// ベースの高さやスケールを微調整
+const BASE_ROW_HEIGHT = 150;
+const MEMBERS_SCALE = 20; // メンバー数が1人増えるごとに何px下に伸ばすか
+const COL_WIDTH = 220; // 列の幅
 
 /** スコアに応じてエッジの色を変える */
 function getEdgeColor(score: number): string {
   switch (score) {
     case 4:
-      return "#FFB6C1"; // Best
+      return "#FAD4E0"; // Best
     case 3:
-      return "#ADD8E6"; // Better
+      return "#81D8D0"; // Better
     case 2:
-      return "#98FB98"; // Good
+      return "#F6CEB4"; // Good
     case 1:
-      return "#000000"; // Bad
+      return "#CDE7F4"; // Bad
     default:
       return "#CCCCCC"; // 未定義
   }
 }
 
+/** 同じ行にある MBTI のメンバー数の最大値を計算して、行の高さを決める */
+function computeRowHeights(grouped: Record<string, string[]>): number[] {
+  const rowHeights: number[] = [];
+
+  MBTI_MATRIX.forEach((rowMbti, rowIndex) => {
+    // この行に属するMBTIタイプそれぞれのメンバー数
+    const counts = rowMbti.map((type) => grouped[type].length);
+    const maxMembers = Math.max(...counts); // この行の最大メンバー数
+    // 行の高さ = ベース + (最大メンバー数 * スケール)
+    const rowHeight = BASE_ROW_HEIGHT + maxMembers * MEMBERS_SCALE;
+    rowHeights[rowIndex] = rowHeight;
+  });
+
+  return rowHeights;
+}
+
+/** 行の高さの累積和を計算して、行のベースY座標を求める */
+function computeRowOffsets(rowHeights: number[]): number[] {
+  const offsets: number[] = [0]; // row 0 は offset 0
+  for (let i = 1; i < rowHeights.length; i++) {
+    offsets[i] = offsets[i - 1] + rowHeights[i - 1];
+  }
+  return offsets;
+}
+
 /**
- * ノードを生成
- * - MBTIごとにメンバーをまとめてノード化
- * - 事前に定義した座標 (MBTI_COORDS) を使用
+ * ノードを作成する関数
+ * - 各 MBTI タイプに基づいて、4×4配置
+ * - 行ごとの高さを可変にして、重ならないようにする
  */
 function createNodes(members: GroupMember[]): Node[] {
-  // MBTIごとにユーザー名をまとめる
+  // --- 1) MBTIごとにメンバーを振り分け ---
   const grouped: Record<string, string[]> = {};
-  MBTI_TYPES.forEach((type) => (grouped[type] = []));
+  MBTI_MATRIX.flat().forEach((type) => {
+    grouped[type] = [];
+  });
 
   // ユーザーを MBTI 別に振り分け
   members.forEach((m) => {
@@ -41,17 +77,35 @@ function createNodes(members: GroupMember[]): Node[] {
     if (upper && grouped[upper]) grouped[upper].push(m.user_name);
   });
 
-  // ノード配列を生成
-  const nodes: Node[] = MBTI_TYPES.map((type) => {
-    const coords = MBTI_COORDS[type] || { x: 0, y: 0 };
-    return {
-      id: type,
-      position: coords,
-      type: "mbtiNode",
-      data: { mbti: type, members: grouped[type] },
-      draggable: false,
-      selectable: false,
-    };
+  // --- 2) 行ごとの高さとオフセットを計算 ---
+  const rowHeights = computeRowHeights(grouped);
+  const rowOffsets = computeRowOffsets(rowHeights);
+
+  // --- 3) 各MBTIタイプに対応するノードを配置 ---
+  const nodes: Node[] = [];
+  MBTI_MATRIX.forEach((rowMbti, rowIndex) => {
+    // この行のベースY
+    const baseY = rowOffsets[rowIndex];
+
+    rowMbti.forEach((type, colIndex) => {
+      // x座標は列に応じて固定幅をかける
+      const xPos = colIndex * COL_WIDTH;
+      // y座標は行のオフセット + (事前に定義した baseline)
+      // さらに MBTIごとの初期座標があるなら適宜加算しても良い
+      const originalCoords = MBTI_COORDS[type] || { x: 0, y: 0 };
+      // 例: originalCoords.y は無視して、rowOffsetsに任せるか、加算してもOK
+      const yPos = baseY; // + (originalCoords.y) → 必要なら加算
+
+      // データに複数メンバーを持たせる（ノードは1つだけ）
+      nodes.push({
+        id: type, // エッジ接続のために MBTIタイプ名をそのままIDに
+        position: { x: xPos, y: yPos },
+        type: "mbtiNode",
+        data: { mbti: type, members: grouped[type] },
+        draggable: false,
+        selectable: false,
+      });
+    });
   });
 
   return nodes;

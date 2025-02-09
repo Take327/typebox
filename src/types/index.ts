@@ -31,22 +31,22 @@ export type DiagnosisRow = {
 
 /** MBTIの16種類のタイプを表す定数 */
 export const MBTI_TYPES = [
-  "ESTJ",
-  "ESTP",
-  "ESFJ",
-  "ESFP",
-  "ENTJ",
   "ENTP",
-  "ENFJ",
-  "ENFP",
-  "ISTJ",
-  "ISTP",
+  "ESFJ",
+  "INTP",
   "ISFJ",
   "ISFP",
   "INTJ",
-  "INTP",
+  "ESFP",
+  "ENTJ",
+  "ISTP",
   "INFJ",
+  "ESTP",
+  "ENFJ",
+  "ENFP",
+  "ESTJ",
   "INFP",
+  "ISTJ",
 ] as const;
 
 /**
