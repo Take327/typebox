@@ -9,6 +9,20 @@ import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+const matrixLeft = [
+  ["ENTP", "ISFP"],
+  ["ESFJ", "INTJ"],
+  ["INTP", "ESFP"],
+  ["ISFJ", "ENTJ"],
+];
+
+const matrixRight = [
+  ["ISTP", "ENFP"],
+  ["INFJ", "ESTJ"],
+  ["ESTP", "INFP"],
+  ["ENFJ", "ISTJ"],
+];
+
 /**
  * 入力データからReact Flow用のノードとエッジを生成する
  */
@@ -188,10 +202,11 @@ export default function GroupDetailPage(): JSX.Element {
       </Card>
 
       {/* Right Column (相関図) */}
-      <Card className="h-fit w-full shadow-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">相関図（React Flow）</h2>
+      <Card className="h-fit w-full shadow-lg p-2 sm:p-6">
+        <h2 className="text-xl font-semibold mb-2">相関図</h2>
         <div className="flex flex-col justify-start">
-          <GroupRelationFlow members={members} />
+          <GroupRelationFlow members={members} matrix={matrixLeft} />
+          <GroupRelationFlow members={members} matrix={matrixRight} />
         </div>
       </Card>
     </div>
