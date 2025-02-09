@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { Card } from "flowbite-react";
-import { Group, GroupMember, MBTIType } from "@/types";
-import { useProcessing } from "@/context/ProcessingContext"; // ローディング管理
 import GroupRelationFlow from "@/app/components/ReactFlow/GroupRelationFlow";
-import { mbtiRelations, compatibilityLabels } from "@/utils/mbti/Compatibility";
+import { useProcessing } from "@/context/ProcessingContext"; // ローディング管理
+import { Group, GroupMember, MBTIType } from "@/types";
+import { compatibilityLabels, mbtiRelations } from "@/utils/mbti/Compatibility";
+import { Card } from "flowbite-react";
+import { useSession } from "next-auth/react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 /**
  * 入力データからReact Flow用のノードとエッジを生成する
@@ -190,7 +190,7 @@ export default function GroupDetailPage(): JSX.Element {
       {/* Right Column (相関図) */}
       <Card className="w-full shadow-lg p-6">
         <h2 className="text-xl font-semibold mb-4">相関図（React Flow）</h2>
-        <GroupRelationFlow members={nodes} />
+        <GroupRelationFlow />
       </Card>
     </div>
   );
