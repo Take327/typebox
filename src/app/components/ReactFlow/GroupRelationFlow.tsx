@@ -2,7 +2,7 @@
 import { GroupMember } from "@/types";
 import { MBTI_COORDS, mbtiRelations } from "@/utils/mbti/Compatibility";
 import { useEffect, useState } from "react";
-import ReactFlow, { Background, Controls, Edge, Node } from "reactflow";
+import ReactFlow, { Background, Controls, Edge, Node, ReactFlowProvider } from "reactflow";
 import "reactflow/dist/style.css";
 import MbtiNode from "./MbtiNode";
 
@@ -24,11 +24,11 @@ function getEdgeColor(score: number): string {
     case 4:
       return "#FAD4E0"; // Best
     case 3:
-      return "#81D8D0"; // Better
+      return "#3d99ca"; // Better
     case 2:
-      return "#F6CEB4"; // Good
+      return "#81D8D0"; // Good
     case 1:
-      return "#CDE7F4"; // Bad
+      return "#000000"; // Bad
     default:
       return "#CCCCCC"; // 未定義
   }
@@ -99,7 +99,7 @@ function createNodes(members: GroupMember[]): Node[] {
       // データに複数メンバーを持たせる（ノードは1つだけ）
       nodes.push({
         id: type, // エッジ接続のために MBTIタイプ名をそのままIDに
-        position: { x: xPos, y: yPos },
+        position: { x: xPos, y: -500 + yPos },
         type: "mbtiNode",
         data: { mbti: type, members: grouped[type] },
         draggable: false,
@@ -191,11 +191,22 @@ function getEdgePathType(source: string, target: string): string {
  * エッジを生成
  * - `"step"` を適用することで、コの字型 (直角に曲がる) エッジを描画
  */
-function createEdges() {
+function createEdges(): Edge[] {
   const edgeList: Edge[] = [];
+  // 「source + target」の組み合わせを記録して、重複を防ぐ
+  const visited = new Set<string>();
 
+  // mbtiRelations に定義された全てのペアをループ
   Object.entries(mbtiRelations).forEach(([source, targets]) => {
     Object.entries(targets).forEach(([target, score]) => {
+      const pair1 = `${source}-${target}`;
+      const pair2 = `${target}-${source}`;
+
+      // すでに pair2 (逆向き) で登録済みならスキップ
+      if (visited.has(pair2)) {
+        return;
+      }
+
       // `sourceHandle` / `targetHandle` を取得
       const { sourceHandle, targetHandle } = getHandlesForEdge(source, target);
       const edgeType = getEdgePathType(source, target); // 直線 or コの字型を判定
@@ -214,13 +225,16 @@ function createEdges() {
         targetHandle,
         style: { stroke: getEdgeColor(score), strokeWidth: 2 },
       });
+
+      // このペアを登録済みとしてマーク
+      visited.add(pair1);
     });
   });
 
   return edgeList;
 }
 /** MBTIノード＋エッジを描画するコンポーネント */
-export default function GroupRelationFlow({ members }: { members: GroupMember[] }) {
+function GroupRelationFlowComponent({ members }: { members: GroupMember[] }) {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
@@ -231,12 +245,32 @@ export default function GroupRelationFlow({ members }: { members: GroupMember[] 
   }, [members]);
 
   return (
-    <div style={{ width: "100%", height: "800px", border: "1px solid #ccc" }}>
-      <h3 className="text-center font-bold mb-2">MBTI相関図（上下左右ハンドル対応）</h3>
-      <ReactFlow nodeTypes={{ mbtiNode: MbtiNode }} nodes={nodes} edges={edges} fitView>
+    <div style={{ width: "100%", height: "1000px", border: "1px solid #ccc" }}>
+      <h3 className="text-center font-bold mb-2">MBTI相関図</h3>
+      <ReactFlow
+        minZoom={0.2}
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={{ mbtiNode: MbtiNode }}
+        panOnDrag={false} // (オプション) ドラッグ無効
+        zoomOnScroll={false} // (オプション) ズーム無効
+        zoomOnPinch={false}
+        zoomOnDoubleClick={false}
+        panOnScroll={false}
+        fitView
+      >
         <Background gap={12} size={1} />
         <Controls />
       </ReactFlow>
     </div>
+  );
+}
+
+/** `ReactFlowProvider` で `GroupRelationFlowComponent` をラップする */
+export default function GroupRelationFlow({ members }: { members: GroupMember[] }) {
+  return (
+    <ReactFlowProvider>
+      <GroupRelationFlowComponent members={members} />
+    </ReactFlowProvider>
   );
 }
