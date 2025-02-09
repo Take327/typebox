@@ -190,7 +190,7 @@ export default function GroupDetailPage(): JSX.Element {
       {/* Right Column (相関図) */}
       <Card className="w-full shadow-lg p-6">
         <h2 className="text-xl font-semibold mb-4">相関図（React Flow）</h2>
-        <GroupRelationFlow />
+        <GroupRelationFlow members={members} />
       </Card>
     </div>
   );

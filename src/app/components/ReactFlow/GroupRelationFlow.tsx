@@ -1,44 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import ReactFlow, { Background, Controls, Edge, Node } from "reactflow";
 import "reactflow/dist/style.css";
 
 // 事前に定義した座標と相性データをインポート
+import { GroupMember, MBTI_TYPES } from "@/types";
 import { MBTI_COORDS, mbtiRelations } from "@/utils/mbti/Compatibility";
 import MbtiNode from "./MbtiNode";
-
-/** MBTIタイプをすべて列挙 */
-const ALL_MBTI_TYPES = [
-  "ENTP",
-  "ISFP",
-  "ESFJ",
-  "INTJ",
-  "INTP",
-  "ESFP",
-  "ISFJ",
-  "ENTJ",
-  "ISTP",
-  "ENFP",
-  "INFJ",
-  "ESTJ",
-  "ESTP",
-  "INFP",
-  "ENFJ",
-  "ISTJ",
-];
-
-/** ユーザー情報（ダミー） */
-type Member = {
-  id: number;
-  user_name: string;
-  mbti_type: string;
-};
-
-const dummyMembers: Member[] = [
-  { id: 1, user_name: "Alice", mbti_type: "ENTP" },
-  { id: 2, user_name: "Bob", mbti_type: "ISFP" },
-];
 
 /** スコアに応じてエッジの色を変える */
 function getEdgeColor(score: number): string {
@@ -61,32 +30,25 @@ function getEdgeColor(score: number): string {
  * - MBTIごとにメンバーをまとめてノード化
  * - 事前に定義した座標 (MBTI_COORDS) を使用
  */
-function createNodes(members: Member[]) {
+function createNodes(members: GroupMember[]): Node[] {
   // MBTIごとにユーザー名をまとめる
   const grouped: Record<string, string[]> = {};
-  ALL_MBTI_TYPES.forEach((type) => {
-    grouped[type] = [];
-  });
+  MBTI_TYPES.forEach((type) => (grouped[type] = []));
 
   // ユーザーを MBTI 別に振り分け
   members.forEach((m) => {
-    const upper = m.mbti_type.toUpperCase();
-    if (grouped[upper]) {
-      grouped[upper].push(m.user_name);
-    }
+    const upper = m.mbti_type?.toUpperCase();
+    if (upper && grouped[upper]) grouped[upper].push(m.user_name);
   });
 
   // ノード配列を生成
-  const nodes: Node[] = ALL_MBTI_TYPES.map((type) => {
+  const nodes: Node[] = MBTI_TYPES.map((type) => {
     const coords = MBTI_COORDS[type] || { x: 0, y: 0 };
     return {
       id: type,
       position: coords,
       type: "mbtiNode",
-      data: {
-        mbti: type,
-        members: grouped[type],
-      },
+      data: { mbti: type, members: grouped[type] },
       draggable: false,
       selectable: false,
     };
@@ -204,12 +166,15 @@ function createEdges() {
   return edgeList;
 }
 /** MBTIノード＋エッジを描画するコンポーネント */
-export default function GroupRelationFlow() {
-  // ノードを作る
-  const nodes = useMemo(() => createNodes(dummyMembers), []);
+export default function GroupRelationFlow({ members }: { members: GroupMember[] }) {
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
 
-  // エッジを作る
-  const edges = useMemo(() => createEdges(), []);
+  // メンバーが変更されたときにノード・エッジを更新
+  useEffect(() => {
+    setNodes(createNodes(members));
+    setEdges(createEdges());
+  }, [members]);
 
   return (
     <div style={{ width: "100%", height: "800px", border: "1px solid #ccc" }}>
