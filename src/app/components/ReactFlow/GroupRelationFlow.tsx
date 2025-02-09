@@ -107,12 +107,20 @@ function getHandlesForEdge(source: string, target: string): { sourceHandle: stri
 
   if (dx === 0 && dy === 0) return { sourceHandle: "source-right", targetHandle: "target-left" }; // 自己接続回避
 
-  // **希望のエッジ (ENTP → INTJ) を特別設定**
-  if (source === "ENTP" && target === "INTJ") {
-    return { sourceHandle: "source-right", targetHandle: "target-left" }; // ENTP の右 → INTJ の左
+  if (source === "ENTP" && target === "ISFJ") {
+    return { sourceHandle: "source-left", targetHandle: "target-left" }; // ENTP の右 → INTJ の左
+  }
+  if (source === "ISTP" && target === "ENFJ") {
+    return { sourceHandle: "source-left", targetHandle: "target-left" }; // ENTP の右 → INTJ の左
   }
 
-  // ** 斜めのエッジ (↘ ↙ ↗ ↖) **
+  if (source === "ISFP" && target === "ENTJ") {
+    return { sourceHandle: "source-right", targetHandle: "target-right" }; // ENTP の右 → INTJ の左
+  }
+
+  if (source === "ENFP" && target === "ISTJ") {
+    return { sourceHandle: "source-right", targetHandle: "target-right" }; // ENTP の右 → INTJ の左
+  }
 
   // ** 横方向のエッジ **
   if (Math.abs(dx) >= Math.abs(dy)) {
@@ -128,8 +136,44 @@ function getHandlesForEdge(source: string, target: string): { sourceHandle: stri
 }
 
 /**
+ * エッジのパスの種類を決定
+ * - `ENTP → ISFJ` の場合、必ず `"step"` を適用
+ * - それ以外は通常のロジックで `"straight"` または `"step"`
+ */
+function getEdgePathType(source: string, target: string): string {
+  // ENTP → ISFJ の場合、コの字型を適用
+  if (source === "ENTP" && target === "ISFJ") {
+    return "step"; // **強制的にコの字型**
+  }
+
+  if (source === "ISFP" && target === "ENTJ") {
+    return "step"; // **強制的にコの字型**
+  }
+
+  if (source === "ISTP" && target === "ENFJ") {
+    return "step"; // **強制的にコの字型**
+  }
+
+  if (source === "ENFP" && target === "ISTJ") {
+    return "step"; // **強制的にコの字型**
+  }
+
+  const sCoord = MBTI_COORDS[source] ?? { x: 0, y: 0 };
+  const tCoord = MBTI_COORDS[target] ?? { x: 0, y: 0 };
+
+  const dx = Math.abs(tCoord.x - sCoord.x);
+  const dy = Math.abs(tCoord.y - sCoord.y);
+
+  // 横方向のエッジは直線
+  if (dy === 0) return "straight";
+
+  // 斜めのエッジはU字型 (step)
+  return "straight"; // 斜めや縦方向は `step` で描画
+}
+
+/**
  * エッジを生成
- * - `type: "straight"` を指定することで、斜めのエッジも直線で描画可能にする
+ * - `"step"` を適用することで、コの字型 (直角に曲がる) エッジを描画
  */
 function createEdges() {
   const edgeList: Edge[] = [];
@@ -138,6 +182,7 @@ function createEdges() {
     Object.entries(targets).forEach(([target, score]) => {
       // `sourceHandle` / `targetHandle` を取得
       const { sourceHandle, targetHandle } = getHandlesForEdge(source, target);
+      const edgeType = getEdgePathType(source, target); // 直線 or コの字型を判定
 
       edgeList.push({
         id: `e-${source}-${target}`,
@@ -146,8 +191,8 @@ function createEdges() {
         label: score === 4 ? "Best" : score === 3 ? "Better" : score === 2 ? "Good" : "Bad",
         animated: true,
 
-        // **直線 (`straight`) を使用して、斜めのエッジを描画**
-        type: "straight",
+        // **特定のエッジは「コの字型 (step)」で描画**
+        type: edgeType,
 
         sourceHandle,
         targetHandle,
@@ -158,7 +203,6 @@ function createEdges() {
 
   return edgeList;
 }
-
 /** MBTIノード＋エッジを描画するコンポーネント */
 export default function GroupRelationFlow() {
   // ノードを作る
