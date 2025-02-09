@@ -1,43 +1,49 @@
 "use client";
-import React from "react";
-import { Handle, Position, NodeProps } from "reactflow";
+import { Handle, NodeProps, Position } from "reactflow";
 
 /**
- * @description MBTIノードのカスタムコンポーネント
- * 上下左右にエッジを接続できるようにカスタマイズ
+ * MBTIノードのカスタムコンポーネント
+ * - ノードに MBTI タイプ + メンバー一覧を表示
+ * - 上下左右のハンドルを配置して、任意の方向からエッジを接続可能
  */
 export default function MbtiNode({ data }: NodeProps) {
+  // data.mbti, data.members が受け取れる前提
+  const members = Array.isArray(data.members) ? data.members : [];
+
   return (
     <div
       style={{
-        backgroundColor: "#ffffff",
-        border: "1px solid #ccc",
+        backgroundColor: "#fff",
+        border: "2px solid #666",
         borderRadius: 8,
         padding: 12,
-        width: 120,
+        width: 140,
         textAlign: "center",
         position: "relative",
       }}
     >
+      {/* MBTIタイプ名 */}
+      <div style={{ fontSize: "1rem", fontWeight: "bold", color: "#333", marginBottom: 6 }}>{data.mbti}</div>
+
       {/* メンバー名リスト */}
-      {data.members.map((name: string, index: number) => (
-        <div key={index} style={{ fontWeight: "bold" }}>
-          {name}
-        </div>
-      ))}
-      {/* MBTIタイプ */}
-      <div style={{ fontSize: "0.8rem", color: "#666" }}>{data.mbti}</div>
+      {members.length > 0 ? (
+        members.map((name: string, idx: number) => (
+          <div key={idx} style={{ fontSize: "0.8rem", color: "#555" }}>
+            {name}
+          </div>
+        ))
+      ) : (
+        <div style={{ fontSize: "0.8rem", color: "#999" }}>メンバーなし</div>
+      )}
 
-      {/* 上下左右にエッジの接続ポイントを配置 */}
-      <Handle type="source" position={Position.Top} id="top" />
-      <Handle type="source" position={Position.Right} id="right" />
-      <Handle type="source" position={Position.Bottom} id="bottom" />
-      <Handle type="source" position={Position.Left} id="left" />
-
-      <Handle type="target" position={Position.Top} id="top" />
-      <Handle type="target" position={Position.Right} id="right" />
-      <Handle type="target" position={Position.Bottom} id="bottom" />
-      <Handle type="target" position={Position.Left} id="left" />
+      <Handle type="source" position={Position.Right} id="source-right" />
+      <Handle type="target" position={Position.Right} id="target-right" />
+      <Handle type="source" position={Position.Left} id="source-left" />
+      <Handle type="target" position={Position.Left} id="target-left" />
+      <Handle type="source" position={Position.Top} id="source-Top" />
+      <Handle type="target" position={Position.Top} id="target-Top" />
+      <Handle type="source" position={Position.Bottom} id="source-Bottom" />
+      <Handle type="target" position={Position.Bottom} id="target-Bottom" />
     </div>
   );
 }
