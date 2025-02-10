@@ -176,7 +176,7 @@ export default function GroupDetailPage(): JSX.Element {
       "
     >
       {/* Left Column (Group Info) */}
-      <Card className="w-full shadow-lg p-6">
+      <Card className="h-fit w-full shadow-lg p-2 sm:p-6">
         <h2 className="text-xl font-semibold mb-4">{group?.name}</h2>
         <p className="text-gray-500 text-sm mb-4">
           ID: {group?.id} / 作成日: {group?.created_at}

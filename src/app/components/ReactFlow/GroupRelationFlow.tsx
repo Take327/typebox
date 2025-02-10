@@ -169,8 +169,6 @@ function createEdges(): Edge[] {
 function GroupRelationFlowComponent({ members, matrix }: { members: GroupMember[]; matrix: string[][] }) {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
-  const { fitView, zoomOut } = useReactFlow();
-  const [didZoomOut, setDidZoomOut] = useState(false);
 
   /** 同じ行にある MBTI のメンバー数の最大値を計算して、行の高さを決める */
   function computeRowHeights(grouped: Record<string, string[]>): number[] {
@@ -246,22 +244,9 @@ function GroupRelationFlowComponent({ members, matrix }: { members: GroupMember[
     setEdges(createEdges());
   }, [members]);
 
-  useEffect(() => {
-    fitView({ duration: 500 }); // 0.5秒かけてアニメーション
-  }, [fitView]);
-
-  const handleMoveEnd = useCallback(() => {
-    // まだズームアウトしていなければ、一度だけズームアウト
-    if (!didZoomOut) {
-      setDidZoomOut(true);
-      zoomOut(); // fitView の後にズームアウト
-    }
-  }, [didZoomOut, zoomOut]);
-
   return (
     <div style={{ width: "100%", height: "1000px", border: "1px solid #ccc" }}>
       <ReactFlow
-        onMoveEnd={handleMoveEnd}
         nodes={nodes}
         edges={edges}
         nodeTypes={{ mbtiNode: MbtiNode }}
@@ -270,7 +255,11 @@ function GroupRelationFlowComponent({ members, matrix }: { members: GroupMember[
         zoomOnPinch={false}
         zoomOnDoubleClick={false}
         panOnScroll={false}
-        fitView
+        minZoom={0.1} // 必要に応じて調整
+        maxZoom={1.1} // 必要に応じて調整
+        defaultViewport={{ x: 100, y: 600, zoom: 1.1 }}
+        fitViewOptions={{ padding: 10 }}
+        //fitView
       >
         <Background gap={12} size={1} />
         <Controls />
