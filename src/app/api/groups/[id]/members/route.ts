@@ -1,12 +1,12 @@
-/**
- * @file route.ts
- * @description グループのメンバー一覧を取得するAPI（認可チェック付き）
- */
-
-import { NextRequest, NextResponse } from "next/server";
-import { getPool } from "@/lib/db"; // MSSQL 接続
-import sql from "mssql";
 import { convertScoreToDiagnosisResult } from "@/utils/mbti/mbtiUtils"; // MBTIタイプ変換
+import { NextRequest, NextResponse } from "next/server";
+import { Pool } from "pg";
+
+// データベース接続プールの作成
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL, // 環境変数から接続情報を取得
+  // 他の接続オプションが必要な場合はここに追加
+});
 
 export async function GET(request: NextRequest, context: any) {
   // params は非同期かもしれないので await
@@ -21,6 +21,7 @@ export async function GET(request: NextRequest, context: any) {
   if (isNaN(groupId) || groupId <= 0) {
     return NextResponse.json({ error: "無効なグループIDです" }, { status: 400 });
   }
+
   // ユーザー認証チェック
   const userId = request.headers.get("x-user-id");
   if (!userId || isNaN(Number(userId))) {
@@ -28,26 +29,21 @@ export async function GET(request: NextRequest, context: any) {
   }
 
   try {
-    const db = await getPool();
-
     // **認可チェック**: ユーザーがこのグループに所属しているか確認
-    const authCheck = await db.request().input("group_id", sql.Int, groupId).input("user_id", sql.Int, Number(userId))
-      .query(`
-        SELECT COUNT(*) AS count
-        FROM GroupMembers
-        WHERE group_id = @group_id AND user_id = @user_id
-      `);
+    const authCheckQuery = `
+      SELECT COUNT(*) AS count
+      FROM GroupMembers
+      WHERE group_id = $1 AND user_id = $2
+    `;
+    const authCheckValues = [groupId, Number(userId)];
+    const authCheckResult = await pool.query(authCheckQuery, authCheckValues);
 
-    if (authCheck.recordset[0].count === 0) {
+    if (authCheckResult.rows[0].count === 0) {
       return NextResponse.json({ error: "このグループにアクセスする権限がありません" }, { status: 403 });
     }
 
     // **メンバー情報を取得 (診断結果含む)**
-    const result = await db
-      .request()
-      .input("group_id", sql.Int, groupId)
-      .query(
-        `
+    const membersQuery = `
       SELECT
           gm.id,
           gm.group_id,
@@ -63,25 +59,25 @@ export async function GET(request: NextRequest, context: any) {
           d.type_P,
           gm.joined_at
       FROM GroupMembers gm
-      JOIN Users u
-        ON gm.user_id = u.id
+      JOIN Users u ON gm.user_id = u.id
       LEFT JOIN (
-          SELECT *
-          FROM DiagnosisResults ds
-          WHERE ds.created_at = (
-              -- ユーザーごとに最新のcreated_atを検索
-              SELECT MAX(ds2.created_at)
-              FROM DiagnosisResults ds2
-              WHERE ds2.user_id = ds.user_id
+          SELECT DISTINCT ON (user_id) *
+          FROM DiagnosisResults
+          WHERE user_id IN (
+              SELECT user_id
+              FROM GroupMembers
+              WHERE group_id = $1
           )
-      ) d
-        ON gm.user_id = d.user_id
-      WHERE gm.group_id = @group_id
-      ORDER BY gm.joined_at ASC;`
-      );
+          ORDER BY user_id, created_at DESC
+      ) d ON gm.user_id = d.user_id
+      WHERE gm.group_id = $1
+      ORDER BY gm.joined_at ASC;
+    `;
+    const membersValues = [groupId];
+    const membersResult = await pool.query(membersQuery, membersValues);
 
     // **MBTIタイプを計算**
-    const membersWithMBTI = result.recordset.map((member) => {
+    const membersWithMBTI = membersResult.rows.map((member) => {
       const score = {
         E: member.type_E || 0,
         I: member.type_I || 0,

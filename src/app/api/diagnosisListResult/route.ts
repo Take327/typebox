@@ -1,7 +1,5 @@
-//src\app\api\diagnosisListResult\route.ts
-import { NextRequest, NextResponse } from "next/server";
 import { getPool } from "@/lib/db";
-import sql from "mssql";
+import { NextRequest, NextResponse } from "next/server";
 
 /**
  * ユーザーの診断結果を取得するAPI
@@ -14,20 +12,22 @@ export async function GET(req: NextRequest) {
   const userId = Number(url.searchParams.get("user_id"));
 
   if (!userId || !Number.isInteger(userId)) {
-    return NextResponse.json({ error: "Invalid or missing user_id" }, { status: 400 });
+    return NextResponse.json({ error: "無効なまたは欠落している user_id" }, { status: 400 });
   }
 
   try {
     const pool = await getPool();
-    const result = await pool.request().input("user_id", sql.Int, userId).query(`
-        SELECT 
-          created_at, type_E, type_I, type_S, type_N, type_T, type_F, type_J, type_P 
-        FROM [dbo].[DiagnosisResults] 
-        WHERE user_id = @user_id
-        ORDER BY created_at ASC
-      `);
+    const query = `
+      SELECT 
+        created_at, type_E, type_I, type_S, type_N, type_T, type_F, type_J, type_P 
+      FROM DiagnosisResults
+      WHERE user_id = $1
+      ORDER BY created_at ASC
+    `;
+    const values = [userId];
+    const result = await pool.query(query, values);
 
-    const formattedData = result.recordset.map((row) => ({
+    const formattedData = result.rows.map((row) => ({
       date: new Intl.DateTimeFormat("ja-JP", {
         year: "2-digit",
         month: "2-digit",
@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(formattedData, { status: 200 });
   } catch (error) {
-    console.error("Database Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("データベースエラー:", error);
+    return NextResponse.json({ error: "内部サーバーエラー" }, { status: 500 });
   }
 }

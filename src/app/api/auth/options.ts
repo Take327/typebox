@@ -1,4 +1,4 @@
-import { AuthOptions, Session, User, Account } from "next-auth";
+import { Account, AuthOptions, Session, User } from "next-auth";
 import AzureADProvider from "next-auth/providers/azure-ad";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
@@ -86,13 +86,14 @@ export const authOptions: AuthOptions = {
         }
 
         const pool = await getPool();
-        await pool.request().input("Name", user.name).input("Email", user.email).input("Provider", account.provider)
-          .query(`
-            IF NOT EXISTS (SELECT 1 FROM Users WHERE email = @Email)
-            BEGIN
-              INSERT INTO Users (name, email, provider) VALUES (@Name, @Email, @Provider)
-            END
-          `);
+        const query = `
+        INSERT INTO Users (name, email, provider)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (email) DO NOTHING;
+      `;
+
+        const values = [user.name, user.email, account.provider];
+        await pool.query(query, values);
 
         return true;
       } catch (error) {

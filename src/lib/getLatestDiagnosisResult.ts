@@ -1,34 +1,35 @@
 // lib/getLatestDiagnosisResult.ts
 import { DiagnosisRow } from "@/types";
+import { PoolClient } from "pg";
 import { getPool } from "./db";
-import sql from "mssql";
 
 /**
- * 指定されたユーザーIDの最新診断結果（DB生レコード）を取得する関数
+ * 指定されたユーザーIDの最新の診断結果を取得する関数
  *
  * @param userId ユーザーID
  * @returns DiagnosisRow | null
  */
 export async function getLatestDiagnosisResult(userId: number): Promise<DiagnosisRow | null> {
   try {
-    const pool = await getPool();
+    const pool: PoolClient = await getPool();
     const query = `
-      SELECT TOP 1
+      SELECT
         user_id, type_E, type_I, type_S, type_N, type_T, type_F, type_J, type_P
       FROM DiagnosisResults
-      WHERE user_id = @user_id
-      ORDER BY created_at DESC;
+      WHERE user_id = $1
+      ORDER BY created_at DESC
+      LIMIT 1;
     `;
-    const result = await pool.request().input("user_id", sql.Int, userId).query(query);
+    const result = await pool.query(query, [userId]);
 
-    if (result.recordset.length === 0) {
+    if (result.rows.length === 0) {
       return null;
     }
 
-    // DBの生データをそのまま返す
-    return result.recordset[0] as DiagnosisRow;
+    // データベースから取得した生データをそのまま返す
+    return result.rows[0] as DiagnosisRow;
   } catch (error) {
-    console.error("Error fetching latest diagnosis result:", error);
+    console.error("最新の診断結果の取得中にエラーが発生しました:", error);
     throw error;
   }
 }
