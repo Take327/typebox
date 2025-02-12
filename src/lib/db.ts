@@ -10,6 +10,9 @@ const config: PoolConfig = {
   max: 10, // 最大接続数
   idleTimeoutMillis: 30000, // 接続がアイドル状態でクローズされるまでの時間（ミリ秒）
   connectionTimeoutMillis: 2000, // 新しい接続を確立するまでのタイムアウト（ミリ秒）
+  ssl: {
+    rejectUnauthorized: false,
+  },
 };
 
 // 接続プールのインスタンスを作成
@@ -20,10 +23,9 @@ const pool = new Pool(config);
  */
 const logPoolStatus = () => {
   console.log(`プールの総クライアント数: ${pool.totalCount}`);
-  console.log(`アクティブなクライアント数: ${pool.waitingCount}`);
+  console.log(`アクティブなクライアント数: ${pool.totalCount - pool.idleCount}`);
   console.log(`アイドル状態のクライアント数: ${pool.idleCount}`);
 };
-
 /**
  * リトライ機能付きでデータベース接続を取得する関数
  *
