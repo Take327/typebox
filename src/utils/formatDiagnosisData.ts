@@ -93,6 +93,7 @@ export const formatDiagnosisData = (result: MBTIDiagnosisResult): DiagnosisData 
  * @returns {MBTITendency[]} 傾向データ
  */
 const createTendencies = (score: MBTIScore): MBTITendency[] => {
+  console.log(score);
   // スコアデータがすべて正しいかを検証
   EISNTFJP_VALUES.forEach((key) => {
     if (typeof score[key] !== "number") {

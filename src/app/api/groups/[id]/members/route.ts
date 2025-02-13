@@ -49,14 +49,14 @@ export async function GET(request: NextRequest, context: any) {
           gm.group_id,
           gm.user_id,
           u.name AS user_name,
-          d.type_E,
-          d.type_I,
-          d.type_S,
-          d.type_N,
-          d.type_T,
-          d.type_F,
-          d.type_J,
-          d.type_P,
+          d.type_e,
+          d.type_i,
+          d.type_s,
+          d.type_n,
+          d.type_t,
+          d.type_f,
+          d.type_j,
+          d.type_p,
           gm.joined_at
       FROM GroupMembers gm
       JOIN Users u ON gm.user_id = u.id
@@ -79,14 +79,14 @@ export async function GET(request: NextRequest, context: any) {
     // **MBTIタイプを計算**
     const membersWithMBTI = membersResult.rows.map((member) => {
       const score = {
-        E: member.type_E || 0,
-        I: member.type_I || 0,
-        S: member.type_S || 0,
-        N: member.type_N || 0,
-        T: member.type_T || 0,
-        F: member.type_F || 0,
-        J: member.type_J || 0,
-        P: member.type_P || 0,
+        E: member.type_e || 0,
+        I: member.type_i || 0,
+        S: member.type_s || 0,
+        N: member.type_n || 0,
+        T: member.type_t || 0,
+        F: member.type_f || 0,
+        J: member.type_j || 0,
+        P: member.type_p || 0,
       };
 
       return {

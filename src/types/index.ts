@@ -18,14 +18,14 @@ export const EISNTFJP_VALUES = ["E", "I", "S", "N", "T", "F", "J", "P"] as const
 export type EISNTFJP = (typeof EISNTFJP_VALUES)[number];
 
 export type DiagnosisRow = {
-  type_E: number;
-  type_I: number;
-  type_S: number;
-  type_N: number;
-  type_T: number;
-  type_F: number;
-  type_J: number;
-  type_P: number;
+  type_e: number;
+  type_i: number;
+  type_s: number;
+  type_n: number;
+  type_t: number;
+  type_f: number;
+  type_j: number;
+  type_p: number;
   // 例: user_id, created_at など必要があれば追加
 };
 

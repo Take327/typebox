@@ -14,7 +14,7 @@ export async function getLatestDiagnosisResult(userId: number): Promise<Diagnosi
     const pool: PoolClient = await getPool();
     const query = `
       SELECT
-        user_id, type_E, type_I, type_S, type_N, type_T, type_F, type_J, type_P
+        user_id, type_e, type_i, type_s, type_n, type_t, type_f, type_j, type_p
       FROM DiagnosisResults
       WHERE user_id = $1
       ORDER BY created_at DESC

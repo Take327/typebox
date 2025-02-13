@@ -19,17 +19,17 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ message: "診断結果が見つかりません。", initialLogin: true }, { status: 200 });
     }
 
-    // 3) DB列 (type_E など) を MBTIScore へマッピング
+    // 3) DB列 (type_e など) を MBTIScore へマッピング
     //    すでに計算済みのパーセントが入っている前提なら、そのままコピー
     const score: MBTIScore = {
-      E: dbRow.type_E,
-      I: dbRow.type_I,
-      S: dbRow.type_S,
-      N: dbRow.type_N,
-      T: dbRow.type_T,
-      F: dbRow.type_F,
-      J: dbRow.type_J,
-      P: dbRow.type_P,
+      E: dbRow.type_e,
+      I: dbRow.type_i,
+      S: dbRow.type_s,
+      N: dbRow.type_n,
+      T: dbRow.type_t,
+      F: dbRow.type_f,
+      J: dbRow.type_j,
+      P: dbRow.type_p,
     };
 
     // 4) 既存のユーティリティ関数でさらに MBTIDiagnosisResult に変換

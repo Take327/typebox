@@ -32,6 +32,7 @@ export function useDiagnosisData(userId: number | null) {
         bias: result.bias,
       };
 
+      console.log(typedResult);
       setDiagnosisData(formatDiagnosisData(typedResult));
     } catch (err) {
       console.error("診断データ取得エラー:", err);

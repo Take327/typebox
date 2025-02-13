@@ -53,7 +53,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     // INSERT クエリ（ユーザーの診断結果を保存）
     const query = `
-      INSERT INTO DiagnosisResults (user_id, type_E, type_I, type_S, type_N, type_T, type_F, type_J, type_P)
+      INSERT INTO DiagnosisResults (user_id, type_e, type_i, type_s, type_n, type_t, type_f, type_j, type_p)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
     `;
 

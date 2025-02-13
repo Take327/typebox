@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     const pool = await getPool();
     const query = `
       SELECT 
-        created_at, type_E, type_I, type_S, type_N, type_T, type_F, type_J, type_P 
+        created_at, type_e, type_i, type_s, type_n, type_t, type_f, type_j, type_p 
       FROM DiagnosisResults
       WHERE user_id = $1
       ORDER BY created_at ASC
@@ -36,13 +36,13 @@ export async function GET(req: NextRequest) {
         .format(new Date(row.created_at))
         .replace(/\//g, "-"),
       E: row.type_E,
-      I: row.type_I,
-      S: row.type_S,
-      N: row.type_N,
-      T: row.type_T,
-      F: row.type_F,
-      J: row.type_J,
-      P: row.type_P,
+      I: row.type_i,
+      S: row.type_s,
+      N: row.type_n,
+      T: row.type_t,
+      F: row.type_f,
+      J: row.type_j,
+      P: row.type_p,
     }));
 
     return NextResponse.json(formattedData, { status: 200 });
