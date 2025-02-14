@@ -143,14 +143,14 @@ const DiagnosisPage: React.FC = () => {
           return (
             <div key={question.id} className="flex flex-col items-center border-b border-gray-300 py-4">
               <p className="mb-2 text-base sm:text-lg">{question.text}</p>
-              <div className="flex flex-col items-center space-x-4 pb-8">
+              <div className="flex flex-col items-center space-x-0 pb-8">
                 <FlowbitRange
                   value={answers[globalIndex]} // 回答スコアを表示
                   onChange={(score: number) => handleAnswer(globalIndex, score)} // スコアを更新
                 />
                 <div className="flex w-full justify-between">
                   <span className="text-sm text-gray-500">思わない</span>
-                  <span className="text-sm text-gray-500">どちらとも思わない</span>
+                  <span className="text-sm text-gray-500 hidden sm:block">どちらとも思わない</span>
                   <span className="text-sm text-gray-500">思う</span>
                 </div>
               </div>

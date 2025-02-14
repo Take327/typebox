@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import { PoolClient } from "pg";
 import { getPool } from "@/lib/db";
 import { DiagnosisRow, MBTIDiagnosisResultFromServer } from "@/types";
-import { diagnosisRowToMBTIScore, convertScoreToDiagnosisResult, getMBTIType } from "@/utils/mbti/mbtiUtils";
+import { diagnosisRowToMBTIScore, getMBTIType } from "@/utils/mbti/mbtiUtils";
+import { NextRequest, NextResponse } from "next/server";
+import { PoolClient } from "pg";
 
 /**
  * 最新の診断結果を取得する API ルート
@@ -13,6 +13,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     // ✅ ユーザーIDの取得
     const userId = req.headers.get("x-user-id");
+    console.log(userId);
     if (!userId || isNaN(Number(userId))) {
       return NextResponse.json({ error: "無効なユーザーID" }, { status: 400 });
     }

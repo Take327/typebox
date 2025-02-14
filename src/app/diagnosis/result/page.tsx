@@ -1,5 +1,6 @@
 "use client";
 
+import { useUserData } from "@/hooks/useUserData";
 import { Card } from "flowbite-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -17,37 +18,41 @@ import MBTITendenciesChart from "../../components/MBTITendenciesChart";
  * @returns {JSX.Element} 診断結果ページの JSX 要素
  */
 export default function Page(): JSX.Element {
-  /** 診断データの状態 */
+  const userData = useUserData();
   const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(null);
-  /** エラーメッセージの状態 */
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    /**
-     * 診断データを取得する非同期関数。
-     *
-     * - API から診断結果を取得
-     * - データ整形後、状態を更新
-     */
-    const fetchDiagnosisData = async () => {
-      try {
-        const response = await fetch("/api/diagnosisResult");
+  const fetchDiagnosisData = async () => {
+    if (!userData?.id) {
+      console.warn("userId is null, skipping fetchDiagnosisData");
+      return;
+    }
 
-        if (!response.ok) {
-          throw new Error(`エラーが発生しました: ${response.statusText}`);
-        }
+    try {
+      console.log("Fetching diagnosis data for userId:", userData.id);
+      const response = await fetch("/api/diagnosisResult", {
+        method: "GET",
+        headers: { "x-user-id": String(userData.id) },
+      });
 
-        const result = await response.json();
-        const transformedData = formatDiagnosisData(result); // データを変換
-        setDiagnosisData(transformedData);
-      } catch (err) {
-        console.error("診断データの取得中にエラー:", err);
-        setError("診断データを取得できませんでした。");
+      if (!response.ok) {
+        throw new Error(`エラーが発生しました: ${response.statusText}`);
       }
-    };
 
-    fetchDiagnosisData();
-  }, []);
+      const result = await response.json();
+      const transformedData = formatDiagnosisData(result);
+      setDiagnosisData(transformedData);
+    } catch (err) {
+      console.error("診断データの取得中にエラー:", err);
+      setError("診断データを取得できませんでした。");
+    }
+  };
+
+  useEffect(() => {
+    if (userData?.id) {
+      fetchDiagnosisData();
+    }
+  }, [userData]);
 
   /** エラー発生時の UI */
   if (error) {
