@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { useUserData } from "@/hooks/useUserData";
-import { useGroups } from "@/hooks/useGroups";
-import { useDiagnosisData } from "@/hooks/useDiagnosisData";
 import { useProcessing } from "@/context/ProcessingContext";
+import { useDiagnosisData } from "@/hooks/useDiagnosisData";
+import { useGroups } from "@/hooks/useGroups";
+import { useUserData } from "@/hooks/useUserData";
+import React, { useEffect } from "react";
 import DiagnosisCard from "./card/DiagnosisCard";
+import DiagnosisListCard from "./card/DiagnosisListCard";
 import GroupCard from "./card/GroupCard";
 import NoDiagnosisCard from "./card/NoDiagnosisCard";
-import DiagnosisListCard from "./card/DiagnosisListCard";
 
 /**
  * マイページコンポーネント
@@ -39,13 +39,21 @@ export default function MyPage(): React.JSX.Element {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
-      {/* 診断データ */}
-      {diagnosisData ? <DiagnosisCard diagnosisData={diagnosisData} /> : <NoDiagnosisCard />}
-      {/* 診断履歴一覧 */}
-      <DiagnosisListCard rawData={Array.isArray(diagnosisHistory) ? diagnosisHistory : []} />
-      {/* 所属グループ */}
-      <GroupCard groups={Array.isArray(groups) ? groups.slice(0, 4) : []} />
-    </div>
+    <>
+      {!diagnosisData ? (
+        <div className="grid grid-cols-1 gap-6 p-6">
+          <NoDiagnosisCard />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
+          {/* 診断データ */}
+          <DiagnosisCard diagnosisData={diagnosisData} />
+          {/* 診断履歴一覧 */}
+          <DiagnosisListCard rawData={Array.isArray(diagnosisHistory) ? diagnosisHistory : []} />
+          {/* 所属グループ */}
+          <GroupCard groups={Array.isArray(groups) ? groups.slice(0, 4) : []} />
+        </div>
+      )}
+    </>
   );
 }

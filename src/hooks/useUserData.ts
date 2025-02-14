@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 /**
  * @description ユーザー情報を取得するカスタムフック
@@ -16,7 +16,14 @@ export function useUserData() {
         router.push("/login");
         return;
       }
-      const res = await fetch(`/api/users?email=${session.user.email}`, { method: "GET" });
+      const res = await fetch(`/api/users`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: session.user.email }),
+      });
+
       if (!res.ok) throw new Error("ユーザー情報の取得に失敗しました");
       const data = await res.json();
       setUserData(data);

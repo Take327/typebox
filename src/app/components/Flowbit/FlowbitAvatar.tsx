@@ -1,11 +1,11 @@
 "use client";
 
 import { Avatar, Dropdown, DropdownDivider, DropdownHeader, DropdownItem, TextInput } from "flowbite-react";
-import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { BiEdit } from "react-icons/bi";
-import { useProcessing } from "../../../context/ProcessingContext";
 import { LuLogOut } from "react-icons/lu";
+import { useProcessing } from "../../../context/ProcessingContext";
 
 /**
  * ユーザーアバターのドロップダウンメニュー。
@@ -36,7 +36,13 @@ export default function FlowbitAvatar(): JSX.Element {
 
       try {
         const email = encodeURIComponent(session.user.email);
-        const response = await fetch(`/api/users?email=${email}`);
+        const response = await fetch(`/api/users`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: session.user.email }),
+        });
 
         if (!response.ok) throw new Error("ユーザー情報の取得に失敗しました");
 

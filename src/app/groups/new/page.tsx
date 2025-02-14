@@ -4,8 +4,8 @@
  */
 "use client";
 
-import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 
 /**
  * グループ新規作成ページ
@@ -68,7 +68,7 @@ export default function GroupNewPage(): JSX.Element {
           >
             キャンセル
           </button>
-          <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+          <button type="submit" className="bg-accent hover:bg-accent-dark text-white px-4 py-2 rounded">
             作成
           </button>
         </div>
