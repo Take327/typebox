@@ -18,6 +18,25 @@ const BASE_ROW_HEIGHT = 150;
 const MEMBERS_SCALE = 20; // メンバー数が1人増えるごとに何px下に伸ばすか
 const COL_WIDTH = 220; // 列の幅
 
+const MBTI_COLORS: Record<string, string> = {
+  ENTP: "linear-gradient(135deg, rgba(221, 160, 221, 0.4) 10%, rgba(255, 240, 245, 0.4) 100%)", // 淡い水色グラデーション
+  ISFP: "linear-gradient(135deg, rgba(240, 230, 140, 0.4) 10%, rgba(255, 250, 205, 0.4) 100%)", // 優しいオレンジ系
+  ISTP: "linear-gradient(135deg, rgba(240, 230, 140, 0.4) 10%, rgba(255, 250, 205, 0.4) 100%)", // 淡いラベンダー
+  ENFP: "linear-gradient(135deg, rgba(152, 251, 152, 0.4) 10%, rgba(245, 255, 250, 0.4) 100%)", // 淡いピンク
+  ESFJ: "linear-gradient(135deg, rgba(173, 216, 230, 0.4) 10%, rgba(240, 248, 255, 0.4) 100%)", // 淡いシアン
+  INTJ: "linear-gradient(135deg, rgba(216, 191, 216, 0.4) 10%, rgba(245, 245, 250, 0.4) 100%)", // 淡いパープル
+  INFJ: "linear-gradient(135deg, rgba(152, 251, 152, 0.4) 10%, rgba(245, 255, 250, 0.4) 100%)", // 淡いイエロー
+  ESTJ: "linear-gradient(135deg, rgba(173, 216, 230, 0.4) 10%, rgba(240, 248, 255, 0.4) 100%)", // 淡いグリーン
+  INTP: "linear-gradient(135deg, rgba(221, 160, 221, 0.4) 10%, rgba(255, 240, 245, 0.4) 100%)", // 淡いグレー
+  ESFP: "linear-gradient(135deg, rgba(240, 230, 140, 0.4) 10%, rgba(255, 250, 205, 0.4) 100%)", // 淡いベージュ
+  ESTP: "linear-gradient(135deg, rgba(240, 230, 140, 0.4) 10%, rgba(255, 250, 205, 0.4) 100%)", // 淡いピーチ
+  INFP: "linear-gradient(135deg, rgba(152, 251, 152, 0.4) 10%, rgba(245, 255, 250, 0.4) 100%)", // 淡いローズ
+  ISFJ: "linear-gradient(135deg, rgba(173, 216, 230, 0.4) 10%, rgba(240, 248, 255, 0.4) 100%)", // 淡いアイボリー
+  ENTJ: "linear-gradient(135deg, rgba(221, 160, 221, 0.4) 10%, rgba(255, 240, 245, 0.4) 100%)", // 淡いブルーグレー
+  ENFJ: "linear-gradient(135deg, rgba(152, 251, 152, 0.4) 10%, rgba(245, 255, 250, 0.4) 100%)", // 淡いサンド
+  ISTJ: "linear-gradient(135deg, rgba(173, 216, 230, 0.4) 10%, rgba(240, 248, 255, 0.4) 100%)", // 淡いライトイエロー
+};
+
 /** スコアに応じてエッジの色を変える */
 function getEdgeColor(score: number): string {
   switch (score) {
@@ -148,7 +167,6 @@ function createEdges(): Edge[] {
         source,
         target,
         label: score === 4 ? "Best" : score === 3 ? "Better" : score === 2 ? "Good" : "Bad",
-        animated: true,
 
         // **特定のエッジは「コの字型 (step)」で描画**
         type: edgeType,
@@ -228,7 +246,7 @@ function GroupRelationFlowComponent({ members, matrix }: { members: GroupMember[
           id: type, // エッジ接続のために MBTIタイプ名をそのままIDに
           position: { x: xPos, y: -500 + yPos },
           type: "mbtiNode",
-          data: { mbti: type, members: grouped[type] },
+          data: { mbti: type, members: grouped[type], bgColor: MBTI_COLORS[type] || "#FFF" },
           draggable: false,
           selectable: false,
         });

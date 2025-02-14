@@ -9,8 +9,7 @@ export default function Header() {
   const router = useRouter();
 
   // ログインページかどうかを判定
-  const isLoginPage = pathname === "/login" || "/login/error" || "/invite";
-
+  const isLoginPage = pathname === "/login";
   if (isLoginPage) {
     return null;
   }

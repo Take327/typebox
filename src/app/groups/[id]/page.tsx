@@ -8,6 +8,8 @@ import { Card } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid"; // UUID生成ライブラリ
+import { MdContentCopy } from "react-icons/md";
 
 const matrixLeft = [
   ["ENTP", "ISFP"],
@@ -23,42 +25,6 @@ const matrixRight = [
   ["ENFJ", "ISTJ"],
 ];
 
-/**
- * 入力データからReact Flow用のノードとエッジを生成する
- */
-function generateGraphData(members: GroupMember[]) {
-  // ノード生成 (id を number に統一)
-  const nodes = members.map((member) => ({
-    id: member.user_id, // number 型に統一
-    user_name: member.user_name,
-    mbti_type: member.mbti_type ?? "ISTJ", // NULL ガード (ISTJをデフォルトとする)
-  }));
-
-  // エッジ生成
-  const edges = [];
-  for (let i = 0; i < members.length; i++) {
-    for (let j = i + 1; j < members.length; j++) {
-      const source = members[i];
-      const target = members[j];
-
-      // MBTI相性スコア取得 (NULL の場合 "ISTJ" をデフォルト)
-      const sourceType: MBTIType = (source.mbti_type ?? "ISTJ") as MBTIType;
-      const targetType: MBTIType = (target.mbti_type ?? "ISTJ") as MBTIType;
-      const score: number = mbtiRelations[sourceType]?.[targetType] ?? 1;
-      const label: string = compatibilityLabels[score] ?? "Bad";
-
-      edges.push({
-        id: `e${source.user_id}-${target.user_id}`,
-        source: source.user_id.toString(),
-        target: target.user_id.toString(),
-        label: label,
-      });
-    }
-  }
-
-  return { nodes, edges };
-}
-
 export default function GroupDetailPage(): JSX.Element {
   const { data: session, status } = useSession();
   const params = useParams() as { id: string };
@@ -67,6 +33,7 @@ export default function GroupDetailPage(): JSX.Element {
   const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<GroupMember[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [inviteUrl, setInviteUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -95,6 +62,15 @@ export default function GroupDetailPage(): JSX.Element {
       isMounted = false; // クリーンアップ
     };
   }, [status, params.id]);
+
+  useEffect(() => {
+    if (params.id) {
+      // フロントでUUIDを生成し、招待URLを作成
+      const generatedToken = uuidv4();
+      const mockInviteUrl = `${window.location.origin}/invite/${generatedToken}`;
+      setInviteUrl(mockInviteUrl);
+    }
+  }, [params.id]);
 
   /**
    * グループ詳細を取得
@@ -176,11 +152,24 @@ export default function GroupDetailPage(): JSX.Element {
       {/* Left Column (Group Info) */}
       <Card className="h-fit w-full shadow-lg p-2 sm:p-6">
         <h2 className="text-xl font-semibold mb-4">{group?.name}</h2>
-        <p className="text-gray-500 text-sm mb-4">
-          ID: {group?.id} / 作成日: {group?.created_at}
-        </p>
-        <p className="text-gray-700">{group?.description}</p>
-
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold mb-2">招待URL</h3>
+          {inviteUrl ? (
+            <div className="flex items-center space-x-2">
+              <input
+                type="text"
+                value={inviteUrl}
+                readOnly
+                className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700"
+              />
+              <button className="p-2 rounded-lg hover:bg-gray-200 transition">
+                <MdContentCopy size={24} className="text-gray-600" />
+              </button>
+            </div>
+          ) : (
+            <p className="text-gray-500">招待URLを生成中...</p>
+          )}
+        </div>
         {/* 所属メンバー一覧 */}
         <div className="mt-6">
           <h3 className="text-lg font-semibold mb-2">メンバー一覧</h3>

@@ -1,25 +1,29 @@
 "use client";
-import { Handle, NodeProps, Position } from "reactflow";
+import { Handle, Position } from "reactflow";
 
 /**
  * MBTIノードのカスタムコンポーネント
  * - ノードに MBTI タイプ + メンバー一覧を表示
  * - 上下左右のハンドルを配置して、任意の方向からエッジを接続可能
  */
-export default function MbtiNode({ data }: NodeProps) {
+export default function MbtiNode({ data }: { data: { mbti: string; members: string[]; bgColor?: string } }) {
   // data.mbti, data.members が受け取れる前提
   const members = Array.isArray(data.members) ? data.members : [];
 
   return (
     <div
       style={{
-        backgroundColor: "#fff",
-        border: "2px solid #666",
-        borderRadius: 8,
-        padding: 12,
-        width: 140,
+        background: data.bgColor || "rgba(255, 255, 255, 0.2)", // 半透明の背景
+        backdropFilter: "blur(10px)", // すりガラス効果
+        WebkitBackdropFilter: "blur(10px)", // Safari 対応
+        borderRadius: "12px",
+        border: "1px solid rgba(255, 255, 255, 0.3)", // 半透明の枠線
+        padding: "12px",
         textAlign: "center",
-        position: "relative",
+        color: "#333",
+        fontWeight: "bold",
+        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)", // 軽い影をつける
+        width: "140px",
       }}
     >
       {/* MBTIタイプ名 */}
