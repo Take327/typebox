@@ -1,5 +1,6 @@
 import { getPool } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
+import { PoolClient } from "pg";
 
 /**
  * ユーザーの診断結果を取得するAPI
@@ -8,23 +9,29 @@ import { NextRequest, NextResponse } from "next/server";
  * @returns JSONデータ
  */
 export async function GET(req: NextRequest) {
-  const url = new URL(req.url);
-  const userId = Number(url.searchParams.get("user_id"));
-
-  if (!userId || !Number.isInteger(userId)) {
-    return NextResponse.json({ error: "無効なまたは欠落している user_id" }, { status: 400 });
-  }
+  let client: PoolClient | undefined;
 
   try {
-    const pool = await getPool();
+    // ✅ ユーザーIDの取得
+    const userId = req.headers.get("x-user-id");
+    if (!userId || isNaN(Number(userId))) {
+      return NextResponse.json({ error: "無効なユーザーID" }, { status: 400 });
+    }
+
+    client = await getPool();
+
     const query = `
-      SELECT user_id, type_e, type_i, type_s, type_n, type_t, type_f, type_j, type_p
+      SELECT created_at, type_e, type_i, type_s, type_n, type_t, type_f, type_j, type_p
       FROM DiagnosisResults
       WHERE user_id = $1
       ORDER BY created_at ASC
     `;
-    const values = [userId];
-    const result = await pool.query(query, values);
+    const result = await client.query(query, [Number(userId)]);
+
+    // ✅ 診断データが存在しない場合
+    if (result.rows.length === 0) {
+      return NextResponse.json({ message: "診断結果が見つかりません。", initialLogin: true }, { status: 200 });
+    }
 
     const formattedData = result.rows.map((row) => ({
       date: new Intl.DateTimeFormat("ja-JP", {
@@ -44,9 +51,15 @@ export async function GET(req: NextRequest) {
       P: row.type_p,
     }));
 
-    return NextResponse.json(Response, { status: 200 });
+    console.log(formattedData);
+
+    return NextResponse.json(formattedData, { status: 200 });
   } catch (error) {
     console.error("データベースエラー:", error);
     return NextResponse.json({ error: "内部サーバーエラー" }, { status: 500 });
+  } finally {
+    if (client) {
+      client.release();
+    }
   }
 }

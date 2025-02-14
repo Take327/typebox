@@ -47,9 +47,30 @@ export function useDiagnosisData(userId: number | null) {
     }
   }
 
+  async function fetchDiagnosisHistory() {
+    try {
+      if (!userId) return;
+      const response = await fetch("/api/diagnosisListResult", {
+        method: "GET",
+        headers: { "x-user-id": String(userId) },
+      });
+
+      if (!response.ok) throw new Error("診断履歴の取得に失敗しました");
+
+      const historyData: Array<{ date: string } & MBTIScore>[] = await response.json();
+
+      console.log(historyData);
+
+      setDiagnosisHistory(historyData.flat());
+    } catch (err) {
+      console.error("診断履歴取得エラー:", err);
+    }
+  }
+
   useEffect(() => {
     if (!userId) return;
     fetchDiagnosisResult();
+    fetchDiagnosisHistory();
   }, [userId]);
 
   return { diagnosisData, diagnosisHistory };
