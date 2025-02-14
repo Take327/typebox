@@ -245,13 +245,13 @@ function GroupRelationFlowComponent({ members, matrix }: { members: GroupMember[
   }, [members]);
 
   return (
-    <div style={{ width: "100%", height: "1000px", border: "1px solid #ccc" }}>
+    <div style={{ width: "100%", height: "800px", border: "1px solid #ccc" }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={{ mbtiNode: MbtiNode }}
-        panOnDrag={false} // (オプション) ドラッグ無効
-        zoomOnScroll={false} // (オプション) ズーム無効
+        panOnDrag={true} // (オプション) ドラッグ無効
+        zoomOnScroll={true} // (オプション) ズーム無効
         zoomOnPinch={false}
         zoomOnDoubleClick={false}
         panOnScroll={false}
