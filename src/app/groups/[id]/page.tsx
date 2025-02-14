@@ -101,6 +101,7 @@ export default function GroupDetailPage(): JSX.Element {
    */
   async function fetchGroupDetail() {
     if (!session?.user?.id) return;
+    console.log("Fetching group detail for groupId:", params.id); // 追加
     setProcessing(true);
     try {
       const res = await fetch(`/api/groups/${params.id}`, {
@@ -161,9 +162,6 @@ export default function GroupDetailPage(): JSX.Element {
       </div>
     );
   }
-
-  // メンバー情報をGraphデータに変換
-  const { nodes, edges } = generateGraphData(members);
 
   return (
     <div

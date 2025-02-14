@@ -1,6 +1,6 @@
 import { getPool } from "@/lib/db";
 import { DiagnosisRow, MBTIDiagnosisResultFromServer } from "@/types";
-import { diagnosisRowToMBTIScore, getMBTIType } from "@/utils/mbti/mbtiUtils";
+import { diagnosisRowToMBTIScore, getMBTIBias, getMBTIType } from "@/utils/mbti/mbtiUtils";
 import { NextRequest, NextResponse } from "next/server";
 import { PoolClient } from "pg";
 
@@ -56,12 +56,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const responseData: MBTIDiagnosisResultFromServer = {
       type: mbtiType,
       ratio: mbtiScore,
-      bias: {
-        EvsI: mbtiScore.I - mbtiScore.E,
-        SvsN: mbtiScore.N - mbtiScore.S,
-        TvsF: mbtiScore.F - mbtiScore.T,
-        JvsP: mbtiScore.P - mbtiScore.J,
-      },
+      bias: getMBTIBias(mbtiScore),
     };
 
     console.log("APIレスポンスデータ:", responseData); // デバッグログ
