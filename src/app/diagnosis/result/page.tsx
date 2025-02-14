@@ -29,7 +29,6 @@ export default function Page(): JSX.Element {
     }
 
     try {
-      console.log("Fetching diagnosis data for userId:", userData.id);
       const response = await fetch("/api/diagnosisResult", {
         method: "GET",
         headers: { "x-user-id": String(userData.id) },

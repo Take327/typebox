@@ -18,8 +18,6 @@ export function useUserData() {
         return;
       }
 
-      console.log("Fetching user data for:", session.user.email);
-
       const res = await fetch(`/api/users`, {
         method: "POST",
         headers: {
@@ -31,7 +29,6 @@ export function useUserData() {
       if (!res.ok) throw new Error("ユーザー情報の取得に失敗しました");
 
       const data = await res.json();
-      console.log("Fetched user data:", data); // サーバーのレスポンスを確認
       setUserData(data);
     } catch (err) {
       console.error("ユーザー情報取得エラー:", err);
@@ -39,7 +36,6 @@ export function useUserData() {
   }
 
   useEffect(() => {
-    console.log("Session:", session);
     if (status === "authenticated" && session?.user?.email) {
       fetchUserData();
     }

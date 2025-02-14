@@ -93,8 +93,6 @@ export default function FlowbitAvatar(): JSX.Element {
       });
 
       if (!response.ok) throw new Error("アカウント名の更新に失敗しました");
-
-      console.log("アカウント名を保存:", trimmedValue);
     } catch (error) {
       console.error("保存中にエラーが発生しました:", error);
     } finally {

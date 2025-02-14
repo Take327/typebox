@@ -10,14 +10,6 @@ import { getPool } from "./db";
  * @throws {Error} データベース接続やクエリの実行に失敗した場合にエラーをスローする可能性がある。
  *
  * @example
- * ```ts
- * const user = await getUserInfoByEmail("user@example.com");
- * if (user) {
- *   console.log("User found:", user);
- * } else {
- *   console.log("User not found");
- * }
- * ```
  */
 
 interface UserInfo {

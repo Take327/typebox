@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { DiagnosisData, MBTIDiagnosisResultFromServer, MBTIDiagnosisResult, MBTIScore, isMBTIType } from "@/types";
-import { formatDiagnosisData } from "@/utils/formatDiagnosisData";
 import { useProcessing } from "@/context/ProcessingContext";
+import { DiagnosisData, MBTIDiagnosisResult, MBTIDiagnosisResultFromServer, MBTIScore, isMBTIType } from "@/types";
+import { formatDiagnosisData } from "@/utils/formatDiagnosisData";
+import { useEffect, useState } from "react";
 
 /**
  * @description ユーザーの診断結果と診断履歴を取得するカスタムフック
@@ -24,7 +24,6 @@ export function useDiagnosisData(userId: number | null) {
       if (!response.ok) throw new Error("診断結果の取得に失敗しました");
 
       const result: MBTIDiagnosisResultFromServer = await response.json();
-      console.log("診断結果取得:", result);
 
       if (!result || result.initialLogin) return;
 
@@ -38,7 +37,6 @@ export function useDiagnosisData(userId: number | null) {
         bias: result.bias,
       };
 
-      console.log(typedResult);
       setDiagnosisData(formatDiagnosisData(typedResult));
     } catch (err) {
       console.error("診断データ取得エラー:", err);
@@ -58,8 +56,6 @@ export function useDiagnosisData(userId: number | null) {
       if (!response.ok) throw new Error("診断履歴の取得に失敗しました");
 
       const historyData: Array<{ date: string } & MBTIScore>[] = await response.json();
-
-      console.log(historyData);
 
       setDiagnosisHistory(historyData.flat());
     } catch (err) {
