@@ -39,12 +39,12 @@ export async function getUserInfoByEmail(email: string): Promise<UserInfo | null
       return null;
     }
 
-    // result.rows[0] を UserInfo だとみなす
     return result.rows[0] as UserInfo;
   } catch (error) {
     console.error("Error executing query", error);
     throw error;
   } finally {
-    // プールを閉じる必要がない場合は、ここでのクリーンアップは不要です
+    // ここでプール接続を必ず解放する
+    pool.release();
   }
 }

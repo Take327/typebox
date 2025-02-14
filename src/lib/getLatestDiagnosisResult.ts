@@ -10,6 +10,7 @@ import { getPool } from "./db";
  * @returns DiagnosisRow | null
  */
 export async function getLatestDiagnosisResult(userId: number): Promise<DiagnosisRow | null> {
+  let pool: PoolClient | undefined;
   try {
     const pool: PoolClient = await getPool();
     const query = `
@@ -31,5 +32,9 @@ export async function getLatestDiagnosisResult(userId: number): Promise<Diagnosi
   } catch (error) {
     console.error("最新の診断結果の取得中にエラーが発生しました:", error);
     throw error;
+  } finally {
+    if (pool !== undefined) {
+      pool.release(); // 修正: undefined チェックを追加
+    }
   }
 }

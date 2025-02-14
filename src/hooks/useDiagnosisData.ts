@@ -12,20 +12,26 @@ export function useDiagnosisData(userId: number | null) {
   const [diagnosisHistory, setDiagnosisHistory] = useState<Array<{ date: string } & MBTIScore>>([]);
 
   async function fetchDiagnosisResult() {
+    if (!userId) return;
     setProcessing(true);
+
     try {
-      const response = await fetch("/api/diagnosisResult", { method: "GET" });
+      const response = await fetch("/api/diagnosisResult", {
+        method: "GET",
+        headers: { "x-user-id": String(userId) },
+      });
+
       if (!response.ok) throw new Error("診断結果の取得に失敗しました");
 
       const result: MBTIDiagnosisResultFromServer = await response.json();
+      console.log("診断結果取得:", result);
+
       if (!result || result.initialLogin) return;
 
-      // `type` のバリデーション
       if (!isMBTIType(result.type)) {
         throw new Error(`未知のMBTIタイプが返却されました: ${result.type}`);
       }
 
-      // 型変換: `result.type` は `string` 型なので `as MBTIDiagnosisResult["type"]` でキャスト
       const typedResult: MBTIDiagnosisResult = {
         type: result.type as MBTIDiagnosisResult["type"],
         ratio: result.ratio,
@@ -41,28 +47,9 @@ export function useDiagnosisData(userId: number | null) {
     }
   }
 
-  async function fetchDiagnosisHistory() {
-    try {
-      if (!userId) return;
-
-      const response = await fetch(`/api/diagnosisListResult?user_id=${userId}`, { method: "GET" });
-      if (!response.ok) throw new Error("診断履歴の取得に失敗しました");
-
-      const historyData: Array<{ date: string } & MBTIScore>[] = await response.json();
-      setDiagnosisHistory(historyData.flat());
-    } catch (err) {
-      console.error("診断履歴取得エラー:", err);
-    }
-  }
-
   useEffect(() => {
+    if (!userId) return;
     fetchDiagnosisResult();
-  }, []);
-
-  useEffect(() => {
-    if (userId) {
-      fetchDiagnosisHistory();
-    }
   }, [userId]);
 
   return { diagnosisData, diagnosisHistory };

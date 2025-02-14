@@ -1,5 +1,20 @@
 // src/utils/mbtiUtils.ts
-import { MBTIBias, MBTIDiagnosisResult, MBTIScore, MBTIType } from "../../types";
+import { DiagnosisRow, MBTIBias, MBTIDiagnosisResult, MBTIScore, MBTIType } from "../../types";
+
+export const diagnosisRowToMBTIScore = (diagnosisRow?: DiagnosisRow | null): MBTIScore | null => {
+  if (!diagnosisRow) return null;
+
+  return {
+    E: diagnosisRow.type_e,
+    I: diagnosisRow.type_i,
+    S: diagnosisRow.type_s,
+    N: diagnosisRow.type_n,
+    T: diagnosisRow.type_t,
+    F: diagnosisRow.type_f,
+    J: diagnosisRow.type_j,
+    P: diagnosisRow.type_p,
+  };
+};
 
 /**
  * MBTIタイプを判定する関数

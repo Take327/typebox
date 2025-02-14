@@ -26,7 +26,7 @@ export type DiagnosisRow = {
   type_f: number;
   type_j: number;
   type_p: number;
-  // 例: user_id, created_at など必要があれば追加
+  user_id?: number;
 };
 
 /** MBTIの16種類のタイプを表す定数 */

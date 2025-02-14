@@ -18,8 +18,7 @@ export async function GET(req: NextRequest) {
   try {
     const pool = await getPool();
     const query = `
-      SELECT 
-        created_at, type_e, type_i, type_s, type_n, type_t, type_f, type_j, type_p 
+      SELECT user_id, type_e, type_i, type_s, type_n, type_t, type_f, type_j, type_p
       FROM DiagnosisResults
       WHERE user_id = $1
       ORDER BY created_at ASC
@@ -45,7 +44,7 @@ export async function GET(req: NextRequest) {
       P: row.type_p,
     }));
 
-    return NextResponse.json(formattedData, { status: 200 });
+    return NextResponse.json(Response, { status: 200 });
   } catch (error) {
     console.error("データベースエラー:", error);
     return NextResponse.json({ error: "内部サーバーエラー" }, { status: 500 });

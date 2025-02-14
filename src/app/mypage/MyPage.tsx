@@ -15,8 +15,9 @@ import DiagnosisListCard from "./card/DiagnosisListCard";
  */
 export default function MyPage(): React.JSX.Element {
   const userData = useUserData();
-  const { groups, error } = useGroups(userData?.id || null);
-  const { diagnosisData, diagnosisHistory } = useDiagnosisData(userData?.id || null);
+  const userId = Number.isFinite(userData?.id) ? userData.id : null;
+  const { groups, error } = useGroups(userId);
+  const { diagnosisData, diagnosisHistory } = useDiagnosisData(userId);
   const { setProcessing } = useProcessing(); // グローバルローディング状態管理
 
   // ローディングの状態を適切に制御
@@ -42,9 +43,9 @@ export default function MyPage(): React.JSX.Element {
       {/* 診断データ */}
       {diagnosisData ? <DiagnosisCard diagnosisData={diagnosisData} /> : <NoDiagnosisCard />}
       {/* 診断履歴一覧 */}
-      <DiagnosisListCard rawData={diagnosisHistory} />
+      <DiagnosisListCard rawData={Array.isArray(diagnosisHistory) ? diagnosisHistory : []} />
       {/* 所属グループ */}
-      <GroupCard groups={groups.slice(0, 4)} />
+      <GroupCard groups={Array.isArray(groups) ? groups.slice(0, 4) : []} />
     </div>
   );
 }
