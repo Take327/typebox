@@ -2,7 +2,7 @@
 
 import { Card } from "flowbite-react";
 
-export default function InvitePage({ params }: { params: { token: string } }) {
+export default function InvitePage() {
   return (
     <div className="flex flex-col items-center p-6 min-h-screen">
       <Card className="">
