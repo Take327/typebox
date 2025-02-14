@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
       })
         .format(new Date(row.created_at))
         .replace(/\//g, "-"),
-      E: row.type_E,
+      E: row.type_e,
       I: row.type_i,
       S: row.type_s,
       N: row.type_n,
