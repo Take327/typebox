@@ -19,22 +19,22 @@ const MEMBERS_SCALE = 20; // メンバー数が1人増えるごとに何px下に
 const COL_WIDTH = 220; // 列の幅
 
 const MBTI_COLORS: Record<string, string> = {
-  ENTP: "linear-gradient(135deg, rgba(221, 160, 221, 0.4) 10%, rgba(255, 240, 245, 0.4) 100%)", // 淡い水色グラデーション
-  ISFP: "linear-gradient(135deg, rgba(240, 230, 140, 0.4) 10%, rgba(255, 250, 205, 0.4) 100%)", // 優しいオレンジ系
-  ISTP: "linear-gradient(135deg, rgba(240, 230, 140, 0.4) 10%, rgba(255, 250, 205, 0.4) 100%)", // 淡いラベンダー
-  ENFP: "linear-gradient(135deg, rgba(152, 251, 152, 0.4) 10%, rgba(245, 255, 250, 0.4) 100%)", // 淡いピンク
-  ESFJ: "linear-gradient(135deg, rgba(173, 216, 230, 0.4) 10%, rgba(240, 248, 255, 0.4) 100%)", // 淡いシアン
-  INTJ: "linear-gradient(135deg, rgba(216, 191, 216, 0.4) 10%, rgba(245, 245, 250, 0.4) 100%)", // 淡いパープル
-  INFJ: "linear-gradient(135deg, rgba(152, 251, 152, 0.4) 10%, rgba(245, 255, 250, 0.4) 100%)", // 淡いイエロー
-  ESTJ: "linear-gradient(135deg, rgba(173, 216, 230, 0.4) 10%, rgba(240, 248, 255, 0.4) 100%)", // 淡いグリーン
-  INTP: "linear-gradient(135deg, rgba(221, 160, 221, 0.4) 10%, rgba(255, 240, 245, 0.4) 100%)", // 淡いグレー
-  ESFP: "linear-gradient(135deg, rgba(240, 230, 140, 0.4) 10%, rgba(255, 250, 205, 0.4) 100%)", // 淡いベージュ
-  ESTP: "linear-gradient(135deg, rgba(240, 230, 140, 0.4) 10%, rgba(255, 250, 205, 0.4) 100%)", // 淡いピーチ
-  INFP: "linear-gradient(135deg, rgba(152, 251, 152, 0.4) 10%, rgba(245, 255, 250, 0.4) 100%)", // 淡いローズ
-  ISFJ: "linear-gradient(135deg, rgba(173, 216, 230, 0.4) 10%, rgba(240, 248, 255, 0.4) 100%)", // 淡いアイボリー
-  ENTJ: "linear-gradient(135deg, rgba(221, 160, 221, 0.4) 10%, rgba(255, 240, 245, 0.4) 100%)", // 淡いブルーグレー
-  ENFJ: "linear-gradient(135deg, rgba(152, 251, 152, 0.4) 10%, rgba(245, 255, 250, 0.4) 100%)", // 淡いサンド
-  ISTJ: "linear-gradient(135deg, rgba(173, 216, 230, 0.4) 10%, rgba(240, 248, 255, 0.4) 100%)", // 淡いライトイエロー
+  ENTP: "linear-gradient(135deg, rgba(221, 160, 221, 0.4) 10%, rgba(255, 240, 245, 0.4) 100%)", //淡い紫色
+  ISFP: "linear-gradient(135deg, rgba(240, 230, 140, 0.4) 10%, rgba(255, 250, 205, 0.4) 100%)", //淡いイエロー
+  ISTP: "linear-gradient(135deg, rgba(240, 230, 140, 0.4) 10%, rgba(255, 250, 205, 0.4) 100%)", //淡いイエロー
+  ENFP: "linear-gradient(135deg, rgba(152, 251, 152, 0.4) 10%, rgba(245, 255, 250, 0.4) 100%)", //淡いグリーン
+  ESFJ: "linear-gradient(135deg, rgba(173, 216, 230, 0.4) 10%, rgba(240, 248, 255, 0.4) 100%)", //淡いブルー,
+  INTJ: "linear-gradient(135deg, rgba(221, 160, 221, 0.4) 10%, rgba(255, 240, 245, 0.4) 100%)", //淡い紫色
+  INFJ: "linear-gradient(135deg, rgba(152, 251, 152, 0.4) 10%, rgba(245, 255, 250, 0.4) 100%)", //淡いグリーン
+  ESTJ: "linear-gradient(135deg, rgba(173, 216, 230, 0.4) 10%, rgba(240, 248, 255, 0.4) 100%)", //淡いブルー,
+  INTP: "linear-gradient(135deg, rgba(221, 160, 221, 0.4) 10%, rgba(255, 240, 245, 0.4) 100%)", //淡い紫色
+  ESFP: "linear-gradient(135deg, rgba(240, 230, 140, 0.4) 10%, rgba(255, 250, 205, 0.4) 100%)", //淡いイエロー
+  ESTP: "linear-gradient(135deg, rgba(240, 230, 140, 0.4) 10%, rgba(255, 250, 205, 0.4) 100%)", //淡いイエロー
+  INFP: "linear-gradient(135deg, rgba(152, 251, 152, 0.4) 10%, rgba(245, 255, 250, 0.4) 100%)", //淡いグリーン
+  ISFJ: "linear-gradient(135deg, rgba(173, 216, 230, 0.4) 10%, rgba(240, 248, 255, 0.4) 100%)", //淡いブルー,
+  ENTJ: "linear-gradient(135deg, rgba(221, 160, 221, 0.4) 10%, rgba(255, 240, 245, 0.4) 100%)", //淡い紫色
+  ENFJ: "linear-gradient(135deg, rgba(152, 251, 152, 0.4) 10%, rgba(245, 255, 250, 0.4) 100%)", //淡いグリーン
+  ISTJ: "linear-gradient(135deg, rgba(173, 216, 230, 0.4) 10%, rgba(240, 248, 255, 0.4) 100%)", //淡いブルー,
 };
 
 /** スコアに応じてエッジの色を変える */
@@ -166,14 +166,13 @@ function createEdges(): Edge[] {
         id: `e-${source}-${target}`,
         source,
         target,
-        label: score === 4 ? "Best" : score === 3 ? "Better" : score === 2 ? "Good" : "Bad",
 
         // **特定のエッジは「コの字型 (step)」で描画**
         type: edgeType,
 
         sourceHandle,
         targetHandle,
-        style: { stroke: getEdgeColor(score), strokeWidth: 2 },
+        style: { stroke: getEdgeColor(score), strokeWidth: 3 },
       });
 
       // このペアを登録済みとしてマーク

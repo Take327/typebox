@@ -10,6 +10,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid"; // UUID生成ライブラリ
 import { MdContentCopy } from "react-icons/md";
+import EdgeLegend from "@/app/components/EdgeLegend";
 
 const matrixLeft = [
   ["ENTP", "ISFP"],
@@ -191,6 +192,7 @@ export default function GroupDetailPage(): JSX.Element {
       {/* Right Column (相関図) */}
       <Card className="h-fit w-full shadow-lg p-2 sm:p-6">
         <h2 className="text-xl font-semibold mb-2">相関図</h2>
+        <EdgeLegend />
         <div className="flex flex-col justify-start">
           <GroupRelationFlow members={members} matrix={matrixLeft} />
           <GroupRelationFlow members={members} matrix={matrixRight} />
