@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid"; // UUID生成ライブラリ
 import { MdContentCopy } from "react-icons/md";
 import EdgeLegend from "@/app/components/EdgeLegend";
+import { analyzeMBTI } from "@/utils/openai/analyzeMBTI";
 
 const matrixLeft = [
   ["ENTP", "ISFP"],
@@ -34,6 +35,7 @@ export default function GroupDetailPage(): JSX.Element {
   const [members, setMembers] = useState<GroupMember[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [inviteUrl, setInviteUrl] = useState<string | null>(null);
+  const [analysis, setAnalysis] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -123,6 +125,20 @@ export default function GroupDetailPage(): JSX.Element {
     }
   }
 
+  const handleAnalyze = async () => {
+    setAnalysis(null);
+
+    try {
+      setProcessing(true);
+      const result = await analyzeMBTI(members);
+      setAnalysis(result.analysis);
+    } catch (error) {
+      setAnalysis("診断に失敗しました");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   /** エラー時の表示 */
   if (error) {
     return (
@@ -180,7 +196,13 @@ export default function GroupDetailPage(): JSX.Element {
             )}
           </div>
         </Card>
-        <Card className="h-fit w-full shadow-lg p-2 sm:p-6">AI診断</Card>
+        <Card className="h-fit w-full shadow-lg p-2 sm:p-6">
+          <h2 className="text-lg font-bold"> AI診断</h2>
+          <button onClick={handleAnalyze} className="mt-4 px-4 py-2 bg-accent hover:bg-accent-dark text-white rounded">
+            診断を開始
+          </button>
+          {analysis && <p className="mt-4 text-gray-700 whitespace-pre-line">{analysis}</p>}
+        </Card>
       </div>
       {/* Right Column (相関図) */}
       <Card className="h-fit w-full shadow-lg p-2 sm:p-6">
