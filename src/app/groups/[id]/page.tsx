@@ -3,7 +3,6 @@
 import GroupRelationFlow from "@/app/components/ReactFlow/GroupRelationFlow";
 import { useProcessing } from "@/context/ProcessingContext"; // ローディング管理
 import { Group, GroupMember, MBTIType } from "@/types";
-import { compatibilityLabels, mbtiRelations } from "@/utils/mbti/Compatibility";
 import { Card } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
@@ -141,54 +140,48 @@ export default function GroupDetailPage(): JSX.Element {
   }
 
   return (
-    <div
-      className="
-        container mx-auto px-4 py-6
-        grid grid-cols-1 gap-6
-        sm:grid-cols-1
-        md:grid-cols-2
-        lg:grid-cols-2
-      "
-    >
+    <div className="container mx-auto px-4 py-6 flex flex-col gap-6 md:flex-row md:justify-between">
       {/* Left Column (Group Info) */}
-      <Card className="h-fit w-full shadow-lg p-2 sm:p-6">
-        <h2 className="text-xl font-semibold mb-4">{group?.name}</h2>
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold mb-2">招待URL</h3>
-          {inviteUrl ? (
-            <div className="flex items-center space-x-2">
-              <input
-                type="text"
-                value={inviteUrl}
-                readOnly
-                className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700"
-              />
-              <button className="p-2 rounded-lg hover:bg-gray-200 transition">
-                <MdContentCopy size={24} className="text-gray-600" />
-              </button>
-            </div>
-          ) : (
-            <p className="text-gray-500">招待URLを生成中...</p>
-          )}
-        </div>
-        {/* 所属メンバー一覧 */}
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold mb-2">メンバー一覧</h3>
-          {members.length === 0 ? (
-            <p className="text-gray-500">メンバーがいません。</p>
-          ) : (
-            <ul className="space-y-2">
-              {members.map((member) => (
-                <li key={member.id} className="p-3 border rounded-lg bg-gray-100">
-                  <p className="font-semibold">{member.user_name}</p>
-                  <p className="text-sm text-gray-600">MBTI: {member.mbti_type || "不明"}</p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </Card>
-
+      <div className="w-full max-w-screen-md space-y-6">
+        <Card className="h-fit w-full shadow-lg p-2 sm:p-6">
+          <h2 className="text-xl font-semibold mb-4">グループ詳細</h2>
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold mb-2">招待URL</h3>
+            {inviteUrl ? (
+              <div className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  value={inviteUrl}
+                  readOnly
+                  className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700"
+                />
+                <button className="p-2 rounded-lg hover:bg-gray-200 transition">
+                  <MdContentCopy size={24} className="text-gray-600" />
+                </button>
+              </div>
+            ) : (
+              <p className="text-gray-500">招待URLを生成中...</p>
+            )}
+          </div>
+          {/* 所属メンバー一覧 */}
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold mb-2">メンバー一覧</h3>
+            {members.length === 0 ? (
+              <p className="text-gray-500">メンバーがいません。</p>
+            ) : (
+              <ul className="space-y-2">
+                {members.map((member) => (
+                  <li key={member.id} className="p-3 border rounded-lg bg-gray-100">
+                    <p className="font-semibold">{member.user_name}</p>
+                    <p className="text-sm text-gray-600">MBTI: {member.mbti_type || "不明"}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </Card>
+        <Card className="h-fit w-full shadow-lg p-2 sm:p-6">AI診断</Card>
+      </div>
       {/* Right Column (相関図) */}
       <Card className="h-fit w-full shadow-lg p-2 sm:p-6">
         <h2 className="text-xl font-semibold mb-2">相関図</h2>
